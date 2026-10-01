@@ -1,100 +1,14 @@
 #include "include/raylib.h"
-// #include "raylib.h"
-#include <vector>
-#include <algorithm>
-#include <iostream>
+
+#include "blocks.hpp"
+#include "i3dspace.hpp"
 
 using namespace std;
 
-enum BlockType { AIR, SAND, DIRT };
-
-template<int SLEN>
-class Integer3DSpace
-{
-private:
-    vector<vector<vector<BlockType>>> mtx;
-public: 
-    Integer3DSpace() : mtx(SLEN, vector<vector<BlockType>>(SLEN, vector<BlockType>(SLEN, AIR))) {}
-    
-    int area()
-    {
-        return SLEN*SLEN;
-    }
-
-    int size_of_length()
-    {
-        return SLEN;
-    }
-    
-    void createFlatFloor(int y, BlockType block)
-    {
-        for (int i = 0; i < SLEN; i++)
-        {
-            for (int j = 0; j < SLEN; j++)
-            {
-                this->mtx[i][y][j] = block;
-            }
-        }
-    }
-
-    BlockType getVoxelAt(unsigned int x, unsigned int y, unsigned int z)
-    {
-        return this->mtx[x][y][z];
-    }
-
-    void updateAutomaton()
-    {
-
-    }
-
-    void drawWorld()
-    {
-        for (int i = 0; i < SLEN; i++)
-        {
-            for (int j = 0; j < SLEN; j++)
-            {
-                for (int k = 0; k < SLEN; k++)
-                {
-                    Vector3 position{i,j,k};
-                    // DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, RED);
-                    // DrawCubeWires(cubePosition, 1.0f, 1.0f, 1.0f, BLACK);
-
-                    switch (this->mtx[i][j][k])
-                    {
-                        case DIRT:
-                            DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
-                            break;
-                        case AIR:
-                            break;
-                    }
-                }
-            }
-        }
-    }
-    
-    void printWorld()
-    {
-        for (int i = 0; i < SLEN; i++)
-        {
-            for (int j = 0; j < SLEN; j++)
-            {
-                for (int k = 0; k < SLEN; k++)
-                {
-                    cout << this->mtx[i][j][k]; 
-                }
-                cout << endl;
-            }
-            cout << endl;
-        }
-    }
-};
-
 int main(void)
 {
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int screenWidth = 800*2;
+    const int screenHeight = 450*2;
 
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
 
@@ -105,15 +19,36 @@ int main(void)
     camera.fovy = 45.0f; 
     camera.projection = CAMERA_PERSPECTIVE;
 
-    Integer3DSpace<40> sworld{};
+    const int WL = 100;
+    const int HL = 100;
+    Integer3DSpace<WL, HL> sworld{};
     sworld.createFlatFloor(0, DIRT);
 
-    SetTargetFPS(60); 
+    for (int i = 1; i < 3; i++)
+    {
+        sworld.createFlatFloor(i, SAND);
+    }
 
+    SetTargetFPS(30); 
+    
+    bool isAutomatonRun = false;
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         // Update
+        if (isAutomatonRun)
+            sworld.step();
+
+        if (IsKeyDown(KEY_SPACE))
+        {
+            isAutomatonRun = true;
+        }
+        
+        if (IsKeyDown(KEY_P))
+        {
+            isAutomatonRun = false;
+        }
+
         if (IsKeyDown(KEY_RIGHT))
         {
             camera.position.x--;
@@ -155,12 +90,24 @@ int main(void)
             ClearBackground(RAYWHITE);
             BeginMode3D(camera);
 
+            if(isAutomatonRun)
+            {
+                sworld.createOneBlockOnTop();
+            }
+
             sworld.drawWorld();
             DrawGrid(20, 1.0f);
 
             EndMode3D();
             DrawText("SAND 3D SIMULATION", 10, 40, 20, DARKGRAY);
-            DrawText("PRESS [ESPACE] TO START", 10, 60, 20, DARKGRAY);
+
+            if(isAutomatonRun)
+            {
+                DrawText("PRESS [P] TO PAUSE", 10, 60, 20, GREEN);
+            } else {
+                DrawText("PRESS [ESPACE] TO START", 10, 60, 20, RED);
+            }
+            
             DrawFPS(10, 10);
         EndDrawing();
     }
