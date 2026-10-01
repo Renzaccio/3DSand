@@ -65,6 +65,7 @@ public:
                             DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
                             break;
                         case AIR:
+                            DrawCube(position, 1.0f, 1.0f, 1.0f, Color{0,0,255, 2});
                             break;
                     }
                 }
