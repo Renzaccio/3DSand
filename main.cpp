@@ -16,8 +16,7 @@ private:
 public: 
     Integer3DSpace() : mtx(SLEN, vector<vector<BlockType>>(SLEN, vector<BlockType>(SLEN, AIR))) {}
     
-    int area()
-    {
+    int area() {
         return SLEN*SLEN;
     }
 
@@ -90,6 +89,62 @@ public:
     }
 };
 
+class OrientatedCamera : public Camera3D
+{
+private:
+    double yaw;
+    double pitch;
+public:
+
+    OrientatedCamera() : Camera3D()
+    {
+        this->position = (Vector3){ 10.0f, 10.0f, -10.0f };
+        this->target = (Vector3){ 0.0f, 0.0f, 0.0f }; 
+        this->up = (Vector3){ 0.0f, 10.0f, 0.0f };
+        this->fovy = 45.0f; 
+        this->projection = CAMERA_PERSPECTIVE;
+    }
+    
+    void moveCamera()
+    {
+        if (IsKeyDown(KEY_RIGHT))
+        {
+            this->position.x--;
+            this->target.x--;
+        }
+
+        if (IsKeyDown(KEY_LEFT))
+        {
+            this->position.x++;
+            this->target.x++;
+        }
+
+        if (IsKeyDown(KEY_UP))
+        {
+            this->position.z++;
+            this->target.z++;
+        }
+
+        if (IsKeyDown(KEY_DOWN))
+        {
+            this->position.z--;
+            this->target.z--;
+        }
+
+        if (IsKeyDown(KEY_KP_8))
+        {
+            this->position.y++;
+            this->target.y++;
+        }
+
+        if (IsKeyDown(KEY_KP_2))
+        {
+            this->position.y--;
+            this->target.y--;
+        }
+    }
+};
+
 int main(void)
 {
     // Initialization
@@ -99,57 +154,18 @@ int main(void)
 
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
 
-    Camera3D camera = { 0 };
-    camera.position = (Vector3){ 10.0f, 10.0f, -10.0f };
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f }; 
-    camera.up = (Vector3){ 0.0f, 10.0f, 0.0f };
-    camera.fovy = 45.0f; 
-    camera.projection = CAMERA_PERSPECTIVE;
+    OrientatedCamera camera{};
 
     Integer3DSpace<40> sworld{};
     sworld.createFlatFloor(0, DIRT);
 
-    SetTargetFPS(60); 
+    SetTargetFPS(60);
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         // Update
-        if (IsKeyDown(KEY_RIGHT))
-        {
-            camera.position.x--;
-            camera.target.x--;
-        }
-
-        if (IsKeyDown(KEY_LEFT))
-        {
-            camera.position.x++;
-            camera.target.x++;
-        }
-
-        if (IsKeyDown(KEY_UP))
-        {
-            camera.position.z++;
-            camera.target.z++;
-        }
-
-        if (IsKeyDown(KEY_DOWN))
-        {
-            camera.position.z--;
-            camera.target.z--;
-        }
-
-        if (IsKeyDown(KEY_KP_8))
-        {
-            camera.position.y++;
-            camera.target.y++;
-        }
-
-        if (IsKeyDown(KEY_KP_2))
-        {
-            camera.position.y--;
-            camera.target.y--;
-        }
+        camera.moveCamera();
 
         BeginDrawing();
 
@@ -163,6 +179,7 @@ int main(void)
             DrawText("SAND 3D SIMULATION", 10, 40, 20, DARKGRAY);
             DrawText("PRESS [ESPACE] TO START", 10, 60, 20, DARKGRAY);
             DrawFPS(10, 10);
+
         EndDrawing();
     }
 
