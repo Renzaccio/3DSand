@@ -47,14 +47,14 @@ public:
         if (IsKeyDown(KEY_UP))
         {
             this->pitch += frameRotationSpeed;
-            if (this->pitch >   PI * 0.45f) this->pitch =   PI * 0.45f;
+            if (this->pitch >   PI * 0.49f) this->pitch =   PI * 0.49f;
         }
         if (IsKeyDown(KEY_DOWN))
         {
             this->pitch -= frameRotationSpeed;
-            if (this->pitch < - PI * 0.45f) this->pitch = - PI * 0.45f;
+            if (this->pitch < - PI * 0.49f) this->pitch = - PI * 0.49f;
         }
-        
+
         if (IsKeyDown(KEY_LEFT))  this->yaw += frameRotationSpeed;
         if (IsKeyDown(KEY_RIGHT)) this->yaw -= frameRotationSpeed;
 
@@ -70,17 +70,27 @@ public:
 
         if (IsKeyDown(KEY_A))
         {
-            this->position.x += (cos(yaw)) * frameSpeed;
-            this->position.z -= (sin(yaw)) * frameSpeed;
+            this->position.x += frameSpeed * cos(yaw);
+            this->position.z -= frameSpeed * sin(yaw);
         }
         if (IsKeyDown(KEY_D))
         {
-            this->position.x -= (cos(yaw)) * frameSpeed;
-            this->position.z += (sin(yaw)) * frameSpeed;
+            this->position.x -= frameSpeed * cos(yaw);
+            this->position.z += frameSpeed * sin(yaw);
         }
 
-        if (IsKeyDown(KEY_E)) { this->position.y += frameSpeed; }
-        if (IsKeyDown(KEY_Q)) { this->position.y -= frameSpeed; }
+        if (IsKeyDown(KEY_E))
+        {
+            this->position.x -= frameSpeed * sin(pitch) * sin(yaw);
+            this->position.y += frameSpeed * cos(pitch);
+            this->position.z -= frameSpeed * sin(pitch) * cos(yaw);
+        }
+        if (IsKeyDown(KEY_Q))
+        {
+            this->position.x += frameSpeed * sin(pitch) * sin(yaw);
+            this->position.y -= frameSpeed * cos(pitch);
+            this->position.z += frameSpeed * sin(pitch) * cos(yaw);
+        }
 
         this->updateTarget();
     }
