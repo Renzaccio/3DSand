@@ -53,23 +53,26 @@ int main(void)
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
+
             BeginMode3D(camera);
 
-            if(isAutomatonRun)
-            {
-                sworld.createOneBlockOnTop();
-                
-                if (counter%60 == 0)
+                if(isAutomatonRun)
                 {
+                    sworld.createOneBlockOnTop();
+                    if (counter%60 == 0)
+                    {
+                    }
+                    counter = (counter%60)+1;
                 }
 
-                counter = (counter%60)+1;
-            }
+                sworld.drawWorld();
 
-            sworld.drawWorld();
-            DrawGrid(20, 1.0f);
+                DrawGrid(20, 1.0f);
 
             EndMode3D();
+
+
+            DrawFPS(10, 10);
             DrawText("SAND 3D SIMULATION", 10, 40, 20, DARKGRAY);
 
             if(isAutomatonRun)
@@ -77,18 +80,18 @@ int main(void)
             else
                 DrawText("PRESS [SPACE] TO START", 10, 60, 20, RED);
 
+            DrawText("Print Heightmap [ H ]", 10, 80, 20, BLUE);
+            DrawText("Lateral Moves [ ZQSD | WASD ]", 10, 100, 20, BLUE);
+            DrawText("Vertical Moves [ E/A | E/Q ]", 10, 120, 20, BLUE);
+            DrawText("Rotating Camera [ Arrow Keys ]", 10, 140, 20, BLUE);
+            DrawText("Fast/Slow Moves [ Left Shift / Left Ctrl ]", 10, 160, 20, BLUE);
+
             const string s1 = "| x=" + to_string((int) camera.position.x);
             const string s2 = "| y=" + to_string((int) camera.position.y);
             const string s3 = "| z=" + to_string((int) camera.position.z);
-
-            DrawText("Print Heightmap [ H ]", 10, 80, 20, BLUE);
-            DrawText("Lateral moves [ ZQSD | WASD ]", 10, 100, 20, BLUE);
-            DrawText("Vertical moves [ E/A | E/Q ]", 10, 120, 20, BLUE);
-            DrawText("Rotating Camera [ Arrow Keys ]", 10, 140, 20, BLUE);
-            DrawText(s1.c_str(), 10, 160, 20, BLACK);
-            DrawText(s2.c_str(), 10, 180, 20, BLACK);
-            DrawText(s3.c_str(), 10, 200, 20, BLACK);
-            DrawFPS(10, 10);
+            DrawText(s1.c_str(), 10, 180, 20, BLACK);
+            DrawText(s2.c_str(), 10, 200, 20, BLACK);
+            DrawText(s3.c_str(), 10, 220, 20, BLACK);
 
         EndDrawing();
 

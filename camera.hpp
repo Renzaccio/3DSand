@@ -3,8 +3,11 @@
 #include "include/raylib.h"
 #include "include/raymath.h"
 #include <cmath>
+#include <string>
+#include <iostream>
 
 using namespace std;
+
 
 class OrientatedCamera : public Camera3D
 {
@@ -14,9 +17,15 @@ private:
     float yaw;
     float pitch;
 
-    const float speed = 15.0f;
-    const float rotationSpeed = PI * 0.5f;
+    const float defaultSpeed = 10.0f;
+    float speed;
 
+    const float defaultRotationSpeed = PI * 0.5f;
+    float rotationSpeed;
+
+    const float speedFactor = 2.0f;
+
+    bool isFocused;
     const float focusDistance = 10.0f;
 
 public:
@@ -24,7 +33,7 @@ public:
     {
         this->position = (Vector3){ -20.0f, 20.0f, -20.0f };
         this->up = (Vector3){ 0.0f, 1.0f, 0.0f };
-        
+
         this->fovy = 45.0f;
         this->projection = CAMERA_PERSPECTIVE;
 
@@ -33,13 +42,37 @@ public:
 
         this->updateDirFromAngle();
         this->updateTarFromDir();
+
+        this->isFocused = false;
     }
     
     void moveCamera(int fps)
     {
+        setSpeedMode();
+
         rotateCameraKeys(fps);
 
         translateCameraKeys(fps);
+    }
+
+    void setSpeedMode()
+    {
+        int speedMode = IsKeyDown(KEY_LEFT_SHIFT) - IsKeyDown(KEY_LEFT_CONTROL);
+
+        switch (speedMode) {
+            case -1 :
+                this->speed = this->defaultSpeed / this->speedFactor;
+                this->rotationSpeed = this->defaultRotationSpeed / this->speedFactor;
+                break;
+            case 0 :
+                this->speed = this->defaultSpeed;
+                this->rotationSpeed = this->defaultRotationSpeed;
+                break;
+            case 1 :
+                this->speed = this->defaultSpeed * this->speedFactor;
+                this->rotationSpeed = this->defaultRotationSpeed * this->speedFactor;
+                break;
+        }
     }
 
     void rotateCameraKeys(int fps)
@@ -95,6 +128,6 @@ public:
     }
 
     void updateTarFromDir() { this->target = this->position + this->direction * this->focusDistance; }
-    
+
     void updateDirFromTar() { this->direction = (this->target - this->position) / this->focusDistance; }
 };
