@@ -65,8 +65,8 @@ public:
     {
         float frameSpeed = this->speed / fps;
 
-        if (IsKeyDown(KEY_W)) { this->position = this->position + this->direction * frameSpeed; }
-        if (IsKeyDown(KEY_S)) { this->position = this->position - this->direction * frameSpeed; }
+        if (IsKeyDown(KEY_W)) { this->position = this->position + frameSpeed * this->direction; }
+        if (IsKeyDown(KEY_S)) { this->position = this->position - frameSpeed * this->direction; }
 
         if (IsKeyDown(KEY_A))
         {

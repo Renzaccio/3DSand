@@ -2807,6 +2807,11 @@ inline Vector2 operator * (const Vector2& lhs, const float& rhs)
     return Vector2Scale(lhs, rhs);
 }
 
+inline Vector2 operator * (const float& rhs, const Vector2& lhs)
+{
+    return Vector2Scale(lhs, rhs);
+}
+
 inline const Vector2& operator *= (Vector2& lhs, const float& rhs)
 {
     lhs = Vector2Scale(lhs, rhs);
@@ -2897,6 +2902,11 @@ inline const Vector3& operator -= (Vector3& lhs, const Vector3& rhs)
 }
 
 inline Vector3 operator * (const Vector3& lhs, const float& rhs)
+{
+    return Vector3Scale(lhs, rhs);
+}
+
+inline Vector3 operator * (const float& rhs, const Vector3& lhs)
 {
     return Vector3Scale(lhs, rhs);
 }
@@ -2992,6 +3002,11 @@ inline const Vector4& operator -= (Vector4& lhs, const Vector4& rhs)
 }
 
 inline Vector4 operator * (const Vector4& lhs, const float& rhs)
+{
+    return Vector4Scale(lhs, rhs);
+}
+
+inline Vector4 operator * (const float& rhs, const Vector4& lhs)
 {
     return Vector4Scale(lhs, rhs);
 }
@@ -3123,6 +3138,11 @@ inline const Matrix& operator *= (Matrix& lhs, const Matrix& rhs)
 }
 
 inline Matrix operator * (const Matrix& lhs, const float value)
+{
+    return MatrixMultiplyValue(lhs, value);
+}
+
+inline Matrix operator * (const float value, const Matrix& lhs)
 {
     return MatrixMultiplyValue(lhs, value);
 }
