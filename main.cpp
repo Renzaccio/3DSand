@@ -91,12 +91,13 @@ int main(void)
             const string s2 = "| y=" + to_string((int) camera.position.y);
             const string s3 = "| z=" + to_string((int) camera.position.z);
 
-            DrawText("Show Heightmap [H]", 10, 80, 20, BLUE);
-            DrawText("Lateral moves [Arrow{Up,Down,Left,Right}]", 10, 100, 20, BLUE);
-            DrawText("Vertical moves [Numpad{8,2}]", 10, 120, 20, BLUE);
-            DrawText(s1.c_str(), 10, 140, 20, BLACK);
-            DrawText(s2.c_str(), 10, 160, 20, BLACK);
-            DrawText(s3.c_str(), 10, 180, 20, BLACK);
+            DrawText("Print Heightmap [ H ]", 10, 80, 20, BLUE);
+            DrawText("Lateral moves [ ZQSD | WASD ]", 10, 100, 20, BLUE);
+            DrawText("Vertical moves [ E/A | E/Q ]", 10, 120, 20, BLUE);
+            DrawText("Rotating Camera [ Arrow Keys ]", 10, 140, 20, BLUE);
+            DrawText(s1.c_str(), 10, 160, 20, BLACK);
+            DrawText(s2.c_str(), 10, 180, 20, BLACK);
+            DrawText(s3.c_str(), 10, 200, 20, BLACK);
             DrawFPS(10, 10);
 
         EndDrawing();
