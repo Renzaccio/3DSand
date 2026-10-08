@@ -22,6 +22,7 @@ public:
         this->up = (Vector3){ 0.0f, 10.0f, 0.0f };
         this->fovy = 45.0f;
         this->projection = CAMERA_PERSPECTIVE;
+
         this->speed = 15.0f;
         this->rotationSpeed = PI * 0.5f;
 
@@ -34,8 +35,13 @@ public:
     
     void moveCamera(int fps)
     {
-        // Camera Rotation //
+        rotateCameraKeys(fps);
 
+        translateCameraKeys(fps);
+    }
+
+    void rotateCameraKeys(int fps)
+    {
         float frameRotationSpeed = this->rotationSpeed / fps;
 
         if (IsKeyDown(KEY_UP))
@@ -52,11 +58,10 @@ public:
         if (IsKeyDown(KEY_RIGHT)) this->yaw   -= frameRotationSpeed;
 
         this->updateDirection();
-        
-        // End of Camera Rotation //
-        
-        // Camera Translation //
+    }
 
+    void translateCameraKeys(int fps)
+    {
         float frameSpeed = this->speed / fps;
 
         if (IsKeyDown(KEY_W)) { this->position = Vector3Add(this->position, Vector3Scale(this->direction, frameSpeed  )); }
@@ -77,8 +82,6 @@ public:
         if (IsKeyDown(KEY_Q)) { this->position.y -= frameSpeed; }
 
         this->updateTarget();
-        
-        // End of Camera Translation //
     }
 
     void updateDirection()
