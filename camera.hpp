@@ -1,61 +1,87 @@
 #pragma once
 
 #include "include/raylib.h"
+#include "include/raymath.h"
+#include <cmath>
 
 using namespace std;
 
 class OrientatedCamera : public Camera3D
 {
 private:
-    double yaw;
-    double pitch;
-public:
+    float yaw;
+    float pitch;
+    Vector3 direction;
+    float rotationSpeed;
+    float speed;
 
+public:
     OrientatedCamera() : Camera3D()
     {
-        this->position = (Vector3){ 10.0f, 10.0f, -10.0f };
-        this->target = (Vector3){ 0.0f, 0.0f, 0.0f }; 
+        this->position = (Vector3){ -20.0f, 20.0f, -20.0f };
         this->up = (Vector3){ 0.0f, 10.0f, 0.0f };
-        this->fovy = 45.0f; 
+        this->fovy = 45.0f;
         this->projection = CAMERA_PERSPECTIVE;
+        this->speed = 15;
+        this->rotationSpeed = PI / 2;
+
+        this->yaw = PI / 4;
+        this->pitch = atan(- 1 / sqrt(2));
+
+        this->updateDirection();
+        this->updateTarget();
     }
     
-    void moveCamera()
+    void moveCamera(int fps)
     {
-        if (IsKeyDown(KEY_RIGHT))
-        {
-            this->position.x--;
-            this->target.x--;
-        }
-
-        if (IsKeyDown(KEY_LEFT))
-        {
-            this->position.x++;
-            this->target.x++;
-        }
+        float frameRotationSpeed = this->rotationSpeed / fps;
 
         if (IsKeyDown(KEY_UP))
         {
-            this->position.z++;
-            this->target.z++;
+            this->pitch += frameRotationSpeed;
+            if (this->pitch >   PI / 2.1f) this->pitch =   PI / 2.1f;
         }
-
         if (IsKeyDown(KEY_DOWN))
         {
-            this->position.z--;
-            this->target.z--;
+            this->pitch -= frameRotationSpeed;
+            if (this->pitch < - PI / 2.1f) this->pitch = - PI / 2.1f;
+        }
+        if (IsKeyDown(KEY_LEFT))  this->yaw   += frameRotationSpeed;
+        if (IsKeyDown(KEY_RIGHT)) this->yaw   -= frameRotationSpeed;
+
+        this->updateDirection();
+
+        float frameSpeed = this->speed / fps;
+
+        if (IsKeyDown(KEY_W)) { this->position = Vector3Add(this->position, Vector3Scale(this->direction, frameSpeed  )); }
+        if (IsKeyDown(KEY_S)) { this->position = Vector3Add(this->position, Vector3Scale(this->direction, - frameSpeed)); }
+
+        if (IsKeyDown(KEY_A))
+        {
+            this->position.x += (cos(yaw)) * frameSpeed;
+            this->position.z -= (sin(yaw)) * frameSpeed;
+        }
+        if (IsKeyDown(KEY_D))
+        {
+            this->position.x -= (cos(yaw)) * frameSpeed;
+            this->position.z += (sin(yaw)) * frameSpeed;
         }
 
-        if (IsKeyDown(KEY_KP_8))
-        {
-            this->position.y++;
-            this->target.y++;
-        }
+        if (IsKeyDown(KEY_E)) { this->position.y += frameSpeed; }
+        if (IsKeyDown(KEY_Q)) { this->position.y -= frameSpeed; }
 
-        if (IsKeyDown(KEY_KP_2))
-        {
-            this->position.y--;
-            this->target.y--;
-        }
+        this->updateTarget();
     }
+
+    void updateDirection()
+    {
+        this->direction = (Vector3)
+        {
+            cos(pitch) * sin(yaw),
+            sin(pitch),
+            cos(pitch) * cos(yaw)
+        };
+    }
+    
+    void updateTarget() { this->target = Vector3Add(this->position, this->direction); }
 };

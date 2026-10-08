@@ -10,7 +10,7 @@ int main(void)
 {
     const int screenWidth = 800*2;
     const int screenHeight = 450*2;
-
+    
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
 
     OrientatedCamera camera{};
@@ -30,7 +30,7 @@ int main(void)
     sworld.putBlockAt(SAND, 5, 8, 5);
     sworld.putBlockAt(SAND, 5, 9, 5);
 
-    SetTargetFPS(60); 
+    SetTargetFPS(144); 
     
     int counter = 0;
     bool isAutomatonRun = false;
@@ -42,7 +42,7 @@ int main(void)
         if (isAutomatonRun)
             sworld.step();
 
-        camera.moveCamera();
+        camera.moveCamera(GetFPS());
 
         if (IsKeyDown(KEY_SPACE))
         {
