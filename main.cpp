@@ -1,154 +1,62 @@
 #include "include/raylib.h"
-// #include "raylib.h"
-#include <vector>
-#include <algorithm>
-#include <iostream>
+#include "blocks.hpp"
+#include "i3dspace.hpp"
+#include "camera.hpp"
+#include <string>
 
 using namespace std;
 
-enum BlockType { AIR, SAND, DIRT };
-
-template<int SLEN>
-class Integer3DSpace
-{
-private:
-    vector<vector<vector<BlockType>>> mtx;
-public: 
-    Integer3DSpace() : mtx(SLEN, vector<vector<BlockType>>(SLEN, vector<BlockType>(SLEN, AIR))) {}
-    
-    int area()
-    {
-        return SLEN*SLEN;
-    }
-
-    int size_of_length()
-    {
-        return SLEN;
-    }
-    
-    void createFlatFloor(int y, BlockType block)
-    {
-        for (int i = 0; i < SLEN; i++)
-        {
-            for (int j = 0; j < SLEN; j++)
-            {
-                this->mtx[i][y][j] = block;
-            }
-        }
-    }
-
-    BlockType getVoxelAt(unsigned int x, unsigned int y, unsigned int z)
-    {
-        return this->mtx[x][y][z];
-    }
-
-    void updateAutomaton()
-    {
-
-    }
-
-    void drawWorld()
-    {
-        for (int i = 0; i < SLEN; i++)
-        {
-            for (int j = 0; j < SLEN; j++)
-            {
-                for (int k = 0; k < SLEN; k++)
-                {
-                    Vector3 position{i,j,k};
-                    // DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, RED);
-                    // DrawCubeWires(cubePosition, 1.0f, 1.0f, 1.0f, BLACK);
-
-                    switch (this->mtx[i][j][k])
-                    {
-                        case DIRT:
-                            DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
-                            break;
-                        case AIR:
-                            DrawCube(position, 1.0f, 1.0f, 1.0f, Color{0,0,255, 2});
-                            break;
-                    }
-                }
-            }
-        }
-    }
-    
-    void printWorld()
-    {
-        for (int i = 0; i < SLEN; i++)
-        {
-            for (int j = 0; j < SLEN; j++)
-            {
-                for (int k = 0; k < SLEN; k++)
-                {
-                    cout << this->mtx[i][j][k]; 
-                }
-                cout << endl;
-            }
-            cout << endl;
-        }
-    }
-};
-
 int main(void)
 {
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
-
+    const int screenWidth = 800*2;
+    const int screenHeight = 450*2;
+    
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
 
-    Camera3D camera = { 0 };
-    camera.position = (Vector3){ 10.0f, 10.0f, -10.0f };
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f }; 
-    camera.up = (Vector3){ 0.0f, 10.0f, 0.0f };
-    camera.fovy = 45.0f; 
-    camera.projection = CAMERA_PERSPECTIVE;
+    OrientatedCamera camera{};
 
-    Integer3DSpace<40> sworld{};
+    const int WL = 10;
+    const int HL = 10;
+    Integer3DSpace<WL, HL> sworld{};
     sworld.createFlatFloor(0, DIRT);
 
-    SetTargetFPS(60); 
+    for (int i = 1; i < 3; i++)
+    {
+        sworld.createFlatFloor(i, SAND);
+    }
 
+    sworld.putBlockAt(DIRT, 5, 5, 5);
+    sworld.putBlockAt(SAND, 5, 7, 5);
+    sworld.putBlockAt(SAND, 5, 8, 5);
+    sworld.putBlockAt(SAND, 5, 9, 5);
+
+    SetTargetFPS(144); 
+    
+    int counter = 0;
+    bool isAutomatonRun = false;
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         // Update
-        if (IsKeyDown(KEY_RIGHT))
+
+        if (isAutomatonRun)
+            sworld.step();
+
+        camera.moveCamera(GetFPS());
+
+        if (IsKeyDown(KEY_SPACE))
         {
-            camera.position.x--;
-            camera.target.x--;
+            isAutomatonRun = true;
+        }
+        
+        if (IsKeyDown(KEY_P))
+        {
+            isAutomatonRun = false;
         }
 
-        if (IsKeyDown(KEY_LEFT))
+        if (IsKeyDown(KEY_H))
         {
-            camera.position.x++;
-            camera.target.x++;
-        }
-
-        if (IsKeyDown(KEY_UP))
-        {
-            camera.position.z++;
-            camera.target.z++;
-        }
-
-        if (IsKeyDown(KEY_DOWN))
-        {
-            camera.position.z--;
-            camera.target.z--;
-        }
-
-        if (IsKeyDown(KEY_KP_8))
-        {
-            camera.position.y++;
-            camera.target.y++;
-        }
-
-        if (IsKeyDown(KEY_KP_2))
-        {
-            camera.position.y--;
-            camera.target.y--;
+            printStackPartitions(sworld.getHeightMap(), HL, WL);
         }
 
         BeginDrawing();
@@ -156,14 +64,44 @@ int main(void)
             ClearBackground(RAYWHITE);
             BeginMode3D(camera);
 
+            if(isAutomatonRun)
+            {
+                sworld.createOneBlockOnTop();
+                
+                if (counter%60 == 0)
+                {
+                }
+                counter = (counter%60)+1;
+            }
+
             sworld.drawWorld();
             DrawGrid(20, 1.0f);
 
             EndMode3D();
             DrawText("SAND 3D SIMULATION", 10, 40, 20, DARKGRAY);
-            DrawText("PRESS [ESPACE] TO START", 10, 60, 20, DARKGRAY);
+
+            if(isAutomatonRun)
+            {
+                DrawText("PRESS [P] TO PAUSE", 10, 60, 20, GREEN);
+            } else {
+                DrawText("PRESS [ESPACE] TO START", 10, 60, 20, RED);
+            }
+
+            const string s1 = "| x=" + to_string((int) camera.position.x);
+            const string s2 = "| y=" + to_string((int) camera.position.y);
+            const string s3 = "| z=" + to_string((int) camera.position.z);
+
+            DrawText("Show Heightmap [H]", 10, 80, 20, BLUE);
+            DrawText("Lateral moves [Arrow{Up,Down,Left,Right}]", 10, 100, 20, BLUE);
+            DrawText("Vertical moves [Numpad{8,2}]", 10, 120, 20, BLUE);
+            DrawText(s1.c_str(), 10, 140, 20, BLACK);
+            DrawText(s2.c_str(), 10, 160, 20, BLACK);
+            DrawText(s3.c_str(), 10, 180, 20, BLACK);
             DrawFPS(10, 10);
+
         EndDrawing();
+
+        counter = (counter+1)%60; 
     }
 
     CloseWindow(); 
