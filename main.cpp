@@ -1,69 +1,11 @@
 #include "include/raylib.h"
 #include "blocks.hpp"
 #include "i3dspace.hpp"
+#include "camera.hpp"
 #include <string>
 
 using namespace std;
 
-<<<<<<< HEAD
-class OrientatedCamera : public Camera3D
-{
-private:
-    double yaw;
-    double pitch;
-public:
-
-    OrientatedCamera() : Camera3D()
-    {
-        this->position = (Vector3){ 10.0f, 10.0f, -10.0f };
-        this->target = (Vector3){ 0.0f, 0.0f, 0.0f }; 
-        this->up = (Vector3){ 0.0f, 10.0f, 0.0f };
-        this->fovy = 45.0f; 
-        this->projection = CAMERA_PERSPECTIVE;
-    }
-    
-    void moveCamera()
-    {
-        if (IsKeyDown(KEY_RIGHT))
-        {
-            this->position.x--;
-            this->target.x--;
-        }
-
-        if (IsKeyDown(KEY_LEFT))
-        {
-            this->position.x++;
-            this->target.x++;
-        }
-
-        if (IsKeyDown(KEY_UP))
-        {
-            this->position.z++;
-            this->target.z++;
-        }
-
-        if (IsKeyDown(KEY_DOWN))
-        {
-            this->position.z--;
-            this->target.z--;
-        }
-
-        if (IsKeyDown(KEY_KP_8))
-        {
-            this->position.y++;
-            this->target.y++;
-        }
-
-        if (IsKeyDown(KEY_KP_2))
-        {
-            this->position.y--;
-            this->target.y--;
-        }
-    }
-};
-
-=======
->>>>>>> origin/bilal
 int main(void)
 {
     const int screenWidth = 800*2;
@@ -78,13 +20,10 @@ int main(void)
     Integer3DSpace<WL, HL> sworld{};
     sworld.createFlatFloor(0, DIRT);
 
-<<<<<<< HEAD
-=======
     for (int i = 1; i < 3; i++)
     {
         sworld.createFlatFloor(i, SAND);
     }
->>>>>>> origin/bilal
 
     sworld.putBlockAt(DIRT, 5, 5, 5);
     sworld.putBlockAt(SAND, 5, 7, 5);
@@ -99,12 +38,11 @@ int main(void)
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         // Update
-<<<<<<< HEAD
+
         if (isAutomatonRun)
             sworld.step();
 
         camera.moveCamera();
-=======
 
         if (IsKeyDown(KEY_SPACE))
         {
@@ -115,7 +53,6 @@ int main(void)
         {
             isAutomatonRun = false;
         }
->>>>>>> origin/bilal
 
         if (IsKeyDown(KEY_H))
         {
