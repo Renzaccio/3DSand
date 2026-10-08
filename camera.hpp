@@ -34,6 +34,8 @@ public:
     
     void moveCamera(int fps)
     {
+        // Camera Rotation //
+
         float frameRotationSpeed = this->rotationSpeed / fps;
 
         if (IsKeyDown(KEY_UP))
@@ -50,6 +52,10 @@ public:
         if (IsKeyDown(KEY_RIGHT)) this->yaw   -= frameRotationSpeed;
 
         this->updateDirection();
+        
+        // End of Camera Rotation //
+        
+        // Camera Translation //
 
         float frameSpeed = this->speed / fps;
 
@@ -71,6 +77,8 @@ public:
         if (IsKeyDown(KEY_Q)) { this->position.y -= frameSpeed; }
 
         this->updateTarget();
+        
+        // End of Camera Translation //
     }
 
     void updateDirection()
