@@ -54,8 +54,9 @@ public:
             this->pitch -= frameRotationSpeed;
             if (this->pitch < - PI * 0.45f) this->pitch = - PI * 0.45f;
         }
-        if (IsKeyDown(KEY_LEFT))  this->yaw   += frameRotationSpeed;
-        if (IsKeyDown(KEY_RIGHT)) this->yaw   -= frameRotationSpeed;
+        
+        if (IsKeyDown(KEY_LEFT))  this->yaw += frameRotationSpeed;
+        if (IsKeyDown(KEY_RIGHT)) this->yaw -= frameRotationSpeed;
 
         this->updateDirection();
     }
@@ -64,8 +65,8 @@ public:
     {
         float frameSpeed = this->speed / fps;
 
-        if (IsKeyDown(KEY_W)) { this->position = Vector3Add(this->position, Vector3Scale(this->direction, frameSpeed  )); }
-        if (IsKeyDown(KEY_S)) { this->position = Vector3Add(this->position, Vector3Scale(this->direction, - frameSpeed)); }
+        if (IsKeyDown(KEY_W)) { this->position = this->position + this->direction * frameSpeed; }
+        if (IsKeyDown(KEY_S)) { this->position = this->position - this->direction * frameSpeed; }
 
         if (IsKeyDown(KEY_A))
         {
@@ -94,5 +95,5 @@ public:
         };
     }
     
-    void updateTarget() { this->target = Vector3Add(this->position, this->direction); }
+    void updateTarget() { this->target = this->position + this->direction; }
 };
