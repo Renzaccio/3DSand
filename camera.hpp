@@ -22,11 +22,11 @@ public:
         this->up = (Vector3){ 0.0f, 10.0f, 0.0f };
         this->fovy = 45.0f;
         this->projection = CAMERA_PERSPECTIVE;
-        this->speed = 15;
-        this->rotationSpeed = PI / 2;
+        this->speed = 15.0f;
+        this->rotationSpeed = PI * 0.5f;
 
-        this->yaw = PI / 4;
-        this->pitch = atan(- 1 / sqrt(2));
+        this->yaw = PI * 0.25f;
+        this->pitch = atan(- sqrt(2.0f) * 0.5f);
 
         this->updateDirection();
         this->updateTarget();
@@ -41,12 +41,12 @@ public:
         if (IsKeyDown(KEY_UP))
         {
             this->pitch += frameRotationSpeed;
-            if (this->pitch >   PI / 2.1f) this->pitch =   PI / 2.1f;
+            if (this->pitch >   PI * 0.45f) this->pitch =   PI * 0.45f;
         }
         if (IsKeyDown(KEY_DOWN))
         {
             this->pitch -= frameRotationSpeed;
-            if (this->pitch < - PI / 2.1f) this->pitch = - PI / 2.1f;
+            if (this->pitch < - PI * 0.45f) this->pitch = - PI * 0.45f;
         }
         if (IsKeyDown(KEY_LEFT))  this->yaw   += frameRotationSpeed;
         if (IsKeyDown(KEY_RIGHT)) this->yaw   -= frameRotationSpeed;
