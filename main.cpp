@@ -44,20 +44,11 @@ int main(void)
 
         camera.moveCamera(GetFPS());
 
-        if (IsKeyDown(KEY_SPACE))
-        {
-            isAutomatonRun = true;
-        }
-        
-        if (IsKeyDown(KEY_P))
-        {
-            isAutomatonRun = false;
-        }
+        if (IsKeyPressed(KEY_SPACE))
+            isAutomatonRun = !isAutomatonRun;
 
-        if (IsKeyDown(KEY_H))
-        {
+        if (IsKeyPressed(KEY_H))
             printStackPartitions(sworld.getHeightMap(), HL, WL);
-        }
 
         BeginDrawing();
 
@@ -71,6 +62,7 @@ int main(void)
                 if (counter%60 == 0)
                 {
                 }
+
                 counter = (counter%60)+1;
             }
 
@@ -81,11 +73,9 @@ int main(void)
             DrawText("SAND 3D SIMULATION", 10, 40, 20, DARKGRAY);
 
             if(isAutomatonRun)
-            {
-                DrawText("PRESS [P] TO PAUSE", 10, 60, 20, GREEN);
-            } else {
-                DrawText("PRESS [ESPACE] TO START", 10, 60, 20, RED);
-            }
+                DrawText("PRESS [SPACE] TO PAUSE", 10, 60, 20, GREEN);
+            else
+                DrawText("PRESS [SPACE] TO START", 10, 60, 20, RED);
 
             const string s1 = "| x=" + to_string((int) camera.position.x);
             const string s2 = "| y=" + to_string((int) camera.position.y);
