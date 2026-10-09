@@ -52,6 +52,9 @@ public:
     {
         // Le sable tombe
         AutomatonSteps::sandFall(this->mtx, WLEN, HLEN);
+        
+        vector<vector<StackPartitions>> hm = this->getHeightMap();
+        AutomatonSteps::sandCollapseStack(this->mtx, hm, WLEN, HLEN);
     }
     
     int area()
@@ -114,6 +117,10 @@ public:
                         case SAND:
                             DrawCube(position, 1.0f, 1.0f, 1.0f, YELLOW);
                             DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BROWN);
+                            break;
+                        case DEBUG:
+                            DrawCube(position, 1.0f, 1.0f, 1.0f, PURPLE);
+                            DrawCubeWires(position, 1.0f, 1.0f, 1.0f, ORANGE);
                             break;
                         case AIR:
                             break;

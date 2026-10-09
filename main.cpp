@@ -15,8 +15,8 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 10;
-    const int HL = 10;
+    const int WL = 15;
+    const int HL = 40;
     Integer3DSpace<WL, HL> sworld{};
     sworld.createFlatFloor(0, DIRT);
 
@@ -34,9 +34,9 @@ int main(void)
     SetTargetFPS(targetFPS);
 
     int simulationCounter = 0;
-    int simulationPerSecond = 6;
+    int simulationPerSecond = 2;
     int spawnCounter = 0;
-    int spawnPerSecond = 3;
+    int spawnPerSecond = 1;
     int clock = 0;
 
     bool isAutomatonRun = false;
@@ -60,13 +60,20 @@ int main(void)
             {
                 sworld.step();
 
-                if (spawnCounter <= 0)
+                if (IsKeyDown(KEY_L))
                 {
-                    sworld.createOneBlockOnTop();
-                    spawnCounter = simulationPerSecond / spawnPerSecond;
-                }
+                    if (spawnCounter <= 0)
+                    {
+                        sworld.createOneBlockOnTop();
+                        spawnCounter = simulationPerSecond / spawnPerSecond;
+                    }
 
-                spawnCounter--;
+                    spawnCounter--;
+                }
+                else
+                {
+                    spawnCounter = 0;
+                }
 
                 simulationCounter = GetFPS() / simulationPerSecond;
             }
@@ -86,7 +93,6 @@ int main(void)
             BeginMode3D(camera);
 
                 sworld.drawWorld();
-
                 DrawGrid(20, 1.0f);
 
             EndMode3D();
