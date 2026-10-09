@@ -15,25 +15,25 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 10;
-    const int HL = 10;
+    const int WL = 80;
+    const int HL = 40;
     Integer3DSpace<WL, HL> sworld{};
     sworld.createFlatFloor(0, DIRT);
 
     // for (int i = 1; i < 3; i++) sworld.createFlatFloor(i, SAND);
 
-    sworld.putBlockAt(DIRT, 5, 5, 5);
-    sworld.putBlockAt(SAND, 5, 7, 5);
-    sworld.putBlockAt(SAND, 5, 8, 5);
-    sworld.putBlockAt(SAND, 5, 9, 5);
+    sworld.block(5, 5, 5) = DIRT;
+    sworld.block(5, 7, 5) = SAND;
+    sworld.block(5, 8, 5) = SAND;
+    sworld.block(5, 9, 5) = SAND;
 
     int targetFPS = 144;
     SetTargetFPS(targetFPS);
 
     int simulationCounter = 0;
-    int simulationPerSecond = 20;
+    int simulationPerSecond = 40;
     int spawnCounter = 0;
-    int spawnPerSecond = 10;
+    int spawnPerSecond = 40;
     int clock = 0;
 
     bool isAutomatonRun = false;

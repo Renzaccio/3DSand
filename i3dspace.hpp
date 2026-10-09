@@ -1,10 +1,9 @@
 #pragma once
 
-#include "automaton_steps.hpp"
 #include "include/raylib.h"
 #include "blocks.hpp"
-// #include <array>
-#include <vector>
+#include <array>
+// #include <vector>
 #include <iostream>
 
 using namespace std;
@@ -14,8 +13,14 @@ class Integer3DSpace
 {
 private:
     array<array<array<BlockType, WLEN>, HLEN>, WLEN> mtx;
-public: 
-    Integer3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(WLEN, AIR))) {}
+public:
+    Integer3DSpace()
+    {
+        for (auto & plane : mtx)
+            for (auto & line : plane)
+                for (auto & cell : line)
+                    cell = AIR;
+    }
 
     const array<array<BlockType, WLEN>, HLEN> & operator [] (int i) const { return mtx[i]; }
           array<array<BlockType, WLEN>, HLEN> & operator [] (int i)       { return mtx[i]; }
@@ -41,7 +46,31 @@ public:
     void step()
     {
         // Le sable tombe
-        AutomatonSteps::sandFall(this->mtx, WLEN, HLEN);
+
+        for (int y = 0; y < HLEN; y++)
+        {
+            for (int x = 0; x < WLEN; x++)
+            {
+                for (int z = 0; z < WLEN; z++)
+                {
+                    BlockType & current_block = this->block(x, y, z);
+
+                    switch(current_block)
+                    {
+                        case SAND:
+                            if (this->block(x, y-1, z) == AIR)
+                            {
+                                this->block(x, y-1, z) = SAND;
+                                this->block(x, y  , z) = AIR;
+                            }
+
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
     }
     
     int volume()
