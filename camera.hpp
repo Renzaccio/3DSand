@@ -40,26 +40,28 @@ public:
         this->yaw = PI * 0.25f;
         this->pitch = atan(- sqrt(2.0f) * 0.5f);
 
-        this->updateDirFromAngle();
-        this->updateTarFromDir();
-
         this->isFocused = false;
     }
-    
+
     void moveCamera(int fps)
     {
-        setSpeedMode();
+        this->setSpeedMode();
 
-        rotateCameraKeys(fps);
+        // if (IsKeyPressed(KEY_F))
+            // this->isFocused = !this->isFocused;
 
-        translateCameraKeys(fps);
+        if (!isFocused)
+            this->rotateCameraKeys(fps);
+
+        this->translateCameraKeys(fps);
     }
 
     void setSpeedMode()
     {
         int speedMode = IsKeyDown(KEY_LEFT_SHIFT) - IsKeyDown(KEY_LEFT_CONTROL);
 
-        switch (speedMode) {
+        switch (speedMode)
+        {
             case -1 :
                 this->speed = this->defaultSpeed / this->speedFactor;
                 this->rotationSpeed = this->defaultRotationSpeed / this->speedFactor;
@@ -105,29 +107,29 @@ public:
 
         Vector3 horizontalDirection = Vector3CrossProduct(verticalDirection, this->direction);
 
-        if (IsKeyDown(KEY_W)) { this->position += frameSpeed * this->direction; }
-        if (IsKeyDown(KEY_S)) { this->position -= frameSpeed * this->direction; }
+        if (IsKeyDown(KEY_W)) this->position += frameSpeed * this->direction;
+        if (IsKeyDown(KEY_S)) this->position -= frameSpeed * this->direction;
 
-        if (IsKeyDown(KEY_A)) { this->position += frameSpeed * horizontalDirection; }
-        if (IsKeyDown(KEY_D)) { this->position -= frameSpeed * horizontalDirection; }
+        if (IsKeyDown(KEY_A)) this->position += frameSpeed * horizontalDirection;
+        if (IsKeyDown(KEY_D)) this->position -= frameSpeed * horizontalDirection;
 
-        if (IsKeyDown(KEY_E)) { this->position += frameSpeed * verticalDirection; }
-        if (IsKeyDown(KEY_Q)) { this->position -= frameSpeed * verticalDirection; }
+        if (IsKeyDown(KEY_E)) this->position += frameSpeed * verticalDirection;
+        if (IsKeyDown(KEY_Q)) this->position -= frameSpeed * verticalDirection;
 
-        this->updateTarFromDir();
+        if (isFocused)
+            this->updateDirFromTar();
+        else
+            this->updateTarFromDir();
     }
 
     void updateDirFromAngle()
     {
-        this->direction = (Vector3)
-        {
-            cos(pitch) * sin(yaw),
-            sin(pitch),
-            cos(pitch) * cos(yaw)
-        };
+        this->direction.x = cos(this->pitch) * sin(this->yaw);
+        this->direction.y = sin(this->pitch);
+        this->direction.z = cos(this->pitch) * cos(this->yaw);
     }
 
     void updateTarFromDir() { this->target = this->position + this->direction * this->focusDistance; }
 
-    void updateDirFromTar() { this->direction = (this->target - this->position) / this->focusDistance; }
+    void updateDirFromTar() { this->direction = Vector3Normalize(this->target - this->position); }
 };
