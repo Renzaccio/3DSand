@@ -15,15 +15,12 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 15;
-    const int HL = 40;
+    const int WL = 10;
+    const int HL = 10;
     Integer3DSpace<WL, HL> sworld{};
     sworld.createFlatFloor(0, DIRT);
 
-    for (int i = 1; i < 3; i++)
-    {
-        sworld.createFlatFloor(i, SAND);
-    }
+    // for (int i = 1; i < 3; i++) sworld.createFlatFloor(i, SAND);
 
     sworld.putBlockAt(DIRT, 5, 5, 5);
     sworld.putBlockAt(SAND, 5, 7, 5);
@@ -34,9 +31,9 @@ int main(void)
     SetTargetFPS(targetFPS);
 
     int simulationCounter = 0;
-    int simulationPerSecond = 2;
+    int simulationPerSecond = 20;
     int spawnCounter = 0;
-    int spawnPerSecond = 1;
+    int spawnPerSecond = 10;
     int clock = 0;
 
     bool isAutomatonRun = false;
@@ -50,9 +47,6 @@ int main(void)
 
         if (IsKeyPressed(KEY_SPACE))
             isAutomatonRun = !isAutomatonRun;
-
-        if (IsKeyPressed(KEY_H))
-            printStackPartitions(sworld.getHeightMap(), HL, WL);
 
         if(isAutomatonRun)
         {
