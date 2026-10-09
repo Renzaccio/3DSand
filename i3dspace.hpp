@@ -29,14 +29,12 @@ public:
 
     void createOneBlockOnTop()
     {
-        int randX = rand()%WLEN;
-        int randY = rand()%WLEN;
-        this->mtx[randX][HLEN-1][randY] = SAND;
+        this->block(rand()%WLEN, HLEN-1, rand()%WLEN) = SAND;
     }
 
     void step()
     {
-        // Le sable tombe
+        // Le sable tombe.
 
         for (int y = 0; y < HLEN; y++)
         {
@@ -64,59 +62,42 @@ public:
         }
     }
     
-    int volume()
-    {
-        return WLEN*WLEN*HLEN;
-    }
+    int volume()        const { return WLEN*HLEN*WLEN; }
 
-    int getHeightSize() const
-    {
-        return HLEN;
-    }
+    int getWidthSize()  const { return WLEN; }
 
-    int getWidthSize() const
-    {
-        return WLEN;
-    }
+    int getHeightSize() const { return HLEN; }
 
-    int getDepthSize() const
-    {
-        return WLEN;
-    }
+    int getDepthSize()  const { return WLEN; }
     
     void createFlatFloor(int y, BlockType block)
     {
-        if (y >= HLEN)
+        if (y < 0 || HLEN <= y)
         {
-            cout << "y est trop grand..." << endl;
+            cout << "y is out of bound." << endl;
             return;
         }
 
-        for (int i = 0; i < WLEN; i++)
+        for (int x = 0; x < WLEN; x++)
         {
-            for (int j = 0; j < WLEN; j++)
-            {
-                this->mtx[i][y][j] = block;
+            for (int z = 0; z < WLEN; z++)
+            {  
+                this->block(x, y, z) = block;
             }
         }
     }
 
-    BlockType getVoxelAt(unsigned int x, unsigned int y, unsigned int z) const
-    {
-        return this->mtx[x][y][z];
-    }
-
     void drawWorld() const
     {
-        for (int i = 0; i < WLEN; i++)
+        for (int x = 0; x < WLEN; x++)
         {
-            for (int j = 0; j < HLEN; j++)
+            for (int y = 0; y < HLEN; y++)
             {
-                for (int k = 0; k < WLEN; k++)
+                for (int z = 0; z < WLEN; z++)
                 {
-                    Vector3 position{(float) i,(float) j,(float) k};
+                    Vector3 position{(float) x,(float) y,(float) z};
 
-                    switch (this->mtx[i][j][k])
+                    switch (this->block(x, y, z))
                     {
                         case DIRT:
                             DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
@@ -137,15 +118,15 @@ public:
         }
     }
     
-    void printWorld()
+    void printWorld() const
     {
-        for (int i = 0; i < WLEN; i++)
+        for (int x = 0; x < WLEN; x++)
         {
-            for (int j = 0; j < HLEN; j++)
+            for (int y = 0; y < HLEN; y++)
             {
-                for (int k = 0; k < WLEN; k++)
+                for (int z = 0; z < WLEN; z++)
                 {
-                    cout << this->mtx[i][j][k]; 
+                    cout << this->block(x, y, z);
                 }
                 cout << endl;
             }
