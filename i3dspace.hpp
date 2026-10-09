@@ -42,20 +42,26 @@ public:
             {
                 for (int z = 0; z < WLEN; z++)
                 {
-                    BlockType & current_block = this->block(x, y, z);
+                    BlockType & currentBlock = this->block(x, y, z);
 
-                    switch(current_block)
+                    switch(currentBlock)
                     {
+                        default:
+                        {
+                            break;
+                        }
                         case SAND:
-                            if (this->block(x, y-1, z) == AIR)
+                        {
+                            BlockType & blockBellow = this->block(x, y-1, z);
+
+                            if (blockBellow == AIR)
                             {
-                                this->block(x, y-1, z) = SAND;
-                                this->block(x, y  , z) = AIR;
+                                blockBellow = SAND;
+                                currentBlock = AIR;
                             }
 
                             break;
-                        default:
-                            break;
+                        }
                     }
                 }
             }
