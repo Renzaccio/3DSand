@@ -10,7 +10,7 @@ int main(void)
 {
     const int screenWidth = 800*2;
     const int screenHeight = 450*2;
-    
+
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
 
     OrientatedCamera camera{};
@@ -30,17 +30,21 @@ int main(void)
     sworld.putBlockAt(SAND, 5, 8, 5);
     sworld.putBlockAt(SAND, 5, 9, 5);
 
-    SetTargetFPS(144); 
-    
-    int counter = 0;
+    int targetFPS = 60,
+    SetTargetFPS(targetFPS);
+
+    int simulationCounter = 0;
+    int simulationPerSecond = 6;
+    int spawnCounter = 0;
+    int spawnPerSecond = 3;
+    int clock = 0;
+
     bool isAutomatonRun = false;
+
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose()) // Detect window close button or ESC key
     {
         // Update
-
-        if (isAutomatonRun)
-            sworld.step();
 
         camera.moveCamera(GetFPS());
 
@@ -50,20 +54,36 @@ int main(void)
         if (IsKeyPressed(KEY_H))
             printStackPartitions(sworld.getHeightMap(), HL, WL);
 
+        if(isAutomatonRun)
+        {
+            if (simulationCounter <= 0)
+            {
+                sworld.step();
+
+                if (spawnCounter <= 0)
+                {
+                    sworld.createOneBlockOnTop();
+                    spawnCounter = simulationPerSecond / spawnPerSecond;
+                }
+
+                spawnCounter--;
+
+                simulationCounter = GetFPS() / simulationPerSecond;
+            }
+
+            simulationCounter--;
+        }
+        else
+        {
+            simulationCounter = 0;
+            spawnCounter = 0;
+        }
+
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
 
             BeginMode3D(camera);
-
-                if(isAutomatonRun)
-                {
-                    sworld.createOneBlockOnTop();
-                    if (counter%60 == 0)
-                    {
-                    }
-                    counter = (counter%60)+1;
-                }
 
                 sworld.drawWorld();
 
@@ -73,6 +93,8 @@ int main(void)
 
 
             DrawFPS(10, 10);
+            const string s0 = to_string(spawnCounter);
+            DrawText(s0.c_str(), 150, 10, 20, DARKGRAY);
             DrawText("SAND 3D SIMULATION", 10, 40, 20, DARKGRAY);
 
             if(isAutomatonRun)
@@ -95,7 +117,7 @@ int main(void)
 
         EndDrawing();
 
-        counter = (counter+1)%60; 
+        clock++;
     }
 
     CloseWindow(); 
