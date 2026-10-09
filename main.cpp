@@ -15,8 +15,8 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 10;
-    const int HL = 10;
+    const int WL = 15;
+    const int HL = 40;
     Integer3DSpace<WL, HL> sworld{};
     sworld.createFlatFloor(0, DIRT);
 
@@ -30,7 +30,7 @@ int main(void)
     sworld.putBlockAt(SAND, 5, 8, 5);
     sworld.putBlockAt(SAND, 5, 9, 5);
 
-    SetTargetFPS(60); 
+    SetTargetFPS(25); 
     
     int counter = 0;
     bool isAutomatonRun = false;
@@ -64,7 +64,7 @@ int main(void)
             ClearBackground(RAYWHITE);
             BeginMode3D(camera);
 
-            if(isAutomatonRun)
+            if(isAutomatonRun && IsKeyDown(KEY_L))
             {
                 sworld.createOneBlockOnTop();
                 
