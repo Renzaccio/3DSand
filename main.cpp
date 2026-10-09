@@ -30,7 +30,7 @@ int main(void)
     sworld.putBlockAt(SAND, 5, 8, 5);
     sworld.putBlockAt(SAND, 5, 9, 5);
 
-    int targetFPS = 60,
+    int targetFPS = 144;
     SetTargetFPS(targetFPS);
 
     int simulationCounter = 0;

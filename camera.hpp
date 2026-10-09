@@ -23,7 +23,7 @@ private:
     const float defaultRotationSpeed = PI * 0.5f;
     float rotationSpeed;
 
-    const float speedFactor = 2.0f;
+    const float speedFactor = 3.0f;
 
     bool isFocused;
     const float focusDistance = 10.0f;
