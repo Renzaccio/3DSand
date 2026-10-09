@@ -13,20 +13,29 @@ template<int WLEN, int HLEN>
 class Integer3DSpace
 {
 private:
-    vector<vector<vector<BlockType>>> mtx;
+    array<array<array<BlockType, WLEN>, HLEN>, WLEN> mtx;
 public: 
     Integer3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(WLEN, AIR))) {}
 
-    void putBlockAt(BlockType bl, int x, int y, int z)
+    const array<array<BlockType, WLEN>, HLEN> & operator [] (int i) const { return mtx[i]; }
+          array<array<BlockType, WLEN>, HLEN> & operator [] (int i)       { return mtx[i]; }
+
+    BlockType block(int x, int y, int z) const
     {
-        this->mtx[x][y][z] = bl;
+        if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || WLEN <= z) return BORDER;
+        return this->mtx[x][y][z];
+    }
+
+    BlockType & block(int x, int y, int z)
+    {
+        return this->mtx[x][y][z];
     }
 
     void createOneBlockOnTop()
     {
-        int randNum = rand()%(0-WLEN + 1) + 0;
-        int randNum2 = rand()%(0-WLEN + 1) + 0;
-        this->mtx[randNum][HLEN-1][randNum2] = SAND;
+        int randX = rand()%WLEN;
+        int randY = rand()%WLEN;
+        this->mtx[randX][HLEN-1][randY] = SAND;
     }
 
     void step()
@@ -77,7 +86,7 @@ public:
         return this->mtx[x][y][z];
     }
 
-    void drawWorld()
+    void drawWorld() const
     {
         for (int i = 0; i < WLEN; i++)
         {

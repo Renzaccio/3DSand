@@ -1,3 +1,3 @@
 #pragma once
 
-enum BlockType { AIR, SAND, DIRT, DEBUG };
+enum BlockType { AIR, SAND, DIRT, BORDER, DEBUG };
