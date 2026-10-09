@@ -10,7 +10,7 @@ int main(void)
 {
     const int screenWidth = 800*2;
     const int screenHeight = 450*2;
-    
+
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
 
     OrientatedCamera camera{};
@@ -30,78 +30,94 @@ int main(void)
     sworld.putBlockAt(SAND, 5, 8, 5);
     sworld.putBlockAt(SAND, 5, 9, 5);
 
-    SetTargetFPS(144); 
-    
-    int counter = 0;
+    int targetFPS = 60,
+    SetTargetFPS(targetFPS);
+
+    int simulationCounter = 0;
+    int simulationPerSecond = 6;
+    int spawnCounter = 0;
+    int spawnPerSecond = 3;
+    int clock = 0;
+
     bool isAutomatonRun = false;
+
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose()) // Detect window close button or ESC key
     {
         // Update
 
-        if (isAutomatonRun)
-            sworld.step();
-
         camera.moveCamera(GetFPS());
 
-        if (IsKeyDown(KEY_SPACE))
-        {
-            isAutomatonRun = true;
-        }
-        
-        if (IsKeyDown(KEY_P))
-        {
-            isAutomatonRun = false;
-        }
+        if (IsKeyPressed(KEY_SPACE))
+            isAutomatonRun = !isAutomatonRun;
 
-        if (IsKeyDown(KEY_H))
-        {
+        if (IsKeyPressed(KEY_H))
             printStackPartitions(sworld.getHeightMap(), HL, WL);
+
+        if(isAutomatonRun)
+        {
+            if (simulationCounter <= 0)
+            {
+                sworld.step();
+
+                if (spawnCounter <= 0)
+                {
+                    sworld.createOneBlockOnTop();
+                    spawnCounter = simulationPerSecond / spawnPerSecond;
+                }
+
+                spawnCounter--;
+
+                simulationCounter = GetFPS() / simulationPerSecond;
+            }
+
+            simulationCounter--;
+        }
+        else
+        {
+            simulationCounter = 0;
+            spawnCounter = 0;
         }
 
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
+
             BeginMode3D(camera);
 
-            if(isAutomatonRun)
-            {
-                sworld.createOneBlockOnTop();
-                
-                if (counter%60 == 0)
-                {
-                }
-                counter = (counter%60)+1;
-            }
+                sworld.drawWorld();
 
-            sworld.drawWorld();
-            DrawGrid(20, 1.0f);
+                DrawGrid(20, 1.0f);
 
             EndMode3D();
+
+
+            DrawFPS(10, 10);
+            const string s0 = to_string(spawnCounter);
+            DrawText(s0.c_str(), 150, 10, 20, DARKGRAY);
             DrawText("SAND 3D SIMULATION", 10, 40, 20, DARKGRAY);
 
             if(isAutomatonRun)
-            {
-                DrawText("PRESS [P] TO PAUSE", 10, 60, 20, GREEN);
-            } else {
-                DrawText("PRESS [ESPACE] TO START", 10, 60, 20, RED);
-            }
+                DrawText("PRESS [SPACE] TO PAUSE", 10, 60, 20, GREEN);
+            else
+                DrawText("PRESS [SPACE] TO START", 10, 60, 20, RED);
+
+            DrawText("Print Heightmap [ H ]", 10, 80, 20, BLUE);
+            DrawText("Lateral Moves [ ZQSD | WASD ]", 10, 100, 20, BLUE);
+            DrawText("Vertical Moves [ E/A | E/Q ]", 10, 120, 20, BLUE);
+            DrawText("Rotating Camera [ Arrow Keys ]", 10, 140, 20, BLUE);
+            DrawText("Fast/Slow Moves [ Left Shift / Left Ctrl ]", 10, 160, 20, BLUE);
 
             const string s1 = "| x=" + to_string((int) camera.position.x);
             const string s2 = "| y=" + to_string((int) camera.position.y);
             const string s3 = "| z=" + to_string((int) camera.position.z);
-
-            DrawText("Show Heightmap [H]", 10, 80, 20, BLUE);
-            DrawText("Lateral moves [Arrow{Up,Down,Left,Right}]", 10, 100, 20, BLUE);
-            DrawText("Vertical moves [Numpad{8,2}]", 10, 120, 20, BLUE);
-            DrawText(s1.c_str(), 10, 140, 20, BLACK);
-            DrawText(s2.c_str(), 10, 160, 20, BLACK);
-            DrawText(s3.c_str(), 10, 180, 20, BLACK);
-            DrawFPS(10, 10);
+            DrawText(s1.c_str(), 10, 180, 20, BLACK);
+            DrawText(s2.c_str(), 10, 200, 20, BLACK);
+            DrawText(s3.c_str(), 10, 220, 20, BLACK);
 
         EndDrawing();
 
-        counter = (counter+1)%60; 
+        clock++;
     }
 
     CloseWindow(); 
