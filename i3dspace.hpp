@@ -10,51 +10,43 @@
 using namespace std;
 
 typedef vector<array<int, 2>> StackPartitions;
-void printStackPartitions(const vector<vector<StackPartitions>>& sp, int hlen, int wlen)
-{
-    for (int i = 0; i < hlen; i++)
-    {
-        for (int j = 0; j < wlen; j++)
-        {
-            StackPartitions sp1 = sp[i][j];
-            cout << "Sur " << i << ":" << j << " - il y a " << sp1.size() << " partitions de tas." << endl;
-
-            for (int k = 0; k < sp1.size(); k++)
-            {
-                cout << "\t La " << k+1 << "-ieme partition commence a y=" << sp1[k][0] << " et il finit a y=" << (sp1[k][0]+sp1[k][1]) << ". hauteur=" << sp1[k][1] << endl;
-            }
-        }
-        cout << endl;
-    }
-}
 
 template<int WLEN, int HLEN>
 class Integer3DSpace
 {
 private:
-    vector<vector<vector<BlockType>>> mtx;
+    array<array<array<BlockType, WLEN>, HLEN>, WLEN> mtx;
 public: 
     Integer3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(WLEN, AIR))) {}
 
-    void putBlockAt(BlockType bl, int x, int y, int z)
+    const array<array<BlockType, WLEN>, HLEN> & operator [] (int i) const { return mtx[i]; }
+          array<array<BlockType, WLEN>, HLEN> & operator [] (int i)       { return mtx[i]; }
+
+    BlockType block(int x, int y, int z) const
     {
-        this->mtx[x][y][z] = bl;
+        if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || WLEN <= z) return BORDER;
+        return this->mtx[x][y][z];
+    }
+
+    BlockType & block(int x, int y, int z)
+    {
+        return this->mtx[x][y][z];
     }
 
     void createOneBlockOnTop()
     {
-        int randNum = rand()%(0-WLEN + 1) + 0;
-        int randNum2 = rand()%(0-WLEN + 1) + 0;
-        this->mtx[randNum][HLEN-1][randNum2] = SAND;
+        int randX = rand()%WLEN;
+        int randY = rand()%WLEN;
+        this->mtx[randX][HLEN-1][randY] = SAND;
     }
 
     void step()
     {
         // Le sable tombe
-        AutomatonSteps::sandFall(this->mtx, WLEN, HLEN);
+        AutomatonSteps::sandFall(this, WLEN, HLEN);
         
         vector<vector<StackPartitions>> hm = this->getHeightMap();
-        AutomatonSteps::sandCollapseStack(this->mtx, hm, WLEN, HLEN);
+        AutomatonSteps::sandCollapseStack(this, hm, WLEN, HLEN);
     }
     
     int area()
@@ -99,7 +91,7 @@ public:
         return this->mtx[x][y][z];
     }
 
-    void drawWorld()
+    void drawWorld() const
     {
         for (int i = 0; i < WLEN; i++)
         {
@@ -138,7 +130,7 @@ public:
     // On segmente donc les sous-piles des piles. Pour une pile sans obstacle,  (getHeightMap())[0][1]={{y,size}} ou y est le debut de la sous pile
     // et size la taille de la sous pile a partir de z. Si deux sous piles sont separer par un obstacle,
     //  (getHeightMap())[0][2]={{y=0,y+2}, {y+4,size}}, on voit tout de suite qu'un obstacle se trouve a x=0,y=y+3,z=0. 
-    vector<vector<StackPartitions>> getHeightMap()
+    vector<vector<StackPartitions>> getHeightMap() const
     {
         vector<vector<StackPartitions>> stacks_acc(HLEN, vector<StackPartitions>(WLEN));
         for (int i = 0; i < WLEN; i++)
@@ -181,8 +173,26 @@ public:
         //printStackPartitions(stacks_acc, HLEN, WLEN);
         return stacks_acc;
     }
+
+    void printStackPartitions(const vector<vector<StackPartitions>>& sp, int hlen, int wlen) const
+    {
+        for (int i = 0; i < hlen; i++)
+        {
+            for (int j = 0; j < wlen; j++)
+            {
+                StackPartitions sp1 = sp[i][j];
+                cout << "Sur " << i << ":" << j << " - il y a " << sp1.size() << " partitions de tas." << endl;
+
+                for (int k = 0; k < sp1.size(); k++)
+                {
+                    cout << "\t La " << k+1 << "-ieme partition commence a y=" << sp1[k][0] << " et il finit a y=" << (sp1[k][0]+sp1[k][1]) << ". hauteur=" << sp1[k][1] << endl;
+                }
+            }
+            cout << endl;
+        }
+    }
     
-    void printWorld()
+    void printWorld() const
     {
         for (int i = 0; i < WLEN; i++)
         {
