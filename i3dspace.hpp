@@ -2,7 +2,7 @@
 
 #include "include/raylib.h"
 #include "blocks.hpp"
-// #include <array>
+#include <array>
 #include <vector>
 #include <iostream>
 
@@ -13,18 +13,29 @@ class Integer3DSpace
 {
 private:
     vector<vector<vector<BlockType>>> mtx;
+    const BlockType border = BORDER;
 public:
     Integer3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(WLEN, AIR))) {}
 
-    BlockType block(int x, int y, int z) const
+    const BlockType & block2(int x, int y, int z) const
     {
-        if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || WLEN <= z) return BORDER;
+        if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || WLEN <= z) return this->border;
         return this->mtx[x][y][z];
     }
 
     BlockType & block(int x, int y, int z)
     {
         return this->mtx[x][y][z];
+    }
+    
+    const BlockType & block2(const array<int, 3> & v3) const
+    {
+        return block2(v3[0], v3[1], v3[2]);
+    }
+
+    BlockType & block(array<int, 3> v3)
+    {
+        return block(v3[0], v3[1], v3[2]);
     }
 
     void createOneBlockOnTop()
@@ -52,12 +63,34 @@ public:
                         }
                         case SAND:
                         {
-                            BlockType & blockBellow = this->block(x, y-1, z);
-
-                            if (blockBellow == AIR)
                             {
-                                blockBellow = SAND;
-                                currentBlock = AIR;
+                                BlockType blockToTest = this->block(x, y-1, z);
+
+                                if (blockToTest == AIR)
+                                {
+                                    this->block(x, y-1, z) = SAND;
+                                    currentBlock = AIR;
+                                    break;
+                                }
+                            }
+                            
+                            vector<array<int, 3>> blocksToTestCoords;
+
+                            blocksToTestCoords.push_back({ x  , y-1, z-1 });
+                            blocksToTestCoords.push_back({ x-1, y-1, z   });
+                            blocksToTestCoords.push_back({ x  , y-1, z+1 });
+                            blocksToTestCoords.push_back({ x+1, y-1, z   });
+                            
+                            for (auto blockToTestCoord : blocksToTestCoords)
+                            {
+                                const BlockType & blockToTest = this->block2(blockToTestCoord);
+
+                                if (blockToTest == AIR)
+                                {
+                                    this->block(blockToTestCoord) = SAND;
+                                    currentBlock = AIR;
+                                    break;
+                                }
                             }
 
                             break;
@@ -68,13 +101,13 @@ public:
         }
     }
     
-    int volume()        const { return WLEN*HLEN*WLEN; }
+    int volume() const { return WLEN*HLEN*WLEN; }
 
-    int getWidthSize()  const { return WLEN; }
+    int getWidthSize() const { return WLEN; }
 
     int getHeightSize() const { return HLEN; }
 
-    int getDepthSize()  const { return WLEN; }
+    int getDepthSize() const { return WLEN; }
     
     void createFlatFloor(int y, BlockType block)
     {
@@ -105,7 +138,7 @@ public:
                 {
                     Vector3 position{x + horizontalShift,y + 0.5f,z + horizontalShift};
 
-                    switch (this->block(x, y, z))
+                    switch (this->block2(x, y, z))
                     {
                         case DIRT:
                             DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
@@ -134,7 +167,7 @@ public:
             {
                 for (int z = 0; z < WLEN; z++)
                 {
-                    cout << this->block(x, y, z);
+                    cout << this->block2(x, y, z);
                 }
                 cout << endl;
             }
