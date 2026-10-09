@@ -89,13 +89,15 @@ public:
 
     void drawWorld() const
     {
+        float horizontalShift = - WLEN / 2.0f + 0.5f;
+
         for (int x = 0; x < WLEN; x++)
         {
             for (int y = 0; y < HLEN; y++)
             {
                 for (int z = 0; z < WLEN; z++)
                 {
-                    Vector3 position{(float) x,(float) y,(float) z};
+                    Vector3 position{x + horizontalShift,y + 0.5f,z + horizontalShift};
 
                     switch (this->block(x, y, z))
                     {

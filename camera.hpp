@@ -31,7 +31,7 @@ private:
 public:
     OrientatedCamera() : Camera3D()
     {
-        this->position = (Vector3){ -20.0f, 20.0f, -20.0f };
+        this->position = (Vector3){ -40.0f, 40.0f, -40.0f };
         this->up = (Vector3){ 0.0f, 1.0f, 0.0f };
 
         this->fovy = 45.0f;

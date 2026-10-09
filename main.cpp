@@ -87,7 +87,7 @@ int main(void)
             BeginMode3D(camera);
 
                 sworld.drawWorld();
-                DrawGrid(20, 1.0f);
+                // DrawGrid(20, 1.0f);
 
             EndMode3D();
 
