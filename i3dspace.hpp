@@ -2,8 +2,8 @@
 
 #include "include/raylib.h"
 #include "blocks.hpp"
-#include <array>
-// #include <vector>
+// #include <array>
+#include <vector>
 #include <iostream>
 
 using namespace std;
@@ -12,18 +12,9 @@ template<int WLEN, int HLEN>
 class Integer3DSpace
 {
 private:
-    array<array<array<BlockType, WLEN>, HLEN>, WLEN> mtx;
+    vector<vector<vector<BlockType>>> mtx;
 public:
-    Integer3DSpace()
-    {
-        for (auto & plane : mtx)
-            for (auto & line : plane)
-                for (auto & cell : line)
-                    cell = AIR;
-    }
-
-    const array<array<BlockType, WLEN>, HLEN> & operator [] (int i) const { return mtx[i]; }
-          array<array<BlockType, WLEN>, HLEN> & operator [] (int i)       { return mtx[i]; }
+    Integer3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(WLEN, AIR))) {}
 
     BlockType block(int x, int y, int z) const
     {

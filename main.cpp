@@ -15,7 +15,7 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 80;
+    const int WL = 120;
     const int HL = 40;
     Integer3DSpace<WL, HL> sworld{};
     sworld.createFlatFloor(0, DIRT);
