@@ -48,9 +48,6 @@ int main(void)
         if (IsKeyPressed(KEY_SPACE))
             isAutomatonRun = !isAutomatonRun;
 
-        if (IsKeyPressed(KEY_H))
-            sworld.printStackPartitions(sworld.getHeightMap(), HL, WL);
-
         if(isAutomatonRun)
         {
             if (simulationCounter <= 0)
