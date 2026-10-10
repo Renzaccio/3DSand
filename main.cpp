@@ -37,6 +37,7 @@ int main(void)
     int clock = 0;
 
     bool isAutomatonRun = false;
+    bool isSpawningRun = false;
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
@@ -48,17 +49,20 @@ int main(void)
         if (IsKeyPressed(KEY_SPACE))
             isAutomatonRun = !isAutomatonRun;
 
+        if (IsKeyPressed(KEY_L))
+            isSpawningRun = !isSpawningRun;
+
         if(isAutomatonRun)
         {
             if (simulationCounter <= 0)
             {
                 sworld.step();
 
-                if (IsKeyDown(KEY_L))
+                if (isSpawningRun)
                 {
                     if (spawnCounter <= 0)
                     {
-                        sworld.createOneBlockOnTop();
+                        sworld.createOneBlockOnTop(sworld.getWidth()/2 - 5, sworld.getWidth()/2 + 5, sworld.getDepth()/2 - 5, sworld.getDepth()/2 + 5);
                         spawnCounter = simulationPerSecond / spawnPerSecond;
                     }
 

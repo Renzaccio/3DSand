@@ -52,9 +52,9 @@ public:
 
 
 
-    void createOneBlockOnTop()
+    void createOneBlockOnTop(int xStart = 0, int xEnd = WLEN, int zStart = 0, int zEnd = WLEN)
     {
-        this->block(rand()%WLEN, HLEN-1, rand()%WLEN) = SAND;
+        this->block(rand() % (xStart - xEnd) + xStart, HLEN - 1, rand() % (zStart - zEnd) + zStart) = SAND;
     }
 
     void step()
