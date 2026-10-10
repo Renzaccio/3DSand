@@ -3,9 +3,6 @@
 #include "include/raylib.h"
 #include "include/raymath.h"
 
-using namespace std;
-
-
 class OrientatedCamera : public Camera3D
 {
 private:
