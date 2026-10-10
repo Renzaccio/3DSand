@@ -1,5 +1,3 @@
-#include "include/raylib.h"
-#include "blocks.hpp"
 #include "i3dspace.hpp"
 #include "camera.hpp"
 #include <string>
