@@ -17,26 +17,40 @@ private:
 public:
     Integer3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(WLEN, AIR))) {}
 
-    const BlockType & block2(int x, int y, int z) const
-    {
-        if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || WLEN <= z) return this->border;
-        return this->mtx[x][y][z];
-    }
+
 
     BlockType & block(int x, int y, int z)
     {
         return this->mtx[x][y][z];
     }
-    
-    const BlockType & block2(const array<int, 3> & v3) const
+
+    BlockType & block(const array<int, 3> & v3)
     {
-        return block2(v3[0], v3[1], v3[2]);
+        return this->block(v3[0], v3[1], v3[2]);
     }
 
-    BlockType & block(array<int, 3> v3)
+    const BlockType & block(int x, int y, int z) const
     {
-        return block(v3[0], v3[1], v3[2]);
+        if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || WLEN <= z) return this->border;
+        return this->mtx[x][y][z];
     }
+
+    const BlockType & blockConst(int x, int y, int z) const
+    {
+        return this->block(x, y, z);
+    }
+    
+    const BlockType & block(const array<int, 3> & v3) const
+    {
+        return this->block(v3[0], v3[1], v3[2]);
+    }
+    
+    const BlockType & blockConst(const array<int, 3> & v3) const
+    {
+        return this->block(v3);
+    }
+
+
 
     void createOneBlockOnTop()
     {
@@ -64,7 +78,7 @@ public:
                         case SAND:
                         {
                             {
-                                BlockType blockToTest = this->block(x, y-1, z);
+                                const BlockType & blockToTest = this->blockConst(x, y-1, z);
 
                                 if (blockToTest == AIR)
                                 {
@@ -83,7 +97,7 @@ public:
                             
                             for (auto blockToTestCoord : blocksToTestCoords)
                             {
-                                const BlockType & blockToTest = this->block2(blockToTestCoord);
+                                const BlockType & blockToTest = this->blockConst(blockToTestCoord);
 
                                 if (blockToTest == AIR)
                                 {
@@ -138,7 +152,7 @@ public:
                 {
                     Vector3 position{x + horizontalShift,y + 0.5f,z + horizontalShift};
 
-                    switch (this->block2(x, y, z))
+                    switch (this->block(x, y, z))
                     {
                         case DIRT:
                             DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
@@ -167,7 +181,7 @@ public:
             {
                 for (int z = 0; z < WLEN; z++)
                 {
-                    cout << this->block2(x, y, z);
+                    cout << this->block(x, y, z);
                 }
                 cout << endl;
             }
