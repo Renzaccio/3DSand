@@ -24,8 +24,6 @@ private:
 public:
     Int3DSpace() : mtx(WLEN, vector<vector<Voxel>>(HLEN, vector<Voxel>(DLEN, Voxel{AIR}))) {}
 
-
-
     BlockType & block(int x, int y, int z)
     {
         return this->mtx[x][y][z].block;
@@ -128,6 +126,8 @@ public:
     int getHeight() const { return HLEN; }
 
     int getDepth() const { return DLEN; }
+
+    vector<vector<vector<Voxel>>>& getWorld() { return this->mtx; }
     
     void createFlatFloor(int y, BlockType block)
     {
@@ -163,6 +163,13 @@ public:
             case SAND:
                 DrawCube(position, 1.0f, 1.0f, 1.0f, YELLOW);
                 DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BROWN);
+                break;
+            case STONE:
+                DrawCube(position, 1.0f, 1.0f, 1.0f, GRAY);
+                break;
+            case WOOD:
+                DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
+                DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BLACK);
                 break;
             case DEBUG:
                 DrawCube(position, 1.0f, 1.0f, 1.0f, PURPLE);

@@ -1,4 +1,5 @@
 #include "i3dspace.hpp"
+#include "blocks.hpp"
 #include "camera.hpp"
 #include <string>
 
@@ -15,13 +16,13 @@ int main(void)
 
     const int WL = 30;
     const int HL = 40;
-    const int DL = 10;
+    const int DL = 20;
     Int3DSpace<WL, HL, DL> sworld{};
-    sworld.createFlatFloor(0, DIRT);
+    sworld.createFlatFloor(0, STONE);
+    sworld.createFlatFloor(1, DIRT);
+    placeChair3x4x3(sworld.getWorld(), array<int, 3>{2,2,2});
+    placeTable5x5x5(sworld.getWorld(), array<int, 3>{10,2,10});
 
-    // for (int i = 1; i < 3; i++) sworld.createFlatFloor(i, SAND);
-
-    sworld.block(5, 5, 5) = DIRT;
     sworld.block(5, 7, 5) = SAND;
     sworld.block(5, 8, 5) = SAND;
     sworld.block(5, 9, 5) = SAND;
