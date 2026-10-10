@@ -1,6 +1,7 @@
 #pragma once
 
 #include "include/raylib.h"
+#include "include/raymath.h"
 #include "blocks.hpp"
 #include <array>
 #include <vector>
@@ -14,6 +15,12 @@ class Int3DSpace
 private:
     vector<vector<vector<BlockType>>> mtx;
     const BlockType border = BORDER;
+
+    Vector3 drawShift = {
+        0.5f - WLEN / 2.0f,
+        0.5f,
+        0.5f - WLEN / 2.0f
+    };
 public:
     Int3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(WLEN, AIR))) {}
 
@@ -62,55 +69,54 @@ public:
         // Le sable tombe.
 
         for (int y = 0; y < HLEN; y++)
-        {
             for (int x = 0; x < WLEN; x++)
-            {
                 for (int z = 0; z < WLEN; z++)
+                    this->voxelStep(x, y, z);
+    }
+    
+    void voxelStep(int x, int y, int z)
+    {
+        BlockType & currentBlock = this->block(x, y, z);
+
+        switch(currentBlock)
+        {
+            default:
+            {
+                break;
+            }
+            case SAND:
+            {
                 {
-                    BlockType & currentBlock = this->block(x, y, z);
+                    const BlockType & blockToTest = this->blockConst(x, y-1, z);
 
-                    switch(currentBlock)
+                    if (blockToTest == AIR)
                     {
-                        default:
-                        {
-                            break;
-                        }
-                        case SAND:
-                        {
-                            {
-                                const BlockType & blockToTest = this->blockConst(x, y-1, z);
-
-                                if (blockToTest == AIR)
-                                {
-                                    this->block(x, y-1, z) = SAND;
-                                    currentBlock = AIR;
-                                    break;
-                                }
-                            }
-                            
-                            vector<array<int, 3>> blocksToTestCoords;
-
-                            blocksToTestCoords.push_back({ x  , y-1, z-1 });
-                            blocksToTestCoords.push_back({ x-1, y-1, z   });
-                            blocksToTestCoords.push_back({ x  , y-1, z+1 });
-                            blocksToTestCoords.push_back({ x+1, y-1, z   });
-                            
-                            for (auto blockToTestCoord : blocksToTestCoords)
-                            {
-                                const BlockType & blockToTest = this->blockConst(blockToTestCoord);
-
-                                if (blockToTest == AIR)
-                                {
-                                    this->block(blockToTestCoord) = SAND;
-                                    currentBlock = AIR;
-                                    break;
-                                }
-                            }
-
-                            break;
-                        }
+                        this->block(x, y-1, z) = SAND;
+                        currentBlock = AIR;
+                        break;
                     }
                 }
+                
+                vector<array<int, 3>> blocksToTestCoords;
+
+                blocksToTestCoords.push_back({ x  , y-1, z-1 });
+                blocksToTestCoords.push_back({ x-1, y-1, z   });
+                blocksToTestCoords.push_back({ x  , y-1, z+1 });
+                blocksToTestCoords.push_back({ x+1, y-1, z   });
+                
+                for (auto blockToTestCoord : blocksToTestCoords)
+                {
+                    const BlockType & blockToTest = this->blockConst(blockToTestCoord);
+
+                    if (blockToTest == AIR)
+                    {
+                        this->block(blockToTestCoord) = SAND;
+                        currentBlock = AIR;
+                        break;
+                    }
+                }
+
+                break;
             }
         }
     }
@@ -132,44 +138,38 @@ public:
         }
 
         for (int x = 0; x < WLEN; x++)
-        {
             for (int z = 0; z < WLEN; z++)
-            {  
                 this->block(x, y, z) = block;
-            }
-        }
     }
 
     void drawWorld() const
     {
-        float horizontalShift = - WLEN / 2.0f + 0.5f;
-
         for (int x = 0; x < WLEN; x++)
-        {
             for (int y = 0; y < HLEN; y++)
-            {
                 for (int z = 0; z < WLEN; z++)
-                {
-                    Vector3 position{x + horizontalShift,y + 0.5f,z + horizontalShift};
+                    this->drawVoxel(x, y, z);
+    }
 
-                    switch (this->block(x, y, z))
-                    {
-                        case DIRT:
-                            DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
-                            break;
-                        case SAND:
-                            DrawCube(position, 1.0f, 1.0f, 1.0f, YELLOW);
-                            DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BROWN);
-                            break;
-                        case DEBUG:
-                            DrawCube(position, 1.0f, 1.0f, 1.0f, PURPLE);
-                            DrawCubeWires(position, 1.0f, 1.0f, 1.0f, ORANGE);
-                            break;
-                        case AIR:
-                            break;
-                    }
-                }
-            }
+    void drawVoxel(int x, int y, int z) const
+    {
+        Vector3 voxelPosition = { (float) x, (float) y, (float) z };
+        Vector3 position = voxelPosition + this->drawShift;
+
+        switch (this->block(x, y, z))
+        {
+            case DIRT:
+                DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
+                break;
+            case SAND:
+                DrawCube(position, 1.0f, 1.0f, 1.0f, YELLOW);
+                DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BROWN);
+                break;
+            case DEBUG:
+                DrawCube(position, 1.0f, 1.0f, 1.0f, PURPLE);
+                DrawCubeWires(position, 1.0f, 1.0f, 1.0f, ORANGE);
+                break;
+            case AIR:
+                break;
         }
     }
     
