@@ -1,5 +1,3 @@
-#include "include/raylib.h"
-#include "blocks.hpp"
 #include "i3dspace.hpp"
 #include "camera.hpp"
 #include <string>
@@ -15,31 +13,29 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 10;
-    const int HL = 10;
-    Integer3DSpace<WL, HL> sworld{};
+    const int WL = 40;
+    const int HL = 40;
+    Int3DSpace<WL, HL> sworld{};
     sworld.createFlatFloor(0, DIRT);
 
-    for (int i = 1; i < 3; i++)
-    {
-        sworld.createFlatFloor(i, SAND);
-    }
+    // for (int i = 1; i < 3; i++) sworld.createFlatFloor(i, SAND);
 
-    sworld.putBlockAt(DIRT, 5, 5, 5);
-    sworld.putBlockAt(SAND, 5, 7, 5);
-    sworld.putBlockAt(SAND, 5, 8, 5);
-    sworld.putBlockAt(SAND, 5, 9, 5);
+    sworld.block(5, 5, 5) = DIRT;
+    sworld.block(5, 7, 5) = SAND;
+    sworld.block(5, 8, 5) = SAND;
+    sworld.block(5, 9, 5) = SAND;
 
-    int targetFPS = 60,
+    int targetFPS = 144;
     SetTargetFPS(targetFPS);
 
     int simulationCounter = 0;
-    int simulationPerSecond = 6;
+    int simulationPerSecond = 40;
     int spawnCounter = 0;
-    int spawnPerSecond = 3;
+    int spawnPerSecond = 40;
     int clock = 0;
 
     bool isAutomatonRun = false;
+    bool isSpawningRun = false;
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
@@ -51,8 +47,8 @@ int main(void)
         if (IsKeyPressed(KEY_SPACE))
             isAutomatonRun = !isAutomatonRun;
 
-        if (IsKeyPressed(KEY_H))
-            printStackPartitions(sworld.getHeightMap(), HL, WL);
+        if (IsKeyPressed(KEY_L))
+            isSpawningRun = !isSpawningRun;
 
         if(isAutomatonRun)
         {
@@ -60,13 +56,20 @@ int main(void)
             {
                 sworld.step();
 
-                if (spawnCounter <= 0)
+                if (isSpawningRun)
                 {
-                    sworld.createOneBlockOnTop();
-                    spawnCounter = simulationPerSecond / spawnPerSecond;
-                }
+                    if (spawnCounter <= 0)
+                    {
+                        sworld.createOneBlockOnTop(sworld.getWidth()/2 - 5, sworld.getWidth()/2 + 5, sworld.getDepth()/2 - 5, sworld.getDepth()/2 + 5);
+                        spawnCounter = simulationPerSecond / spawnPerSecond;
+                    }
 
-                spawnCounter--;
+                    spawnCounter--;
+                }
+                else
+                {
+                    spawnCounter = 0;
+                }
 
                 simulationCounter = GetFPS() / simulationPerSecond;
             }
@@ -86,8 +89,7 @@ int main(void)
             BeginMode3D(camera);
 
                 sworld.drawWorld();
-
-                DrawGrid(20, 1.0f);
+                // DrawGrid(20, 1.0f);
 
             EndMode3D();
 
