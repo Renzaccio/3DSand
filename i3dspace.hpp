@@ -3,7 +3,6 @@
 #include "include/raylib.h"
 #include "include/raymath.h"
 #include "blocks.hpp"
-#include <array>
 #include <vector>
 #include <iostream>
 
@@ -31,9 +30,9 @@ public:
         return this->mtx[x][y][z].block;
     }
 
-    BlockType & block(const array<int, 3> & v3)
+    BlockType & block(const Vec3I & v)
     {
-        return this->block(v3[0], v3[1], v3[2]);
+        return this->block(v.x, v.y, v.z);
     }
 
     const BlockType & block(int x, int y, int z) const
@@ -47,14 +46,14 @@ public:
         return this->block(x, y, z);
     }
     
-    const BlockType & block(const array<int, 3> & v3) const
+    const BlockType & block(const Vec3I & v) const
     {
-        return this->block(v3[0], v3[1], v3[2]);
+        return this->block(v.x, v.y, v.z);
     }
     
-    const BlockType & blockConst(const array<int, 3> & v3) const
+    const BlockType & blockConst(const Vec3I & v) const
     {
-        return this->block(v3);
+        return this->block(v);
     }
 
 
@@ -97,7 +96,7 @@ public:
                     }
                 }
                 
-                vector<array<int, 3>> blocksToTestCoords;
+                vector<Vec3I> blocksToTestCoords;
 
                 blocksToTestCoords.push_back({ x  , y-1, z-1 });
                 blocksToTestCoords.push_back({ x-1, y-1, z   });

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <array>
+#include "i3dvector.hpp"
 
 using namespace std;
 
@@ -9,10 +9,10 @@ enum BlockType { AIR, SAND, DIRT, BORDER, DEBUG };
 struct Voxel
 {
     BlockType block;
-    array<int, 3> coords;
+    Vec3I coords;
 
     Voxel(BlockType bl) : block{bl} {}
-    Voxel(BlockType bl, array<int, 3> co) : Voxel(bl) 
+    Voxel(BlockType bl, Vec3I co) : Voxel(bl) 
     {
         this->coords = co;
     }
