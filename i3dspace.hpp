@@ -9,13 +9,13 @@
 using namespace std;
 
 template<int WLEN, int HLEN>
-class Integer3DSpace
+class Int3DSpace
 {
 private:
     vector<vector<vector<BlockType>>> mtx;
     const BlockType border = BORDER;
 public:
-    Integer3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(WLEN, AIR))) {}
+    Int3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(WLEN, AIR))) {}
 
 
 
@@ -115,13 +115,13 @@ public:
         }
     }
     
-    int volume() const { return WLEN*HLEN*WLEN; }
+    int getVolume() const { return WLEN*HLEN*WLEN; }
 
-    int getWidthSize() const { return WLEN; }
+    int getWidth() const { return WLEN; }
 
-    int getHeightSize() const { return HLEN; }
+    int getHeight() const { return HLEN; }
 
-    int getDepthSize() const { return WLEN; }
+    int getDepth() const { return WLEN; }
     
     void createFlatFloor(int y, BlockType block)
     {

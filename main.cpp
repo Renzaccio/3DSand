@@ -17,7 +17,7 @@ int main(void)
 
     const int WL = 40;
     const int HL = 40;
-    Integer3DSpace<WL, HL> sworld{};
+    Int3DSpace<WL, HL> sworld{};
     sworld.createFlatFloor(0, DIRT);
 
     // for (int i = 1; i < 3; i++) sworld.createFlatFloor(i, SAND);
