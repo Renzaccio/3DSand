@@ -9,7 +9,7 @@
 
 using namespace std;
 
-template<int WLEN, int HLEN>
+template<int WLEN, int HLEN, int DLEN>
 class Int3DSpace
 {
 private:
@@ -22,7 +22,7 @@ private:
         0.5f - WLEN / 2.0f
     };
 public:
-    Int3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(WLEN, AIR))) {}
+    Int3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(DLEN, AIR))) {}
 
 
 
@@ -38,7 +38,7 @@ public:
 
     const BlockType & block(int x, int y, int z) const
     {
-        if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || WLEN <= z) return this->border;
+        if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || DLEN <= z) return this->border;
         return this->mtx[x][y][z];
     }
 
@@ -70,7 +70,7 @@ public:
 
         for (int y = 0; y < HLEN; y++)
             for (int x = 0; x < WLEN; x++)
-                for (int z = 0; z < WLEN; z++)
+                for (int z = 0; z < DLEN; z++)
                     this->voxelStep(x, y, z);
     }
     
@@ -121,13 +121,13 @@ public:
         }
     }
     
-    int getVolume() const { return WLEN*HLEN*WLEN; }
+    int getVolume() const { return WLEN*HLEN*DLEN; }
 
     int getWidth() const { return WLEN; }
 
     int getHeight() const { return HLEN; }
 
-    int getDepth() const { return WLEN; }
+    int getDepth() const { return DLEN; }
     
     void createFlatFloor(int y, BlockType block)
     {
@@ -138,7 +138,7 @@ public:
         }
 
         for (int x = 0; x < WLEN; x++)
-            for (int z = 0; z < WLEN; z++)
+            for (int z = 0; z < DLEN; z++)
                 this->block(x, y, z) = block;
     }
 
@@ -146,7 +146,7 @@ public:
     {
         for (int x = 0; x < WLEN; x++)
             for (int y = 0; y < HLEN; y++)
-                for (int z = 0; z < WLEN; z++)
+                for (int z = 0; z < DLEN; z++)
                     this->drawVoxel(x, y, z);
     }
 
@@ -179,7 +179,7 @@ public:
         {
             for (int y = 0; y < HLEN; y++)
             {
-                for (int z = 0; z < WLEN; z++)
+                for (int z = 0; z < DLEN; z++)
                 {
                     cout << this->block(x, y, z);
                 }
