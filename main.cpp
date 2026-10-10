@@ -105,7 +105,6 @@ int main(void)
             else
                 DrawText("PRESS [SPACE] TO START", 10, 60, 20, RED);
 
-            DrawText("Print Heightmap [ H ]", 10, 80, 20, BLUE);
             DrawText("Lateral Moves [ ZQSD | WASD ]", 10, 100, 20, BLUE);
             DrawText("Vertical Moves [ E/A | E/Q ]", 10, 120, 20, BLUE);
             DrawText("Rotating Camera [ Arrow Keys ]", 10, 140, 20, BLUE);
