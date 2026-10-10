@@ -13,7 +13,7 @@ template<int WLEN, int HLEN, int DLEN>
 class Int3DSpace
 {
 private:
-    vector<vector<vector<BlockType>>> mtx;
+    vector<vector<vector<Voxel>>> mtx;
     const BlockType border = BORDER;
 
     Vector3 drawShift = {
@@ -22,13 +22,13 @@ private:
         0.5f - WLEN / 2.0f
     };
 public:
-    Int3DSpace() : mtx(WLEN, vector<vector<BlockType>>(HLEN, vector<BlockType>(DLEN, AIR))) {}
+    Int3DSpace() : mtx(WLEN, vector<vector<Voxel>>(HLEN, vector<Voxel>(DLEN, Voxel{AIR}))) {}
 
 
 
     BlockType & block(int x, int y, int z)
     {
-        return this->mtx[x][y][z];
+        return this->mtx[x][y][z].block;
     }
 
     BlockType & block(const array<int, 3> & v3)
@@ -39,7 +39,7 @@ public:
     const BlockType & block(int x, int y, int z) const
     {
         if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || DLEN <= z) return this->border;
-        return this->mtx[x][y][z];
+        return this->mtx[x][y][z].block;
     }
 
     const BlockType & blockConst(int x, int y, int z) const
