@@ -10,7 +10,7 @@ enum BlockType { AIR, SAND, DIRT, BORDER, DEBUG, STONE, WOOD };
 struct Voxel
 {
     BlockType block;
-    Voxel(BlockType bl) : block{bl} {}
+    // Voxel(BlockType bl) : block{bl} {}
 };
 
 typedef vector<vector<vector<Voxel>>> WorldMTX;

@@ -15,18 +15,18 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 50;
+    const int WL = 75;
     const int HL = 30;
-    const int DL = 50;
+    const int DL = 75;
     Int3DSpace<WL, HL, DL> sworld{};
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
-    placeChair3x4x3(sworld.getWorld(), {2,2,2});
-    placeTable5x5x5(sworld.getWorld(), {10,2,10});
+    // placeChair3x4x3(sworld.getWorld(), {2,2,2});
+    // placeTable5x5x5(sworld.getWorld(), {10,2,10});
 
-    sworld.block(5, 7, 5) = SAND;
-    sworld.block(5, 8, 5) = SAND;
-    sworld.block(5, 9, 5) = SAND;
+    // sworld.block(5, 7, 5) = SAND;
+    // sworld.block(5, 8, 5) = SAND;
+    // sworld.block(5, 9, 5) = SAND;
 
     int targetFPS = 144;
 
@@ -41,6 +41,11 @@ int main(void)
 
     bool isAutomatonRun = false;
     bool isSpawningRun = false;
+    {
+        array<int, 2> simuBlockStat = sworld.countBlockStats();
+        sandAmount = simuBlockStat[0];
+        staticBlockAmount = simuBlockStat[1];
+    }
 
     vector<RPressButton> rbtns{
         // Change fps max, +1 or -1
@@ -72,7 +77,22 @@ int main(void)
                 {
                     if (spawnCounter <= 0)
                     {
-                        sworld.createOneBlockOnTop(sworld.getWidth()/2 - 5, sworld.getWidth()/2 + 5, sworld.getDepth()/2 - 5, sworld.getDepth()/2 + 5);
+                        int flow = 2;
+
+                        sworld.createOneBlockOnTop(
+                            (sworld.getWidth() - flow)/2,
+                            sworld.getWidth()/2 + flow,
+                            (sworld.getDepth() - flow)/2,
+                            sworld.getDepth()/2 + flow
+                        );
+
+                        sworld.createOneBlockOnTop(
+                            (sworld.getWidth() - flow)/2,
+                            sworld.getWidth()/2 + flow,
+                            (sworld.getDepth() - flow)/2,
+                            sworld.getDepth()/2 + flow
+                        );
+
                         spawnCounter = simulationPerSecond / spawnPerSecond;
                     }
 
@@ -88,7 +108,7 @@ int main(void)
 
             simulationCounter--;
 
-            if ((clock % (targetFPS*2)) == 0) // blocks are counted only once every 2 seconds
+            if ((clock % targetFPS) == 0) // blocks are counted only once every second
             {
                 array<int, 2> simuBlockStat = sworld.countBlockStats();
                 sandAmount = simuBlockStat[0];
