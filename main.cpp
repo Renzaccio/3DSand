@@ -13,9 +13,9 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 50;
-    const int HL = 40;
-    const int DL = 30;
+    const int WL = 15;
+    const int HL = 15;
+    const int DL = 15;
     Int3DSpace<WL, HL, DL> sworld{};
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
@@ -30,10 +30,13 @@ int main(void)
     SetTargetFPS(targetFPS);
 
     int simulationCounter = 0;
-    int simulationPerSecond = 40;
+    int simulationPerSecond = 10;
     int spawnCounter = 0;
-    int spawnPerSecond = 40;
+    int spawnPerSecond = 2;
     int clock = 0;
+
+    int sandCount = 0;
+    int noSandNoAirCount = 0;
 
     bool isAutomatonRun = false;
     bool isSpawningRun = false;
@@ -42,7 +45,6 @@ int main(void)
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
         // Update
-
         camera.moveCamera(GetFPS());
 
         if (IsKeyPressed(KEY_SPACE))
@@ -76,6 +78,13 @@ int main(void)
             }
 
             simulationCounter--;
+
+            if ((clock % (targetFPS*2)) == 0) // amortir le cout global
+            {
+                array<int, 2> simuBlockStat = sworld.countBlockStats();
+                sandCount = simuBlockStat[0];
+                noSandNoAirCount = simuBlockStat[1];
+            }
         }
         else
         {
@@ -98,12 +107,16 @@ int main(void)
             DrawFPS(10, 10);
             const string s0 = to_string(spawnCounter);
             DrawText(s0.c_str(), 150, 10, 20, DARKGRAY);
+            
+            const string s01 = to_string(sandCount) + " sand" + ((sandCount > 1) ? "s" : "") + " / " + to_string(noSandNoAirCount) + " static block" + ((noSandNoAirCount > 1) ? "s" : "");
+            DrawText(s01.c_str(), 200, 10, 20, DARKGRAY);
+
             DrawText("SAND 3D SIMULATION", 10, 40, 20, DARKGRAY);
 
             if(isAutomatonRun)
-                DrawText("PRESS [SPACE] TO PAUSE", 10, 60, 20, GREEN);
+                DrawText("PRESS [ SPACE ] TO PAUSE", 10, 60, 20, GREEN);
             else
-                DrawText("PRESS [SPACE] TO START", 10, 60, 20, RED);
+                DrawText("PRESS [ SPACE ] TO START", 10, 60, 20, RED);
 
             DrawText("Lateral Moves [ ZQSD | WASD ]", 10, 100, 20, BLUE);
             DrawText("Vertical Moves [ E/A | E/Q ]", 10, 120, 20, BLUE);

@@ -7,7 +7,7 @@
 #include <array>
 #include <cstdlib>
 #include <iostream>
-#include <sys/stat.h>
+// #include <sys/stat.h>
 
 using namespace std;
 
@@ -142,6 +142,27 @@ public:
     int getHeight() const { return HLEN; }
 
     int getDepth() const { return DLEN; }
+
+    // could be optimised
+    // ret[0] = count sand
+    // ret[1] = count static block
+    // total_without_air = ret[0]+ret[1]
+    array<int, 2> countBlockStats() const
+    {
+        array<int, 2> acc{0,0};
+
+        for (int y = 0; y < HLEN; y++)
+            for (int x = 0; x < WLEN; x++)
+                for (int z = 0; z < DLEN; z++) 
+                {
+                    const BlockType& currentBt = blockConst(x,y,z);
+
+                    if (currentBt == SAND) acc[0]++;
+                    if ((currentBt != AIR) && (currentBt != SAND)) acc[1]++;
+                }
+
+        return acc;
+    }
 
     vector<vector<vector<Voxel>>>& getWorld() { return this->mtx; }
     
