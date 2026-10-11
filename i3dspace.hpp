@@ -15,7 +15,7 @@ template<int WLEN, int HLEN, int DLEN>
 class Int3DSpace
 {
 private:
-    vector<vector<vector<Voxel>>> mtx;
+    WorldMTX mtx;
     const BlockType border = BORDER;
 
     static const int posAmount = 4;
@@ -164,7 +164,9 @@ public:
         return acc;
     }
 
-    vector<vector<vector<Voxel>>>& getWorld() { return this->mtx; }
+    WorldMTX & getWorld() { return this->mtx; }
+
+    const WorldMTX & getWorld() const { return this->mtx; }
     
     void createFlatFloor(int y, BlockType block)
     {
