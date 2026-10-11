@@ -49,8 +49,8 @@ int main(void)
 
     vector<RPressButton> rbtns{
         // Change fps max, +1 or -1
-        RPressButton {10.0f, 40+230.0f, 60.0f, 40.0f, RED, [&targetFPS]() { if ((targetFPS-1) > 5) targetFPS--; cout << targetFPS << endl; }, " - ", 20, BLACK},
-        RPressButton {60+10+10.0f, 40+230.0f, 60.0f, 40.0f, GREEN, [&targetFPS]() { targetFPS++; cout << targetFPS << endl; }, " + ", 20, BLACK},
+        RPressButton {10.0f, 40+250.0f, 60.0f, 40.0f, RED, [&targetFPS]() { if ((targetFPS-1) > 5) targetFPS--; cout << targetFPS << endl; }, " - ", 20, BLACK},
+        RPressButton {60+10+10.0f, 40+250.0f, 60.0f, 40.0f, GREEN, [&targetFPS]() { targetFPS++; cout << targetFPS << endl; }, " + ", 20, BLACK},
         //
     };
 
@@ -58,6 +58,7 @@ int main(void)
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
         // Update
+        cout << targetFPS << endl;
         SetTargetFPS(targetFPS);
         camera.moveCamera(GetFPS());
 
@@ -173,8 +174,7 @@ int main(void)
             for (RPressButton rpb : rbtns)
                 rpb.draw();
 
-            DrawText("FPS MAX", 2*rbtns[1].x, rbtns[1].y, 20, BLACK);
-
+            DrawText((to_string(targetFPS) + " FPS MAX").c_str(), 2*rbtns[1].x, rbtns[1].y+10, 20, BLACK);
 
         EndDrawing();
 
