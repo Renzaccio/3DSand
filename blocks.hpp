@@ -3,7 +3,7 @@
 #include <vector>
 #include "i3dvector.hpp"
 
-using namespace std; 
+using namespace std;
 
 enum BlockType { AIR, SAND, DIRT, BORDER, DEBUG, STONE, WOOD };
 
