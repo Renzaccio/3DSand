@@ -33,6 +33,13 @@ private:
         Vec3I{ 0, -1,  1},
         Vec3I{ 1, -1,  0}
     };
+    const array<Vec3I, posAmount> posToTestArr3 =
+    {
+        Vec3I{ 1, -1, -1},
+        Vec3I{-1, -1, -1},
+        Vec3I{-1, -1,  1},
+        Vec3I{ 1, -1,  1}
+    };
 
     Vector3 drawShift = {
         0.5f - WLEN / 2.0f,
@@ -189,13 +196,23 @@ public:
             validPosIndexes[seed % (validPosAmount - i) + i] = tmp;
         }
         
-        for (int i : validPosIndexes) // The block tries to fall on the sides
+        for (int i : validPosIndexes) // The block tries to fall sideways
         {
             const Vec3I diagBlockCoord = pos + posToTestArr2[i];
 
             if (this->blockConst(diagBlockCoord) == AIR)
             {
                 this->block(diagBlockCoord) = SAND;
+                block = AIR;
+                return;
+            }
+        }
+        
+        for (int i : validPosIndexes) // The block tries to move sideways
+        {
+            if (this->blockConst(pos + posToTestArr3[i]) == AIR || this->blockConst(pos + posToTestArr3[(i+1)%this->posAmount]) == AIR)
+            {
+                this->block(pos + posToTestArr1[i]) = SAND;
                 block = AIR;
                 return;
             }

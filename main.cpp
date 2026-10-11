@@ -14,26 +14,26 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 19;
+    const int WL = 75;
     const int HL = 30;
-    const int DL = 19;
+    const int DL = 75;
     Int3DSpace<WL, HL, DL> sworld{};
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
-    placeChair3x4x3(sworld.getWorld(), {2,2,2});
-    placeTable5x5x5(sworld.getWorld(), {10,2,10});
+    // placeChair3x4x3(sworld.getWorld(), {2,2,2});
+    // placeTable5x5x5(sworld.getWorld(), {10,2,10});
 
-    sworld.block(5, 7, 5) = SAND;
-    sworld.block(5, 8, 5) = SAND;
-    sworld.block(5, 9, 5) = SAND;
+    // sworld.block(5, 7, 5) = SAND;
+    // sworld.block(5, 8, 5) = SAND;
+    // sworld.block(5, 9, 5) = SAND;
 
     int targetFPS = 144;
     SetTargetFPS(targetFPS);
 
     int simulationCounter = 0;
-    int simulationPerSecond = 144;
+    int simulationPerSecond = 30;
     int spawnCounter = 0;
-    int spawnPerSecond = 144;
+    int spawnPerSecond = 30;
     int clock = 0;
 
     int sandAmount = 0;
@@ -70,6 +70,13 @@ int main(void)
                     if (spawnCounter <= 0)
                     {
                         int flow = 2;
+
+                        sworld.createOneBlockOnTop(
+                            (sworld.getWidth() - flow)/2,
+                            sworld.getWidth()/2 + flow,
+                            (sworld.getDepth() - flow)/2,
+                            sworld.getDepth()/2 + flow
+                        );
 
                         sworld.createOneBlockOnTop(
                             (sworld.getWidth() - flow)/2,
