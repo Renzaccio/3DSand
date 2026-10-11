@@ -21,10 +21,10 @@ private:
     static const int posAmount = 4;
     const array<Vec3I, posAmount> posToTestArr =
     {
-        Vec3I{ 0, -1, -1},
-        Vec3I{-1, -1,  0},
-        Vec3I{ 0, -1,  1},
-        Vec3I{ 1, -1,  0}
+        Vec3I{ 0, 1, -1},
+        Vec3I{-1, 1,  0},
+        Vec3I{ 0, 1,  1},
+        Vec3I{ 1, 1,  0}
     };
 
     Vector3 drawShift = {
@@ -137,58 +137,60 @@ public:
                     this->voxelStep({x, y, z});
     }
     
-    void voxelStep(Vec3I pos)
+    void voxelStep(const Vec3I & pos)
     {
         BlockType & currentBlock = this->block(pos);
 
         switch(currentBlock)
         {
             default:
-            {
                 break;
-            }
+
             case SAND:
-            {
-                const BlockType & blockToTest = this->blockConst(pos - Vec3I{0, 1, 0});
-
-                if (blockToTest == AIR)
-                {
-                    this->block(pos - Vec3I{0, 1, 0}) = SAND;
-                    currentBlock = AIR;
-                    break;
-                }
-
-                int seed = rand();
-
-                array<int, posAmount> randIndexArr = {0, 1, 2, 3};
-                for(int i = 0; i < posAmount - 1; i++)
-                {
-                    int tmp = randIndexArr[i];
-                    randIndexArr[i] = randIndexArr[seed % (posAmount - i) + i];
-                    randIndexArr[seed % (posAmount - i) + i] = tmp;
-                }
-                
-                vector<Vec3I> blocksToTestCoords;
-                for (int rIndex : randIndexArr)
-                    blocksToTestCoords.push_back(pos + posToTestArr[rIndex]);
-                
-                for (auto blockToTestCoord : blocksToTestCoords)
-                {
-                    const BlockType & blockToTest = this->blockConst(blockToTestCoord);
-
-                    if (blockToTest == AIR)
-                    {
-                        this->block(blockToTestCoord) = SAND;
-                        currentBlock = AIR;
-                        break;
-                    }
-                }
-
+                sandStep(pos, currentBlock);
                 break;
-            }
         }
     }
 
+    void sandStep(const Vec3I & pos, BlockType & block)
+    {
+        {
+            const Vec3I blockToTestCoord = pos - Vec3I{0, 1, 0};
+
+            if (this->blockConst(blockToTestCoord) == AIR)
+            {
+                this->block(blockToTestCoord) = SAND;
+                block = AIR;
+                return;
+            }
+        }
+
+        int seed = rand();
+
+        array<int, posAmount> randIndexArr = {0, 1, 2, 3};
+        for(int i = 0; i < posAmount - 1; i++)
+        {
+            int tmp = randIndexArr[i];
+            randIndexArr[i] = randIndexArr[seed % (posAmount - i) + i];
+            randIndexArr[seed % (posAmount - i) + i] = tmp;
+        }
+        
+        vector<Vec3I> blocksToTestCoords;
+        for (int rIndex : randIndexArr)
+            blocksToTestCoords.push_back(pos + posToTestArr[rIndex]);
+        
+        for (Vec3I blockToTestCoord : blocksToTestCoords)
+        {
+            const BlockType & blockToTest = this->blockConst(blockToTestCoord);
+
+            if (blockToTest == AIR)
+            {
+                this->block(blockToTestCoord) = SAND;
+                block = AIR;
+                return;
+            }
+        }
+    }
 
 
     void drawWorld() const
