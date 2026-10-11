@@ -1,5 +1,6 @@
 #include "i3dspace.hpp"
 #include "camera.hpp"
+#include "counter.cpp"
 #include <string>
 
 using namespace std;
@@ -104,31 +105,35 @@ int main(void)
             EndMode3D();
 
 
-            DrawFPS(10, 10);
-            const string s0 = to_string(spawnCounter);
-            DrawText(s0.c_str(), 150, 10, 20, DARKGRAY);
-            
-            const string s01 = to_string(sandCount) + " sand" + ((sandCount > 1) ? "s" : "") + " / " + to_string(noSandNoAirCount) + " static block" + ((noSandNoAirCount > 1) ? "s" : "");
-            DrawText(s01.c_str(), 200, 10, 20, DARKGRAY);
+            Counter posY(10, 20);
 
-            DrawText("SAND 3D SIMULATION", 10, 40, 20, DARKGRAY);
+            DrawFPS(10, posY());
+
+            const string s01 = to_string(sandCount) + " sand" + ((sandCount > 1) ? "s" : "") + " / " + to_string(noSandNoAirCount) + " static block" + ((noSandNoAirCount > 1) ? "s" : "");
+            DrawText(s01.c_str(), 10, posY(), 20, DARKGRAY);
+
+            posY.step();
+
+            DrawText("SAND 3D SIMULATION", 10, posY(), 20, DARKGRAY);
 
             if(isAutomatonRun)
-                DrawText("PRESS [ SPACE ] TO PAUSE", 10, 60, 20, GREEN);
+                DrawText("PRESS [ SPACE ] TO PAUSE", 10, posY(), 20, GREEN);
             else
-                DrawText("PRESS [ SPACE ] TO START", 10, 60, 20, RED);
+                DrawText("PRESS [ SPACE ] TO START", 10, posY(), 20, RED);
 
-            DrawText("Lateral Moves [ ZQSD | WASD ]", 10, 100, 20, BLUE);
-            DrawText("Vertical Moves [ E/A | E/Q ]", 10, 120, 20, BLUE);
-            DrawText("Rotating Camera [ Arrow Keys ]", 10, 140, 20, BLUE);
-            DrawText("Fast/Slow Moves [ Left Shift / Left Ctrl ]", 10, 160, 20, BLUE);
+            DrawText("Lateral Moves [ ZQSD | WASD ]", 10, posY(), 20, BLUE);
+            DrawText("Vertical Moves [ E/A | E/Q ]", 10, posY(), 20, BLUE);
+            DrawText("Rotating Camera [ Arrow Keys ]", 10, posY(), 20, BLUE);
+            DrawText("Fast/Slow Moves [ Left Shift / Left Ctrl ]", 10, posY(), 20, BLUE);
+
+            posY.step();
 
             const string s1 = "| x=" + to_string((int) camera.position.x);
             const string s2 = "| y=" + to_string((int) camera.position.y);
             const string s3 = "| z=" + to_string((int) camera.position.z);
-            DrawText(s1.c_str(), 10, 180, 20, BLACK);
-            DrawText(s2.c_str(), 10, 200, 20, BLACK);
-            DrawText(s3.c_str(), 10, 220, 20, BLACK);
+            DrawText(s1.c_str(), 10, posY(), 20, BLACK);
+            DrawText(s2.c_str(), 10, posY(), 20, BLACK);
+            DrawText(s3.c_str(), 10, posY(), 20, BLACK);
 
         EndDrawing();
 
