@@ -1,6 +1,6 @@
 #include "i3dspace.hpp"
 #include "camera.hpp"
-#include "include/raylib.h"
+#include "counter.cpp"
 #include "ui.hpp"
 #include <string>
 
@@ -15,9 +15,9 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 15;
-    const int HL = 15;
-    const int DL = 15;
+    const int WL = 50;
+    const int HL = 30;
+    const int DL = 50;
     Int3DSpace<WL, HL, DL> sworld{};
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
@@ -31,13 +31,13 @@ int main(void)
     int targetFPS = 144;
 
     int simulationCounter = 0;
-    int simulationPerSecond = 10;
+    int simulationPerSecond = 30;
     int spawnCounter = 0;
-    int spawnPerSecond = 2;
+    int spawnPerSecond = 30;
     int clock = 0;
 
-    int sandCount = 0;
-    int noSandNoAirCount = 0;
+    int sandAmount = 0;
+    int staticBlockAmount = 0;
 
     bool isAutomatonRun = false;
     bool isSpawningRun = false;
@@ -88,11 +88,11 @@ int main(void)
 
             simulationCounter--;
 
-            if ((clock % (targetFPS*2)) == 0) // amortir le cout global
+            if ((clock % (targetFPS*2)) == 0) // blocks are counted only once every 2 seconds
             {
                 array<int, 2> simuBlockStat = sworld.countBlockStats();
-                sandCount = simuBlockStat[0];
-                noSandNoAirCount = simuBlockStat[1];
+                sandAmount = simuBlockStat[0];
+                staticBlockAmount = simuBlockStat[1];
             }
         }
         else
@@ -120,36 +120,41 @@ int main(void)
             EndMode3D();
 
 
-            DrawFPS(10, 10);
-            const string s0 = to_string(spawnCounter);
-            DrawText(s0.c_str(), 150, 10, 20, DARKGRAY);
-            
-            const string s01 = to_string(sandCount) + " sand" + ((sandCount > 1) ? "s" : "") + " / " + to_string(noSandNoAirCount) + " static block" + ((noSandNoAirCount > 1) ? "s" : "");
-            DrawText(s01.c_str(), 200, 10, 20, DARKGRAY);
+            Counter posY(10, 20);
 
-            DrawText("SAND 3D SIMULATION", 10, 40, 20, DARKGRAY);
+            DrawFPS(10, posY());
+
+            const string s01 = to_string(sandAmount) + " sand" + ((sandAmount > 1) ? "s" : "") + " / " + to_string(staticBlockAmount) + " static block" + ((staticBlockAmount > 1) ? "s" : "");
+            DrawText(s01.c_str(), 10, posY(), 20, DARKGRAY);
+
+            posY.step();
+
+            DrawText("SAND 3D SIMULATION", 10, posY(), 20, DARKGRAY);
 
             if(isAutomatonRun)
-                DrawText("PRESS [ SPACE ] TO PAUSE", 10, 60, 20, GREEN);
+                DrawText("PRESS [ SPACE ] TO PAUSE", 10, posY(), 20, GREEN);
             else
-                DrawText("PRESS [ SPACE ] TO START", 10, 60, 20, RED);
+                DrawText("PRESS [ SPACE ] TO START", 10, posY(), 20, RED);
 
-            DrawText("Lateral Moves [ ZQSD | WASD ]", 10, 100, 20, BLUE);
-            DrawText("Vertical Moves [ E/A | E/Q ]", 10, 120, 20, BLUE);
-            DrawText("Rotating Camera [ Arrow Keys ]", 10, 140, 20, BLUE);
-            DrawText("Fast/Slow Moves [ Left Shift / Left Ctrl ]", 10, 160, 20, BLUE);
+            DrawText("Lateral Moves [ ZQSD | WASD ]", 10, posY(), 20, BLUE);
+            DrawText("Vertical Moves [ E/A | E/Q ]", 10, posY(), 20, BLUE);
+            DrawText("Rotating Camera [ Arrow Keys ]", 10, posY(), 20, BLUE);
+            DrawText("Fast/Slow Moves [ Left Shift / Left Ctrl ]", 10, posY(), 20, BLUE);
+
+            posY.step();
 
             const string s1 = "| x=" + to_string((int) camera.position.x);
             const string s2 = "| y=" + to_string((int) camera.position.y);
             const string s3 = "| z=" + to_string((int) camera.position.z);
-            DrawText(s1.c_str(), 10, 180, 20, BLACK);
-            DrawText(s2.c_str(), 10, 200, 20, BLACK);
-            DrawText(s3.c_str(), 10, 220, 20, BLACK);
+            DrawText(s1.c_str(), 10, posY(), 20, BLACK);
+            DrawText(s2.c_str(), 10, posY(), 20, BLACK);
+            DrawText(s3.c_str(), 10, posY(), 20, BLACK);
 
             for (RPressButton rpb : rbtns)
                 rpb.draw();
 
             DrawText("FPS MAX", 2*rbtns[1].x, rbtns[1].y, 20, BLACK);
+
 
         EndDrawing();
 

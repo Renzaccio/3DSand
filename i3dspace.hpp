@@ -1,10 +1,13 @@
 #pragma once
 
+#include "i3dvector.hpp"
 #include "include/raylib.h"
 #include "include/raymath.h"
 #include "blocks.hpp"
-#include <iostream>
 #include <array>
+#include <cstdlib>
+#include <iostream>
+// #include <sys/stat.h>
 
 using namespace std;
 
@@ -14,6 +17,15 @@ class Int3DSpace
 private:
     vector<vector<vector<Voxel>>> mtx;
     const BlockType border = BORDER;
+
+    static const int posAmount = 4;
+    const array<Vec3I, posAmount> posToTestArr =
+    {
+        Vec3I{ 0, -1, -1},
+        Vec3I{-1, -1,  0},
+        Vec3I{ 0, -1,  1},
+        Vec3I{ 1, -1,  0}
+    };
 
     Vector3 drawShift = {
         0.5f - WLEN / 2.0f,
@@ -68,12 +80,12 @@ public:
         for (int y = 0; y < HLEN; y++)
             for (int x = 0; x < WLEN; x++)
                 for (int z = 0; z < DLEN; z++)
-                    this->voxelStep(x, y, z);
+                    this->voxelStep({x, y, z});
     }
     
-    void voxelStep(int x, int y, int z)
+    void voxelStep(Vec3I pos)
     {
-        BlockType & currentBlock = this->block(x, y, z);
+        BlockType & currentBlock = this->block(pos);
 
         switch(currentBlock)
         {
@@ -83,23 +95,28 @@ public:
             }
             case SAND:
             {
-                {
-                    const BlockType & blockToTest = this->blockConst(x, y-1, z);
+                const BlockType & blockToTest = this->blockConst(pos - Vec3I{0, 1, 0});
 
-                    if (blockToTest == AIR)
-                    {
-                        this->block(x, y-1, z) = SAND;
-                        currentBlock = AIR;
-                        break;
-                    }
+                if (blockToTest == AIR)
+                {
+                    this->block(pos - Vec3I{0, 1, 0}) = SAND;
+                    currentBlock = AIR;
+                    break;
+                }
+
+                int seed = rand();
+
+                array<int, posAmount> randIndexArr = {0, 1, 2, 3};
+                for(int i = 0; i < posAmount - 1; i++)
+                {
+                    int tmp = randIndexArr[i];
+                    randIndexArr[i] = randIndexArr[seed % (posAmount - i) + i];
+                    randIndexArr[seed % (posAmount - i) + i] = tmp;
                 }
                 
                 vector<Vec3I> blocksToTestCoords;
-
-                blocksToTestCoords.push_back({ x  , y-1, z-1 });
-                blocksToTestCoords.push_back({ x-1, y-1, z   });
-                blocksToTestCoords.push_back({ x  , y-1, z+1 });
-                blocksToTestCoords.push_back({ x+1, y-1, z   });
+                for (int rIndex : randIndexArr)
+                    blocksToTestCoords.push_back(pos + posToTestArr[rIndex]);
                 
                 for (auto blockToTestCoord : blocksToTestCoords)
                 {
