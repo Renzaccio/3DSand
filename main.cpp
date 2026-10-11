@@ -14,9 +14,9 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 15;
-    const int HL = 15;
-    const int DL = 15;
+    const int WL = 50;
+    const int HL = 30;
+    const int DL = 50;
     Int3DSpace<WL, HL, DL> sworld{};
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
@@ -31,13 +31,13 @@ int main(void)
     SetTargetFPS(targetFPS);
 
     int simulationCounter = 0;
-    int simulationPerSecond = 10;
+    int simulationPerSecond = 30;
     int spawnCounter = 0;
-    int spawnPerSecond = 2;
+    int spawnPerSecond = 30;
     int clock = 0;
 
-    int sandCount = 0;
-    int noSandNoAirCount = 0;
+    int sandAmount = 0;
+    int staticBlockAmount = 0;
 
     bool isAutomatonRun = false;
     bool isSpawningRun = false;
@@ -80,11 +80,11 @@ int main(void)
 
             simulationCounter--;
 
-            if ((clock % (targetFPS*2)) == 0) // amortir le cout global
+            if ((clock % (targetFPS*2)) == 0) // blocks are counted only once every 2 seconds
             {
                 array<int, 2> simuBlockStat = sworld.countBlockStats();
-                sandCount = simuBlockStat[0];
-                noSandNoAirCount = simuBlockStat[1];
+                sandAmount = simuBlockStat[0];
+                staticBlockAmount = simuBlockStat[1];
             }
         }
         else
@@ -109,7 +109,7 @@ int main(void)
 
             DrawFPS(10, posY());
 
-            const string s01 = to_string(sandCount) + " sand" + ((sandCount > 1) ? "s" : "") + " / " + to_string(noSandNoAirCount) + " static block" + ((noSandNoAirCount > 1) ? "s" : "");
+            const string s01 = to_string(sandAmount) + " sand" + ((sandAmount > 1) ? "s" : "") + " / " + to_string(staticBlockAmount) + " static block" + ((staticBlockAmount > 1) ? "s" : "");
             DrawText(s01.c_str(), 10, posY(), 20, DARKGRAY);
 
             posY.step();
