@@ -1,5 +1,7 @@
 #include "i3dspace.hpp"
 #include "camera.hpp"
+#include "include/raylib.h"
+#include "ui.hpp"
 #include <string>
 
 using namespace std;
@@ -27,7 +29,6 @@ int main(void)
     sworld.block(5, 9, 5) = SAND;
 
     int targetFPS = 144;
-    SetTargetFPS(targetFPS);
 
     int simulationCounter = 0;
     int simulationPerSecond = 10;
@@ -41,10 +42,18 @@ int main(void)
     bool isAutomatonRun = false;
     bool isSpawningRun = false;
 
+    vector<RPressButton> rbtns{
+        // Change fps max, +1 or -1
+        RPressButton {10.0f, 40+230.0f, 60.0f, 40.0f, RED, [&targetFPS]() { if ((targetFPS-1) > 5) targetFPS--; cout << targetFPS << endl; }, " - ", 20, BLACK},
+        RPressButton {60+10+10.0f, 40+230.0f, 60.0f, 40.0f, GREEN, [&targetFPS]() { targetFPS++; cout << targetFPS << endl; }, " + ", 20, BLACK},
+        //
+    };
+
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
         // Update
+        SetTargetFPS(targetFPS);
         camera.moveCamera(GetFPS());
 
         if (IsKeyPressed(KEY_SPACE))
@@ -92,6 +101,13 @@ int main(void)
             spawnCounter = 0;
         }
 
+        // check if btns is pressed
+        for (RPressButton rpb : rbtns)
+            if (CheckCollisionPointRec(GetMousePosition(), rpb))
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+                    rpb();
+
+
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
@@ -129,6 +145,11 @@ int main(void)
             DrawText(s1.c_str(), 10, 180, 20, BLACK);
             DrawText(s2.c_str(), 10, 200, 20, BLACK);
             DrawText(s3.c_str(), 10, 220, 20, BLACK);
+
+            for (RPressButton rpb : rbtns)
+                rpb.draw();
+
+            DrawText("FPS MAX", 2*rbtns[1].x, rbtns[1].y, 20, BLACK);
 
         EndDrawing();
 
