@@ -19,12 +19,19 @@ private:
     const BlockType border = BORDER;
 
     static const int posAmount = 4;
-    const array<Vec3I, posAmount> posToTestArr =
+    const array<Vec3I, posAmount> posToTestArr1 =
     {
-        Vec3I{ 0, 1, -1},
-        Vec3I{-1, 1,  0},
-        Vec3I{ 0, 1,  1},
-        Vec3I{ 1, 1,  0}
+        Vec3I{ 0, 0, -1},
+        Vec3I{-1, 0,  0},
+        Vec3I{ 0, 0,  1},
+        Vec3I{ 1, 0,  0}
+    };
+    const array<Vec3I, posAmount> posToTestArr2 =
+    {
+        Vec3I{ 0, -1, -1},
+        Vec3I{-1, -1,  0},
+        Vec3I{ 0, -1,  1},
+        Vec3I{ 1, -1,  0}
     };
 
     Vector3 drawShift = {
@@ -154,38 +161,41 @@ public:
 
     void sandStep(const Vec3I & pos, BlockType & block)
     {
-        {
-            const Vec3I blockToTestCoord = pos - Vec3I{0, 1, 0};
+        { // The block tries to fall straight down
+            const Vec3I underBlockCoord = pos - Vec3I{0, 1, 0};
 
-            if (this->blockConst(blockToTestCoord) == AIR)
+            if (this->blockConst(underBlockCoord) == AIR)
             {
-                this->block(blockToTestCoord) = SAND;
+                this->block(underBlockCoord) = SAND;
                 block = AIR;
                 return;
             }
         }
 
-        int seed = rand();
+        vector<int> validPosIndexes; // The block checks which horizontal directions it is allowed to move in
+        for (int i = 0; i < this->posAmount; i++)
+            if (this->blockConst(pos + posToTestArr1[i]) == AIR)
+                validPosIndexes.push_back(i);
 
-        array<int, posAmount> randIndexArr = {0, 1, 2, 3};
-        for(int i = 0; i < posAmount - 1; i++)
+        int validPosAmount = validPosIndexes.size(); // The block counts the horizontal directions it is allowed to move in
+
+        if (validPosAmount == 0) return; // The block is surrourded by 4 solid blocks
+
+        int seed = rand(); // randomization of direction order the block will try to move in
+        for(int i = 0; i < validPosAmount - 1; i++)
         {
-            int tmp = randIndexArr[i];
-            randIndexArr[i] = randIndexArr[seed % (posAmount - i) + i];
-            randIndexArr[seed % (posAmount - i) + i] = tmp;
+            int tmp = validPosIndexes[i];
+            validPosIndexes[i] = validPosIndexes[seed % (validPosAmount - i) + i];
+            validPosIndexes[seed % (validPosAmount - i) + i] = tmp;
         }
         
-        vector<Vec3I> blocksToTestCoords;
-        for (int rIndex : randIndexArr)
-            blocksToTestCoords.push_back(pos + posToTestArr[rIndex]);
-        
-        for (Vec3I blockToTestCoord : blocksToTestCoords)
+        for (int i : validPosIndexes) // The block tries to fall on the sides
         {
-            const BlockType & blockToTest = this->blockConst(blockToTestCoord);
+            const Vec3I diagBlockCoord = pos + posToTestArr2[i];
 
-            if (blockToTest == AIR)
+            if (this->blockConst(diagBlockCoord) == AIR)
             {
-                this->block(blockToTestCoord) = SAND;
+                this->block(diagBlockCoord) = SAND;
                 block = AIR;
                 return;
             }
