@@ -64,7 +64,9 @@ int main(void)
                 {
                     if (spawnCounter <= 0)
                     {
-                        sworld.createOneBlockOnTop(sworld.getWidth()/2 - 5, sworld.getWidth()/2 + 5, sworld.getDepth()/2 - 5, sworld.getDepth()/2 + 5);
+                        // sworld.createOneBlockOnTop(sworld.getWidth()/2 - 5, sworld.getWidth()/2 + 5, sworld.getDepth()/2 - 5, sworld.getDepth()/2 + 5);
+                        sworld.createOneBlockOnTop(sworld.getWidth()/2 - 1, sworld.getWidth()/2 + 1, sworld.getDepth()/2 - 1, sworld.getDepth()/2 + 1);
+
                         spawnCounter = simulationPerSecond / spawnPerSecond;
                     }
 

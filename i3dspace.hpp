@@ -35,9 +35,25 @@ private:
 public:
     Int3DSpace() : mtx(WLEN, vector<vector<Voxel>>(HLEN, vector<Voxel>(DLEN, Voxel{AIR}))) {}
 
+    int getWidth() const { return WLEN; }
+
+    int getHeight() const { return HLEN; }
+
+    int getDepth() const { return DLEN; }
+    
+    int getVolume() const { return WLEN*HLEN*DLEN; }
+
+
+
+    WorldMTX & getWorld() { return this->mtx; }
+
+    const WorldMTX & getWorld() const { return this->mtx; }
+
+
+
     BlockType & block(int x, int y, int z)
     {
-        return this->mtx[x][y][z].block;
+        return this->getWorld()[x][y][z].block;
     }
 
     BlockType & block(const Vec3I & v)
@@ -48,7 +64,7 @@ public:
     const BlockType & block(int x, int y, int z) const
     {
         if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || DLEN <= z) return this->border;
-        return this->mtx[x][y][z].block;
+        return this->getWorld()[x][y][z].block;
     }
 
     const BlockType & blockConst(int x, int y, int z) const
@@ -68,10 +84,48 @@ public:
 
 
 
+    // could be optimised
+    // ret[0] = count sand
+    // ret[1] = count static block
+    // total_without_air = ret[0]+ret[1]
+    array<int, 2> countBlockStats() const
+    {
+        array<int, 2> acc{0,0};
+
+        for (int y = 0; y < HLEN; y++)
+            for (int x = 0; x < WLEN; x++)
+                for (int z = 0; z < DLEN; z++) 
+                {
+                    const BlockType & currentBt = this->blockConst(x,y,z);
+
+                    if (currentBt == SAND) acc[0]++;
+                    if ((currentBt != AIR) && (currentBt != SAND)) acc[1]++;
+                }
+
+        return acc;
+    }
+
+
+
+    void createFlatFloor(int y, BlockType block)
+    {
+        if (y < 0 || HLEN <= y)
+        {
+            cout << "y is out of bound." << endl;
+            return;
+        }
+
+        for (int x = 0; x < WLEN; x++)
+            for (int z = 0; z < DLEN; z++)
+                this->block(x, y, z) = block;
+    }
+
     void createOneBlockOnTop(int xStart = 0, int xEnd = WLEN, int zStart = 0, int zEnd = DLEN)
     {
         this->block(rand() % (xStart - xEnd) + xStart, HLEN - 1, rand() % (zStart - zEnd) + zStart) = SAND;
     }
+
+
 
     void step()
     {
@@ -134,52 +188,8 @@ public:
             }
         }
     }
-    
-    int getVolume() const { return WLEN*HLEN*DLEN; }
 
-    int getWidth() const { return WLEN; }
 
-    int getHeight() const { return HLEN; }
-
-    int getDepth() const { return DLEN; }
-
-    // could be optimised
-    // ret[0] = count sand
-    // ret[1] = count static block
-    // total_without_air = ret[0]+ret[1]
-    array<int, 2> countBlockStats() const
-    {
-        array<int, 2> acc{0,0};
-
-        for (int y = 0; y < HLEN; y++)
-            for (int x = 0; x < WLEN; x++)
-                for (int z = 0; z < DLEN; z++) 
-                {
-                    const BlockType& currentBt = blockConst(x,y,z);
-
-                    if (currentBt == SAND) acc[0]++;
-                    if ((currentBt != AIR) && (currentBt != SAND)) acc[1]++;
-                }
-
-        return acc;
-    }
-
-    WorldMTX & getWorld() { return this->mtx; }
-
-    const WorldMTX & getWorld() const { return this->mtx; }
-    
-    void createFlatFloor(int y, BlockType block)
-    {
-        if (y < 0 || HLEN <= y)
-        {
-            cout << "y is out of bound." << endl;
-            return;
-        }
-
-        for (int x = 0; x < WLEN; x++)
-            for (int z = 0; z < DLEN; z++)
-                this->block(x, y, z) = block;
-    }
 
     void drawWorld() const
     {
