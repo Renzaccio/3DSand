@@ -13,26 +13,22 @@ struct Voxel
     Voxel(BlockType bl) : block{bl} {}
 };
 
-typedef vector<vector<vector<Voxel>>> WorldMTX; 
+typedef vector<vector<vector<Voxel>>> WorldMTX;
 
-void placeChair3x4x3(WorldMTX& atmtx, Vec3I origin)
+void placeChair3x4x3(WorldMTX & atmtx, const Vec3I & origin)
 {
-    int atx = origin.x;
-    int aty = origin.y;
-    int atz = origin.z;
-
     //pieds
-    atmtx[atx][aty][atz] = Voxel{WOOD};
-    atmtx[atx][aty][atz+2] = Voxel{WOOD};
-    atmtx[atx+2][aty][atz] = Voxel{WOOD};
-    atmtx[atx+2][aty][atz+2] = Voxel{WOOD};
+    atmtx[origin.x  ][origin.y][origin.z  ] = Voxel{WOOD};
+    atmtx[origin.x  ][origin.y][origin.z+2] = Voxel{WOOD};
+    atmtx[origin.x+2][origin.y][origin.z  ] = Voxel{WOOD};
+    atmtx[origin.x+2][origin.y][origin.z+2] = Voxel{WOOD};
 
     //plateau
     for (int x = 0; x < 3; x++)
     {
         for (int z = 0; z < 3; z++)
         {
-            atmtx[atx+x][aty+1][atz+z] = Voxel{WOOD};
+            atmtx[origin.x+x][origin.y+1][origin.z+z] = Voxel{WOOD};
         }
     }
 
@@ -41,24 +37,20 @@ void placeChair3x4x3(WorldMTX& atmtx, Vec3I origin)
     {
         for (int x = 0; x < 3; x++)
         {
-            atmtx[atx+x][aty+y][atz+2] = Voxel{WOOD};
+            atmtx[origin.x+x][origin.y+y][origin.z+2] = Voxel{WOOD};
         }
     }
 }
 
-void placeTable5x5x5(WorldMTX& atmtx, Vec3I origin)
+void placeTable5x5x5(WorldMTX & atmtx, const Vec3I & origin)
 {
-    int atx = origin.x;
-    int aty = origin.y;
-    int atz = origin.z;
-
     //pieds
     for (int y = 0; y < 3; y++)
     {
-        atmtx[atx][aty+y][atz] = Voxel{STONE};
-        atmtx[atx][aty+y][atz+4] = Voxel{STONE};
-        atmtx[atx+4][aty+y][atz] = Voxel{STONE};
-        atmtx[atx+4][aty+y][atz+4] = Voxel{STONE};
+    atmtx[origin.x  ][origin.y+y][origin.z  ] = Voxel{STONE};
+    atmtx[origin.x  ][origin.y+y][origin.z+4] = Voxel{STONE};
+    atmtx[origin.x+4][origin.y+y][origin.z  ] = Voxel{STONE};
+    atmtx[origin.x+4][origin.y+y][origin.z+4] = Voxel{STONE};
     }
 
     //plateau
@@ -66,7 +58,7 @@ void placeTable5x5x5(WorldMTX& atmtx, Vec3I origin)
     {
         for (int z = 0; z < 5; z++)
         {
-            atmtx[atx+x][aty+3][atz+z] = Voxel{WOOD};
+            atmtx[origin.x+x][origin.y+3][origin.z+z] = Voxel{WOOD};
         }
     }
 }
