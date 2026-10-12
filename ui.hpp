@@ -8,10 +8,10 @@ using namespace std;
 
 struct RPressButton : Rectangle
 {
-    Color color{1,1,1,255};
+    Color color{255,255,255,255};
     string text = "";
     int textSize;
-    Color textColor{1,1,1,255};
+    Color textColor{0,0,0,255};
     function<void()> callback;
     
 
@@ -20,12 +20,18 @@ struct RPressButton : Rectangle
 
     void draw()
     {
-        DrawRectangle(this->x, this->y, this->width, this->height, this->color);
-        DrawText(text.c_str(), this->x, this->y, this->textSize, this->textColor);
+        draw(this->x, this->y);
     }
 
-    void operator()()
+    void draw(int xX, int yY)
     {
-        callback();
+        DrawRectangle(xX, yY, this->width, this->height, this->color);
+        DrawText(text.c_str(), xX, yY, this->textSize, this->textColor);
     }
+    
+    void draw(int yY) {
+        draw(this->x, yY);
+    }
+
+    void operator () () { callback(); }
 };

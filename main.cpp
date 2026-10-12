@@ -21,14 +21,14 @@ int main(void)
     Int3DSpace<WL, HL, DL> sworld{};
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
-    // placeChair3x4x3(sworld.getWorld(), {2,2,2});
-    // placeTable5x5x5(sworld.getWorld(), {10,2,10});
+    // placeChair3x4x3(sworld.getWorld(), {30,2,30});
+    // placeTable5x5x5(sworld.getWorld(), {40,2,40});
 
     // sworld.block(5, 7, 5) = SAND;
     // sworld.block(5, 8, 5) = SAND;
     // sworld.block(5, 9, 5) = SAND;
 
-    int targetFPS = 144;
+    int targetFPS = 60;
 
     int simulationCounter = 0;
     int simulationPerSecond = 30;
@@ -49,8 +49,8 @@ int main(void)
 
     vector<RPressButton> rbtns{
         // Change fps max, +1 or -1
-        RPressButton {10.0f, 40+250.0f, 60.0f, 40.0f, RED, [&targetFPS]() { if ((targetFPS-1) > 5) targetFPS--; cout << targetFPS << endl; }, " - ", 20, BLACK},
-        RPressButton {60+10+10.0f, 40+250.0f, 60.0f, 40.0f, GREEN, [&targetFPS]() { targetFPS++; cout << targetFPS << endl; }, " + ", 20, BLACK},
+        RPressButton {10.0f, 10.0f, 26.0f, 19.0f, RED,   [&targetFPS]() { if (targetFPS > 5) targetFPS--; cout << targetFPS << endl; }, " - ", 20, BLACK},
+        RPressButton {46.0f, 10.0f, 26.0f, 19.0f, GREEN, [&targetFPS]() {                    targetFPS++; cout << targetFPS << endl; }, " + ", 20, BLACK},
         //
     };
 
@@ -86,6 +86,13 @@ int main(void)
                             (sworld.getDepth() - flow)/2,
                             sworld.getDepth()/2 + flow
                         );
+
+                        // sworld.createOneBlockOnTop(
+                        //     (sworld.getWidth() - flow)/2 + 10,
+                        //     sworld.getWidth()/2 + flow + 10,
+                        //     (sworld.getDepth() - flow)/2,
+                        //     sworld.getDepth()/2 + flow
+                        // );
 
                         spawnCounter = simulationPerSecond / spawnPerSecond;
                     }
@@ -134,8 +141,12 @@ int main(void)
             EndMode3D();
 
 
+            for (RPressButton rpb : rbtns)
+                rpb.draw();
+
             Counter<20> posY(10);
 
+            DrawText((to_string(targetFPS) + " FPS MAX").c_str(), 82, posY(), 20, BLACK);
             DrawFPS(10, posY());
 
             const string s01 = to_string(sandAmount) + " sand" + ((sandAmount > 1) ? "s" : "") + " / " + to_string(staticBlockAmount) + " static block" + ((staticBlockAmount > 1) ? "s" : "");
