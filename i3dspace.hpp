@@ -17,31 +17,38 @@ private:
     BlockType dummy = BORDER;
 
     static const int posAmount = 4;
-    const array<Vec3I, posAmount> posToTestArr1 =
+    const array<Vec3I, posAmount> verticalPosArr = // not really a "logic suit" compare to the other posArrays
+    { 
+        Vec3I{0,  1, 0},
+        Vec3I{0, -1, 0}
+    };
+    const array<Vec3I, posAmount> sidePosArr =
     {
         Vec3I{ 0, 0, -1},
         Vec3I{-1, 0,  0},
         Vec3I{ 0, 0,  1},
         Vec3I{ 1, 0,  0}
     };
-    const array<Vec3I, posAmount> posToTestArr2 =
+    const array<Vec3I, posAmount> sideFallPosArr =
     {
         Vec3I{ 0, -1, -1},
         Vec3I{-1, -1,  0},
         Vec3I{ 0, -1,  1},
         Vec3I{ 1, -1,  0}
     };
-    const array<Vec3I, posAmount> posToTestArr3 =
+    const array<Vec3I, posAmount> diagPosArr =
+    {
+        Vec3I{ 1, 0, -1},
+        Vec3I{-1, 0, -1},
+        Vec3I{-1, 0,  1},
+        Vec3I{ 1, 0,  1}
+    };
+    const array<Vec3I, posAmount> diagFallPosArr =
     {
         Vec3I{ 1, -1, -1},
         Vec3I{-1, -1, -1},
         Vec3I{-1, -1,  1},
         Vec3I{ 1, -1,  1}
-    };
-    const array<Vec3I, posAmount> posToTestArr4 = // no really a "logic suit" compare to the top posToTestArr
-    { 
-        Vec3I{0,  1, 0},
-        Vec3I{0, -1, 0}
     };
 
     Vector3 drawShift = {
@@ -172,7 +179,7 @@ public:
     void sandStep(const Vec3I & pos, BlockType & block)
     {
         { // The block tries to fall straight down
-            const Vec3I underBlockCoord = pos - Vec3I{0, 1, 0};
+            const Vec3I underBlockCoord = pos - verticalPosArr[0];
 
             if (this->blockConst(underBlockCoord) == AIR)
             {
@@ -184,7 +191,7 @@ public:
 
         vector<int> validPosIndexes; // The block checks which horizontal directions it is allowed to move in
         for (int i = 0; i < this->posAmount; i++)
-            if (this->blockConst(pos + posToTestArr1[i]) == AIR)
+            if (this->blockConst(pos + sidePosArr[i]) == AIR)
                 validPosIndexes.push_back(i);
 
         int validPosAmount = validPosIndexes.size(); // The block counts the horizontal directions it is allowed to move in
@@ -201,7 +208,7 @@ public:
         
         for (int i : validPosIndexes) // The block tries to fall sideways
         {
-            const Vec3I diagBlockCoord = pos + posToTestArr2[i];
+            const Vec3I diagBlockCoord = pos + sideFallPosArr[i];
 
             if (this->blockConst(diagBlockCoord) == AIR)
             {
@@ -213,9 +220,9 @@ public:
         
         for (int i : validPosIndexes) // The block tries to move sideways
         {
-            if (this->blockConst(pos + posToTestArr3[i]) == AIR || this->blockConst(pos + posToTestArr3[(i+1)%this->posAmount]) == AIR)
+            if (this->blockConst(pos + diagFallPosArr[i]) == AIR || this->blockConst(pos + diagFallPosArr[(i+1)%this->posAmount]) == AIR)
             {
-                this->block(pos + posToTestArr1[i]) = SAND;
+                this->block(pos + sidePosArr[i]) = SAND;
                 block = AIR;
                 return;
             }
@@ -230,12 +237,12 @@ public:
             return true;
 
         return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
-            blockConst(pos + posToTestArr1[0]) == AIR ||
-            blockConst(pos + posToTestArr1[1]) == AIR ||
-            blockConst(pos + posToTestArr1[2]) == AIR ||
-            blockConst(pos + posToTestArr1[3]) == AIR ||
-            blockConst(pos + posToTestArr4[0]) == AIR ||
-            blockConst(pos + posToTestArr4[1]) == AIR;
+            blockConst(pos + sidePosArr[0]) == AIR ||
+            blockConst(pos + sidePosArr[1]) == AIR ||
+            blockConst(pos + sidePosArr[2]) == AIR ||
+            blockConst(pos + sidePosArr[3]) == AIR ||
+            blockConst(pos + verticalPosArr[0]) == AIR ||
+            blockConst(pos + verticalPosArr[1]) == AIR;
     }
 
     void updateWorldVoxelVisibility()

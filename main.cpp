@@ -125,7 +125,7 @@ int main(void)
                 staticBlockAmount = simuBlockStat[1];
 
                 // Updating Blocks visibility
-                sworld.updateWorldVoxelVisibility();
+                // sworld.updateWorldVoxelVisibility();
             }
         }
         else
