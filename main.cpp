@@ -54,6 +54,8 @@ int main(void)
         //
     };
 
+    int
+
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
@@ -65,7 +67,7 @@ int main(void)
         if (IsKeyPressed(KEY_SPACE))
             isAutomatonRun = !isAutomatonRun;
 
-        if (IsKeyPressed(KEY_L))
+        if (IsKeyPressed(KEY_R))
             isSpawningRun = !isSpawningRun;
 
         if(isAutomatonRun)
@@ -128,7 +130,6 @@ int main(void)
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
                     rpb();
 
-
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
@@ -156,10 +157,11 @@ int main(void)
 
             DrawText("SAND 3D SIMULATION", 10, posY(), 20, DARKGRAY);
 
-            if(isAutomatonRun)
-                DrawText("PRESS [ SPACE ] TO PAUSE", 10, posY(), 20, GREEN);
-            else
-                DrawText("PRESS [ SPACE ] TO START", 10, posY(), 20, RED);
+            if(isAutomatonRun) DrawText("PRESS [ SPACE ] TO PAUSE", 10, posY(), 20, GREEN);
+            else               DrawText("PRESS [ SPACE ] TO START", 10, posY(), 20, RED);
+
+            if(isSpawningRun) DrawText("PRESS [ R ] TO DISABLE SAND POURING", 10, posY(), 20, GREEN);
+            else              DrawText("PRESS [ R ] TO ENABLE SAND POURING", 10, posY(), 20, RED);
 
             DrawText("Lateral Moves [ ZQSD | WASD ]", 10, posY(), 20, BLUE);
             DrawText("Vertical Moves [ E/A | E/Q ]", 10, posY(), 20, BLUE);
