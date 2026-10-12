@@ -281,16 +281,15 @@ public:
         for (int y = 0; y < HLEN; y++)
             for (int x = 0; x < WLEN; x++)
                 for (int z = 0; z < DLEN; z++)
-                    if ((this->mtx[x][y][z]).isVisible)
-                        this->drawVoxel(x, y, z);
+                    if (this->voxelConst(x, y, z).isVisible)
+                        this->drawVoxel({ x, y, z });
     }
 
-    void drawVoxel(int x, int y, int z) const
-    {   
-        Vector3 voxelPosition = { (float) x, (float) y, (float) z };
-        Vector3 position = voxelPosition + this->drawShift;
-    
-        switch (this->block(x, y, z))
+    void drawVoxel(const Vec3I & pos) const
+    {
+        Vector3 position = pos + this->drawShift;
+
+        switch (this->block(pos))
         {
             case DIRT:
                 DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
@@ -314,6 +313,7 @@ public:
                 break;
         }
     }
+
     
     void printWorld() const
     {
