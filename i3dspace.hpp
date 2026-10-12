@@ -15,8 +15,9 @@ private:
     WorldMTX mtx;
     const Voxel border{BORDER};
 
+    static const int posAmountShort = 2;
     static const int posAmount = 4;
-    const array<Vec3I, posAmount> verticalPosArr = // not really a "logic suit" compare to the other posArrays
+    const array<Vec3I, posAmountShort> verticalPosArr = // not really a "logic suit" compare to the other posArrays
     { 
         Vec3I{0,  1, 0},
         Vec3I{0, -1, 0}
@@ -178,6 +179,7 @@ public:
             {
                 this->block(underBlockCoord) = SAND;
                 block = AIR;
+                activateNeighboursVisibility(pos);
                 return;
             }
         }
@@ -196,7 +198,7 @@ public:
         }
 
         int seed = rand(); // randomization of direction order the block will try to move in
-        for(int i = 0; i < validPosAmount - 1; i++)
+        for (int i = 0; i < validPosAmount - 1; i++)
         {
             int tmp = validPosIndexes[i];
             validPosIndexes[i] = validPosIndexes[seed % (validPosAmount - i) + i];
@@ -205,12 +207,13 @@ public:
         
         for (int i : validPosIndexes) // The block tries to fall sideways
         {
-            const Vec3I diagBlockCoord = pos + sideFallPosArr[i];
+            const Vec3I sideFallBlockCoord = pos + sideFallPosArr[i];
 
-            if (this->blockConst(diagBlockCoord) == AIR)
+            if (this->blockConst(sideFallBlockCoord) == AIR)
             {
-                this->block(diagBlockCoord) = SAND;
+                this->block(sideFallBlockCoord) = SAND;
                 block = AIR;
+                activateNeighboursVisibility(pos);
                 return;
             }
         }
@@ -219,8 +222,10 @@ public:
         {
             if (this->blockConst(pos + diagFallPosArr[i]) == AIR || this->blockConst(pos + diagFallPosArr[(i+1)%this->posAmount]) == AIR)
             {
-                this->block(pos + sidePosArr[i]) = SAND;
+                Vec3I sideBlockCoord = pos + sidePosArr[i];
+                this->block(sideBlockCoord) = SAND;
                 block = AIR;
+                activateNeighboursVisibility(pos);
                 return;
             }
         }
@@ -230,7 +235,7 @@ public:
 
 
 
-    bool isVoxelVisible(const Vec3I pos) const
+    bool isVoxelVisible(const Vec3I & pos) const
     {
         if (pos.x == 0 || pos.x == WLEN - 1 ||
             pos.y == 0 || pos.y == HLEN - 1 ||
@@ -246,14 +251,30 @@ public:
             blockConst(pos + verticalPosArr[1]) == AIR;
     }
 
+    void activateNeighboursVisibility(const Vec3I & pos)
+    {
+        for (const Vec3I & verticalPos : this->verticalPosArr)
+        {
+            Vec3I neighbourPos = pos + verticalPos;
+            if (0 <= neighbourPos.x && neighbourPos.x < WLEN && 0 <= neighbourPos.y && neighbourPos.y < HLEN && 0 <= neighbourPos.z && neighbourPos.z < DLEN)
+                this->voxel(neighbourPos).isVisible = true;
+        }
+
+        for (const Vec3I & sidePos     : this->sidePosArr)
+        {
+            Vec3I neighbourPos = pos + sidePos;
+            if (0 <= neighbourPos.x && neighbourPos.x < WLEN && 0 <= neighbourPos.y && neighbourPos.y < HLEN && 0 <= neighbourPos.z && neighbourPos.z < DLEN)
+                this->voxel(neighbourPos).isVisible = true;
+        }
+    }
+
     void updateWorldVoxelVisibility()
     {
         for (int y = 0; y < HLEN; y++)
             for (int x = 0; x < WLEN; x++)
                 for (int z = 0; z < DLEN; z++)
                 {
-                    Voxel & vx = this->getWorld()[x][y][z];
-                    vx.isVisible = this->isVoxelVisible(Vec3I {x, y, z});
+                    this->voxel(x, y, z).isVisible = this->isVoxelVisible({ x, y, z });
                 }
     }
 
@@ -270,7 +291,7 @@ public:
                     const BlockType & currentBt = this->blockConst(x,y,z);
 
                     if (currentBt == SAND) blockAmountArr[0]++;
-                    if ((currentBt != AIR) && (currentBt != SAND)) blockAmountArr[1]++;
+                    else if (currentBt != AIR) blockAmountArr[1]++;
                 }
     }
 
@@ -313,7 +334,6 @@ public:
                 break;
         }
     }
-
     
     void printWorld() const
     {
