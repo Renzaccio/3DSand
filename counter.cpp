@@ -1,12 +1,11 @@
-struct Counter
+template<int stepVal = 1> struct Counter
 {
 private:
     int value;
-    int stepVal;
 
 public:
-    Counter() : Counter(0, 1) {}
-    Counter(int start, int stepInit) { this->value = start; this->stepVal = stepInit; }
+    Counter() : Counter(0) {}
+    Counter(int start) { this->value = start; }
 
     int operator () ()
     {
@@ -17,5 +16,5 @@ public:
 
     int get() const { return this->value; }
 
-    void step() { this->value += this->stepVal; }
+    void step() { this->value += stepVal; }
 };

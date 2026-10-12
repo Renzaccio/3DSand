@@ -5,12 +5,15 @@
 
 using namespace std;
 
-enum BlockType { AIR, SAND, DIRT, BORDER, DEBUG, STONE, WOOD };
+enum BlockType { AIR, STONE, DIRT, WOOD, SAND, BORDER, DEBUG };
 
 struct Voxel
 {
     BlockType block;
-    // Voxel(BlockType bl) : block{bl} {}
+    bool canMove = true;
+
+    Voxel(BlockType bl) : block{bl} {}
+    Voxel() : block{AIR} {}
 };
 
 typedef vector<vector<vector<Voxel>>> WorldMTX;

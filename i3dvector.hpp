@@ -11,7 +11,8 @@ struct Vec3I {
         this->x = xX;
         this->y = yY;
         this->z = zZ;
-    }
+    }    
+    Vec3I(const Vec3I & v) : Vec3I(v.x, v.y, v.z) {}
 };
 
 inline Vec3I operator + (const Vec3I & lhs, const Vec3I & rhs)

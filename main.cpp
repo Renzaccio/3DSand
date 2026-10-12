@@ -1,7 +1,7 @@
-#include "i3dspace.hpp"
-#include "camera.hpp"
-#include "counter.cpp"
 #include <string>
+#include "counter.cpp"
+#include "camera.hpp"
+#include "i3dspace.hpp"
 
 using namespace std;
 
@@ -78,13 +78,6 @@ int main(void)
                             sworld.getDepth()/2 + flow
                         );
 
-                        sworld.createOneBlockOnTop(
-                            (sworld.getWidth() - flow)/2,
-                            sworld.getWidth()/2 + flow,
-                            (sworld.getDepth() - flow)/2,
-                            sworld.getDepth()/2 + flow
-                        );
-
                         spawnCounter = simulationPerSecond / spawnPerSecond;
                     }
 
@@ -114,18 +107,18 @@ int main(void)
         }
 
         BeginDrawing();
-
+        {
             ClearBackground(RAYWHITE);
 
             BeginMode3D(camera);
-
+            {
                 sworld.drawWorld();
                 // DrawGrid(20, 1.0f);
-
+            }
             EndMode3D();
 
 
-            Counter posY(10, 20);
+            Counter<20> posY(10);
 
             DrawFPS(10, posY());
 
@@ -154,7 +147,7 @@ int main(void)
             DrawText(s1.c_str(), 10, posY(), 20, BLACK);
             DrawText(s2.c_str(), 10, posY(), 20, BLACK);
             DrawText(s3.c_str(), 10, posY(), 20, BLACK);
-
+        }
         EndDrawing();
 
         clock++;
