@@ -2,22 +2,23 @@
 #include "counter.cpp"
 #include "camera.hpp"
 #include "i3dspace.hpp"
+#include "include/raylib.h"
 #include "ui.hpp"
 
 using namespace std;
 
 int main(void)
 {
-    const int screenWidth = 800*2;
-    const int screenHeight = 450*2;
+    const static int screenWidth = 1600;
+    const static int screenHeight = 900;
 
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
 
     OrientatedCamera camera{};
 
-    const int WL = 75;
-    const int HL = 30;
-    const int DL = 75;
+    const static int WL = 75;
+    const static int HL = 30;
+    const static int DL = 75;
     Int3DSpace<WL, HL, DL> sworld{};
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
@@ -28,12 +29,12 @@ int main(void)
     // sworld.block(5, 8, 5) = SAND;
     // sworld.block(5, 9, 5) = SAND;
 
-    int targetFPS = 60;
+    int targetFPS = GetMonitorRefreshRate(GetCurrentMonitor());
 
     int simulationCounter = 0;
-    int simulationPerSecond = 30;
+    const static int simulationPerSecond = 30;
     int spawnCounter = 0;
-    int spawnPerSecond = 30;
+    const static int spawnPerSecond = 30;
     int clock = 0;
 
     int sandAmount = 0;
@@ -47,14 +48,14 @@ int main(void)
         staticBlockAmount = simuBlockStat[1];
     }
 
-    vector<RPressButton> rbtns{
-        // Change fps max, +1 or -1
-        RPressButton {10.0f, 10.0f, 26.0f, 19.0f, RED,   [&targetFPS]() { if (targetFPS > 5) targetFPS--; cout << targetFPS << endl; }, " - ", 20, BLACK},
-        RPressButton {46.0f, 10.0f, 26.0f, 19.0f, GREEN, [&targetFPS]() {                    targetFPS++; cout << targetFPS << endl; }, " + ", 20, BLACK},
-        //
-    };
+    const static int fontSize = 20;
 
-    int
+    vector<RPressButton> rbtns{ // buttons for changing fps
+        RPressButton {10,                10, fontSize * 2, fontSize * 9 / 10, RED,   [&targetFPS]() { if (targetFPS > 15) targetFPS -= 10; else targetFPS = 5; cout << targetFPS << endl; }, " -10 ", fontSize, BLACK},
+        RPressButton {20 + fontSize * 2, 10, fontSize * 2, fontSize * 9 / 10, RED,   [&targetFPS]() { if (targetFPS >  5) targetFPS--;                         cout << targetFPS << endl; }, " -1 ",  fontSize, BLACK},
+        RPressButton {30 + fontSize * 4, 10, fontSize * 2, fontSize * 9 / 10, GREEN, [&targetFPS]() {                     targetFPS++;                         cout << targetFPS << endl; }, " +1 ",  fontSize, BLACK},
+        RPressButton {40 + fontSize * 6, 10, fontSize * 2, fontSize * 9 / 10, GREEN, [&targetFPS]() {                     targetFPS += 10;                     cout << targetFPS << endl; }, " +10 ", fontSize, BLACK},
+    };
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
@@ -145,37 +146,37 @@ int main(void)
             for (RPressButton rpb : rbtns)
                 rpb.draw();
 
-            Counter<20> posY(10);
+            Counter<fontSize> posY(10);
 
-            DrawText((to_string(targetFPS) + " FPS MAX").c_str(), 82, posY(), 20, BLACK);
-            DrawFPS(10, posY());
+            DrawText((to_string(targetFPS) + " FPS MAX").c_str(), 50 + fontSize * 8, posY(), fontSize, BLACK);
+            DrawText((to_string(GetFPS()) + " FPS").c_str(), 10, posY(), fontSize, DARKGREEN);
 
             const string s01 = to_string(sandAmount) + " sand" + ((sandAmount > 1) ? "s" : "") + " / " + to_string(staticBlockAmount) + " static block" + ((staticBlockAmount > 1) ? "s" : "");
-            DrawText(s01.c_str(), 10, posY(), 20, DARKGRAY);
+            DrawText(s01.c_str(), 10, posY(), fontSize, DARKGRAY);
 
             posY.step();
 
-            DrawText("SAND 3D SIMULATION", 10, posY(), 20, DARKGRAY);
+            DrawText("SAND 3D SIMULATION", 10, posY(), fontSize, DARKGRAY);
 
-            if(isAutomatonRun) DrawText("PRESS [ SPACE ] TO PAUSE", 10, posY(), 20, GREEN);
-            else               DrawText("PRESS [ SPACE ] TO START", 10, posY(), 20, RED);
+            if(isAutomatonRun) DrawText("PRESS [ SPACE ] TO PAUSE", 10, posY(), fontSize, GREEN);
+            else               DrawText("PRESS [ SPACE ] TO START", 10, posY(), fontSize, RED);
 
-            if(isSpawningRun) DrawText("PRESS [ R ] TO DISABLE SAND POURING", 10, posY(), 20, GREEN);
-            else              DrawText("PRESS [ R ] TO ENABLE SAND POURING", 10, posY(), 20, RED);
+            if(isSpawningRun) DrawText("PRESS [ R ] TO DISABLE SAND POURING", 10, posY(), fontSize, GREEN);
+            else              DrawText("PRESS [ R ] TO ENABLE SAND POURING", 10, posY(), fontSize, RED);
 
-            DrawText("Lateral Moves [ ZQSD | WASD ]", 10, posY(), 20, BLUE);
-            DrawText("Vertical Moves [ E/A | E/Q ]", 10, posY(), 20, BLUE);
-            DrawText("Rotating Camera [ Arrow Keys ]", 10, posY(), 20, BLUE);
-            DrawText("Fast/Slow Moves [ Left Shift / Left Ctrl ]", 10, posY(), 20, BLUE);
+            DrawText("Lateral Moves [ ZQSD | WASD ]", 10, posY(), fontSize, BLUE);
+            DrawText("Vertical Moves [ E/A | E/Q ]", 10, posY(), fontSize, BLUE);
+            DrawText("Rotating Camera [ Arrow Keys ]", 10, posY(), fontSize, BLUE);
+            DrawText("Fast/Slow Moves [ Left Shift / Left Ctrl ]", 10, posY(), fontSize, BLUE);
 
             posY.step();
 
             const string s1 = "| x=" + to_string((int) camera.position.x);
             const string s2 = "| y=" + to_string((int) camera.position.y);
             const string s3 = "| z=" + to_string((int) camera.position.z);
-            DrawText(s1.c_str(), 10, posY(), 20, BLACK);
-            DrawText(s2.c_str(), 10, posY(), 20, BLACK);
-            DrawText(s3.c_str(), 10, posY(), 20, BLACK);
+            DrawText(s1.c_str(), 10, posY(), fontSize, BLACK);
+            DrawText(s2.c_str(), 10, posY(), fontSize, BLACK);
+            DrawText(s3.c_str(), 10, posY(), fontSize, BLACK);
         }
         EndDrawing();
 
