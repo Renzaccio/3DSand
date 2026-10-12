@@ -15,9 +15,9 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 100;
-    const int HL = 70;
-    const int DL = 100;
+    const int WL = 80;
+    const int HL = 50;
+    const int DL = 80;
     Int3DSpace<WL, HL, DL> sworld{};
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
@@ -55,8 +55,8 @@ int main(void)
 
     vector<RPressButton> rbtns{
         // Change fps max, +1 or -1
-        RPressButton {10.0f, 10.0f, 26.0f, 19.0f, RED,   [&targetFPS]() { if (targetFPS > 5) targetFPS--; cout << targetFPS << endl; }, " - ", 20, BLACK},
-        RPressButton {46.0f, 10.0f, 26.0f, 19.0f, GREEN, [&targetFPS]() {                    targetFPS++; cout << targetFPS << endl; }, " + ", 20, BLACK},
+        RPressButton {10.0f, 10.0f, 26.0f, 19.0f, RED,   [&targetFPS]() { if (targetFPS > 5) targetFPS--; }, " - ", 20, BLACK},
+        RPressButton {46.0f, 10.0f, 26.0f, 19.0f, GREEN, [&targetFPS]() {                    targetFPS++; }, " + ", 20, BLACK},
         //
     };
 
@@ -64,7 +64,6 @@ int main(void)
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
         // Update
-        cout << targetFPS << endl;
         SetTargetFPS(targetFPS);
         camera.moveCamera(GetFPS());
 
@@ -135,9 +134,7 @@ int main(void)
 
         // check if btns is pressed
         for (RPressButton rpb : rbtns)
-            if (CheckCollisionPointRec(GetMousePosition(), rpb))
-                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-                    rpb();
+            rpb.executeIfPressed();
 
         BeginDrawing();
         {
