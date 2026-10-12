@@ -33,5 +33,10 @@ struct RPressButton : Rectangle
         draw(this->x, yY);
     }
 
-    void operator () () { callback(); }
+    void executeIfPressed()
+    {
+        if (CheckCollisionPointRec(GetMousePosition(), *this))
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+                this->callback();
+    }
 };

@@ -11,9 +11,10 @@ struct Voxel
 {
     BlockType block;
     bool canMove = true;
+    bool isVisible = true;
 
-    Voxel(BlockType bl) : block{bl} {}
     Voxel() : block{AIR} {}
+    Voxel(BlockType bl) : block{bl} {}
 };
 
 typedef vector<vector<vector<Voxel>>> WorldMTX;

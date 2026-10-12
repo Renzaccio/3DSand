@@ -22,8 +22,14 @@ int main(void)
     Int3DSpace<WL, HL, DL> sworld{};
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
-    // placeChair3x4x3(sworld.getWorld(), {30,2,30});
-    // placeTable5x5x5(sworld.getWorld(), {40,2,40});
+
+    for (int i = 2; i < 4; i++)
+        sworld.createFlatFloor(i, SAND);
+
+    sworld.updateWorldVoxelVisibility();
+    
+    // placeChair3x4x3(sworld.getWorld(), {2,2,2});
+    // placeTable5x5x5(sworld.getWorld(), {10,2,10});
 
     // sworld.block(5, 7, 5) = SAND;
     // sworld.block(5, 8, 5) = SAND;
@@ -50,18 +56,17 @@ int main(void)
 
     const static int fontSize = 20;
 
-    vector<RPressButton> rbtns{ // buttons for changing fps
-        RPressButton {10,                10, fontSize * 2, fontSize * 9 / 10, RED,   [&targetFPS]() { if (targetFPS > 15) targetFPS -= 10; else targetFPS = 5; cout << targetFPS << endl; }, " -10 ", fontSize, BLACK},
-        RPressButton {20 + fontSize * 2, 10, fontSize * 2, fontSize * 9 / 10, RED,   [&targetFPS]() { if (targetFPS >  5) targetFPS--;                         cout << targetFPS << endl; }, " -1 ",  fontSize, BLACK},
-        RPressButton {30 + fontSize * 4, 10, fontSize * 2, fontSize * 9 / 10, GREEN, [&targetFPS]() {                     targetFPS++;                         cout << targetFPS << endl; }, " +1 ",  fontSize, BLACK},
-        RPressButton {40 + fontSize * 6, 10, fontSize * 2, fontSize * 9 / 10, GREEN, [&targetFPS]() {                     targetFPS += 10;                     cout << targetFPS << endl; }, " +10 ", fontSize, BLACK},
+    vector<RPressButton> rbtns{ // Buttons for changing FPS
+        RPressButton {10,                10, fontSize * 2, fontSize * 9 / 10, RED,   [&targetFPS]() { if (targetFPS > 15) targetFPS -= 10; else targetFPS = 5; }, " -10 ", fontSize, BLACK},
+        RPressButton {20 + fontSize * 2, 10, fontSize * 2, fontSize * 9 / 10, RED,   [&targetFPS]() { if (targetFPS >  5) targetFPS--;                         }, " -1 ",  fontSize, BLACK},
+        RPressButton {30 + fontSize * 4, 10, fontSize * 2, fontSize * 9 / 10, GREEN, [&targetFPS]() {                     targetFPS++;                         }, " +1 ",  fontSize, BLACK},
+        RPressButton {40 + fontSize * 6, 10, fontSize * 2, fontSize * 9 / 10, GREEN, [&targetFPS]() {                     targetFPS += 10;                     }, " +10 ", fontSize, BLACK},
     };
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
         // Update
-        cout << targetFPS << endl;
         SetTargetFPS(targetFPS);
         camera.moveCamera(GetFPS());
 
@@ -112,11 +117,16 @@ int main(void)
 
             simulationCounter--;
 
-            if ((clock % targetFPS) == 0) // blocks are counted only once every second
+            if ((clock % targetFPS) == 0) // Blocks are counted only once every second
             {
                 array<int, 2> simuBlockStat = sworld.countBlockStats();
                 sandAmount = simuBlockStat[0];
                 staticBlockAmount = simuBlockStat[1];
+            }
+
+            if ((clock % (5*targetFPS)) == 0) // Blocks visibility are updated only once everey 5 sevonds - Florent propose better optimisation by neighbors approche
+            {
+                sworld.updateWorldVoxelVisibility();
             }
         }
         else
@@ -127,9 +137,7 @@ int main(void)
 
         // check if btns is pressed
         for (RPressButton rpb : rbtns)
-            if (CheckCollisionPointRec(GetMousePosition(), rpb))
-                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-                    rpb();
+            rpb.executeIfPressed();
 
         BeginDrawing();
         {
