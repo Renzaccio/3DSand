@@ -4,6 +4,7 @@
 #include "include/raylib.h"
 #include "include/raymath.h"
 #include "blocks.hpp"
+#include <algorithm>
 #include <array>
 #include <cstdlib>
 #include <iostream>
@@ -39,6 +40,11 @@ private:
         Vec3I{-1, -1, -1},
         Vec3I{-1, -1,  1},
         Vec3I{ 1, -1,  1}
+    };
+    const array<Vec3I, posAmount> posToTestArr4 = // no really a "logic suit" compare to the top posToTestArr
+    { 
+        Vec3I{ 0, 1, 0},
+        Vec3I{0, -1, 0}
     };
 
     Vector3 drawShift = {
@@ -219,20 +225,47 @@ public:
         }
     }
 
+    bool isVoxelVisible(const Vec3I pos) const
+    {
+        if (pos.x == 0 || pos.x == WLEN - 1 ||
+            pos.y == 0 || pos.y == HLEN - 1 ||
+            pos.z == 0 || pos.z == DLEN - 1)
+            return true;
+
+        return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
+            blockConst(pos + posToTestArr1[0]) == AIR ||
+            blockConst(pos + posToTestArr1[1]) == AIR ||
+            blockConst(pos + posToTestArr1[2]) == AIR ||
+            blockConst(pos + posToTestArr1[3]) == AIR ||
+            blockConst(pos + posToTestArr4[0]) == AIR ||
+            blockConst(pos + posToTestArr4[1]) == AIR;
+    }
+
+    void updateWorldVoxelVisibility()
+    {
+        for (int y = 0; y < HLEN; y++)
+            for (int x = 0; x < WLEN; x++)
+                for (int z = 0; z < DLEN; z++)
+                {
+                    Voxel& vx = this->getWorld()[x][y][z];
+                    vx.isVisible = this->isVoxelVisible(Vec3I {x, y, z});
+                }
+    }
 
     void drawWorld() const
     {
-        for (int x = 0; x < WLEN; x++)
-            for (int y = 0; y < HLEN; y++)
+        for (int y = 0; y < HLEN; y++)
+            for (int x = 0; x < WLEN; x++)
                 for (int z = 0; z < DLEN; z++)
-                    this->drawVoxel(x, y, z);
+                    if ((this->mtx[x][y][z]).isVisible)
+                        this->drawVoxel(x, y, z);
     }
 
     void drawVoxel(int x, int y, int z) const
-    {
+    {   
         Vector3 voxelPosition = { (float) x, (float) y, (float) z };
         Vector3 position = voxelPosition + this->drawShift;
-
+    
         switch (this->block(x, y, z))
         {
             case DIRT:

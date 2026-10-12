@@ -15,12 +15,18 @@ int main(void)
 
     OrientatedCamera camera{};
 
-    const int WL = 75;
-    const int HL = 30;
-    const int DL = 75;
+    const int WL = 100;
+    const int HL = 70;
+    const int DL = 100;
     Int3DSpace<WL, HL, DL> sworld{};
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
+
+    for (int i = 2; i < 4; i++)
+        sworld.createFlatFloor(i, SAND);
+
+    sworld.updateWorldVoxelVisibility();
+    
     // placeChair3x4x3(sworld.getWorld(), {2,2,2});
     // placeTable5x5x5(sworld.getWorld(), {10,2,10});
 
@@ -115,6 +121,11 @@ int main(void)
                 sandAmount = simuBlockStat[0];
                 staticBlockAmount = simuBlockStat[1];
             }
+
+            if ((clock % (5*targetFPS)) == 0) // blocks are counted only once every 5 seconds - florent propose better optimisation by neighbors approche
+            {
+                sworld.updateWorldVoxelVisibility();
+            }
         }
         else
         {
@@ -127,7 +138,6 @@ int main(void)
             if (CheckCollisionPointRec(GetMousePosition(), rpb))
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
                     rpb();
-
 
         BeginDrawing();
 

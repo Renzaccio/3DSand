@@ -10,6 +10,7 @@ enum BlockType { AIR, SAND, DIRT, BORDER, DEBUG, STONE, WOOD };
 struct Voxel
 {
     BlockType block;
+    bool isVisible = true;
     // Voxel(BlockType bl) : block{bl} {}
 };
 
