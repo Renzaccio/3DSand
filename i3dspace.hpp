@@ -14,8 +14,7 @@ class Int3DSpace
 {
 private:
     WorldMTX mtx;
-    const BlockType border = BORDER;
-    BlockType dummy = BORDER;
+    const Voxel border{BORDER};
 
     static const int posAmount = 4;
     const array<Vec3I, posAmount> verticalPosArr = // not really a "logic suit" compare to the other posArrays
@@ -60,52 +59,68 @@ private:
 public:
     Int3DSpace() : mtx(WLEN, vector<vector<Voxel>>(HLEN, vector<Voxel>(DLEN, Voxel()))) {}
 
-    int getWidth() const { return WLEN; }
+
+
+    int getWidth()  const { return WLEN; }
 
     int getHeight() const { return HLEN; }
 
-    int getDepth() const { return DLEN; }
+    int getDepth()  const { return DLEN; }
     
     int getVolume() const { return WLEN*HLEN*DLEN; }
 
 
 
-    WorldMTX & getWorld() { return this->mtx; }
+    WorldMTX & getWorld()             { return this->mtx; }
 
     const WorldMTX & getWorld() const { return this->mtx; }
 
 
 
-    BlockType & block(int x, int y, int z)
+    Voxel & voxel(int x, int y, int z)
     {
-        return this->getWorld()[x][y][z].block;
+        return this->getWorld()[x][y][z];
     }
 
-    BlockType & block(const Vec3I & v)
+    Voxel & voxel(const Vec3I & v)
     {
-        return this->block(v.x, v.y, v.z);
+        return this->voxel(v.x, v.y, v.z);
     }
 
-    const BlockType & block(int x, int y, int z) const
+    const Voxel & voxel(int x, int y, int z) const
     {
         if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || DLEN <= z) return this->border;
-        return this->getWorld()[x][y][z].block;
+        return this->getWorld()[x][y][z];
     }
 
-    const BlockType & blockConst(int x, int y, int z) const
+    const Voxel & voxelConst(int x, int y, int z) const
     {
-        return this->block(x, y, z);
+        return this->voxel(x, y, z);
     }
     
-    const BlockType & block(const Vec3I & v) const
+    const Voxel & voxel(const Vec3I & v) const
     {
-        return this->block(v.x, v.y, v.z);
+        return this->voxel(v.x, v.y, v.z);
     }
     
-    const BlockType & blockConst(const Vec3I & v) const
+    const Voxel & voxelConst(const Vec3I & v) const
     {
-        return this->block(v);
+        return this->voxel(v);
     }
+
+
+
+    BlockType & block(int x, int y, int z)                  { return (this->voxel(x, y, z)).block; }
+
+    BlockType & block(const Vec3I & v)                      { return (this->voxel(v)).block; }
+
+    const BlockType & block(int x, int y, int z)      const { return (this->voxel(x, y, z)).block; }
+
+    const BlockType & blockConst(int x, int y, int z) const { return (this->voxel(x, y, z)).block; }
+    
+    const BlockType & block(const Vec3I & v)          const { return (this->voxel(v)).block; }
+    
+    const BlockType & blockConst(const Vec3I & v)     const { return (this->voxel(v)).block; }
 
 
 
