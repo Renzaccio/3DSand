@@ -156,21 +156,22 @@ public:
     
     void voxelStep(const Vec3I & pos)
     {
-        BlockType & currentBlock = this->block(pos);
+        Voxel & voxel = this->voxel(pos);
 
-        switch(currentBlock)
+        if (!voxel.canMove) return;
+
+        switch(voxel.block)
         {
-            default:
-                break;
-
             case SAND:
-                sandStep(pos, currentBlock);
+                sandStep(pos, voxel);
                 break;
         }
     }
 
-    void sandStep(const Vec3I & pos, BlockType & block)
+    void sandStep(const Vec3I & pos, Voxel & voxel)
     {
+        BlockType & block = voxel.block;
+
         { // The block tries to fall straight down
             const Vec3I underBlockCoord = pos - verticalPosArr[0];
 
@@ -189,7 +190,11 @@ public:
 
         int validPosAmount = validPosIndexes.size(); // The block counts the horizontal directions it is allowed to move in
 
-        if (validPosAmount == 0) return; // The block is surrourded by 4 solid blocks
+        if (validPosAmount == 0) // The block is surrourded by 4 solid blocks
+        {
+            voxel.canMove = false;
+            return;
+        }
 
         int seed = rand(); // randomization of direction order the block will try to move in
         for(int i = 0; i < validPosAmount - 1; i++)
@@ -220,6 +225,8 @@ public:
                 return;
             }
         }
+
+        voxel.canMove = false; // The block didn't have any move opportunities
     }
 
 
