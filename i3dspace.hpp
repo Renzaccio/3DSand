@@ -3,11 +3,8 @@
 #include <array>
 #include <iostream>
 #include "include/raylib.h"
-#include "include/raymath.h"
+#include "i3dvector.hpp"
 #include "blocks.hpp"
-#include <array>
-#include <cstdlib>
-#include <iostream>
 
 using namespace std;
 
@@ -16,35 +13,41 @@ class Int3DSpace
 {
 private:
     WorldMTX mtx;
-    const BlockType border = BORDER;
-    BlockType dummy = BORDER;
+    const Voxel border{BORDER};
 
     static const int posAmount = 4;
-    const array<Vec3I, posAmount> posToTestArr1 =
+    const array<Vec3I, posAmount> verticalPosArr = // not really a "logic suit" compare to the other posArrays
+    { 
+        Vec3I{0,  1, 0},
+        Vec3I{0, -1, 0}
+    };
+    const array<Vec3I, posAmount> sidePosArr =
     {
         Vec3I{ 0, 0, -1},
         Vec3I{-1, 0,  0},
         Vec3I{ 0, 0,  1},
         Vec3I{ 1, 0,  0}
     };
-    const array<Vec3I, posAmount> posToTestArr2 =
+    const array<Vec3I, posAmount> sideFallPosArr =
     {
         Vec3I{ 0, -1, -1},
         Vec3I{-1, -1,  0},
         Vec3I{ 0, -1,  1},
         Vec3I{ 1, -1,  0}
     };
-    const array<Vec3I, posAmount> posToTestArr3 =
+    const array<Vec3I, posAmount> diagPosArr =
+    {
+        Vec3I{ 1, 0, -1},
+        Vec3I{-1, 0, -1},
+        Vec3I{-1, 0,  1},
+        Vec3I{ 1, 0,  1}
+    };
+    const array<Vec3I, posAmount> diagFallPosArr =
     {
         Vec3I{ 1, -1, -1},
         Vec3I{-1, -1, -1},
         Vec3I{-1, -1,  1},
         Vec3I{ 1, -1,  1}
-    };
-    const array<Vec3I, posAmount> posToTestArr4 = // no really a "logic suit" compare to the top posToTestArr
-    { 
-        Vec3I{ 0, 1, 0},
-        Vec3I{0, -1, 0}
     };
 
     Vector3 drawShift = {
@@ -55,75 +58,68 @@ private:
 public:
     Int3DSpace() : mtx(WLEN, vector<vector<Voxel>>(HLEN, vector<Voxel>(DLEN, Voxel()))) {}
 
-    int getWidth() const { return WLEN; }
+
+
+    int getWidth()  const { return WLEN; }
 
     int getHeight() const { return HLEN; }
 
-    int getDepth() const { return DLEN; }
+    int getDepth()  const { return DLEN; }
     
     int getVolume() const { return WLEN*HLEN*DLEN; }
 
 
 
-    WorldMTX & getWorld() { return this->mtx; }
+    WorldMTX & getWorld()             { return this->mtx; }
 
     const WorldMTX & getWorld() const { return this->mtx; }
 
 
 
-    BlockType & block(int x, int y, int z)
+    Voxel & voxel(int x, int y, int z)
     {
-        return this->getWorld()[x][y][z].block;
+        return this->getWorld()[x][y][z];
     }
 
-    BlockType & block(const Vec3I & v)
+    Voxel & voxel(const Vec3I & v)
     {
-        return this->block(v.x, v.y, v.z);
+        return this->voxel(v.x, v.y, v.z);
     }
 
-    const BlockType & block(int x, int y, int z) const
+    const Voxel & voxel(int x, int y, int z) const
     {
         if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || DLEN <= z) return this->border;
-        return this->getWorld()[x][y][z].block;
+        return this->getWorld()[x][y][z];
     }
 
-    const BlockType & blockConst(int x, int y, int z) const
+    const Voxel & voxelConst(int x, int y, int z) const
     {
-        return this->block(x, y, z);
+        return this->voxel(x, y, z);
     }
     
-    const BlockType & block(const Vec3I & v) const
+    const Voxel & voxel(const Vec3I & v) const
     {
-        return this->block(v.x, v.y, v.z);
+        return this->voxel(v.x, v.y, v.z);
     }
     
-    const BlockType & blockConst(const Vec3I & v) const
+    const Voxel & voxelConst(const Vec3I & v) const
     {
-        return this->block(v);
+        return this->voxel(v);
     }
 
 
 
-    // could be optimised
-    // ret[0] = count sand
-    // ret[1] = count static block
-    // total_without_air = ret[0]+ret[1]
-    array<int, 2> countBlockStats() const
-    {
-        array<int, 2> acc{0,0};
+    BlockType & block(int x, int y, int z)                  { return (this->voxel(x, y, z)).block; }
 
-        for (int y = 0; y < HLEN; y++)
-            for (int x = 0; x < WLEN; x++)
-                for (int z = 0; z < DLEN; z++) 
-                {
-                    const BlockType & currentBt = this->blockConst(x,y,z);
+    BlockType & block(const Vec3I & v)                      { return (this->voxel(v)).block; }
 
-                    if (currentBt == SAND) acc[0]++;
-                    if ((currentBt != AIR) && (currentBt != SAND)) acc[1]++;
-                }
+    const BlockType & block(int x, int y, int z)      const { return (this->voxel(x, y, z)).block; }
 
-        return acc;
-    }
+    const BlockType & blockConst(int x, int y, int z) const { return (this->voxel(x, y, z)).block; }
+    
+    const BlockType & block(const Vec3I & v)          const { return (this->voxel(v)).block; }
+    
+    const BlockType & blockConst(const Vec3I & v)     const { return (this->voxel(v)).block; }
 
 
 
@@ -159,23 +155,24 @@ public:
     
     void voxelStep(const Vec3I & pos)
     {
-        BlockType & currentBlock = this->block(pos);
+        Voxel & voxel = this->voxel(pos);
 
-        switch(currentBlock)
+        if (!voxel.canMove) return;
+
+        switch(voxel.block)
         {
-            default:
-                break;
-
             case SAND:
-                sandStep(pos, currentBlock);
+                sandStep(pos, voxel);
                 break;
         }
     }
 
-    void sandStep(const Vec3I & pos, BlockType & block)
+    void sandStep(const Vec3I & pos, Voxel & voxel)
     {
+        BlockType & block = voxel.block;
+
         { // The block tries to fall straight down
-            const Vec3I underBlockCoord = pos - Vec3I{0, 1, 0};
+            const Vec3I underBlockCoord = pos - verticalPosArr[0];
 
             if (this->blockConst(underBlockCoord) == AIR)
             {
@@ -187,12 +184,16 @@ public:
 
         vector<int> validPosIndexes; // The block checks which horizontal directions it is allowed to move in
         for (int i = 0; i < this->posAmount; i++)
-            if (this->blockConst(pos + posToTestArr1[i]) == AIR)
+            if (this->blockConst(pos + sidePosArr[i]) == AIR)
                 validPosIndexes.push_back(i);
 
         int validPosAmount = validPosIndexes.size(); // The block counts the horizontal directions it is allowed to move in
 
-        if (validPosAmount == 0) return; // The block is surrourded by 4 solid blocks
+        if (validPosAmount == 0) // The block is surrourded by 4 solid blocks
+        {
+            voxel.canMove = false;
+            return;
+        }
 
         int seed = rand(); // randomization of direction order the block will try to move in
         for(int i = 0; i < validPosAmount - 1; i++)
@@ -204,7 +205,7 @@ public:
         
         for (int i : validPosIndexes) // The block tries to fall sideways
         {
-            const Vec3I diagBlockCoord = pos + posToTestArr2[i];
+            const Vec3I diagBlockCoord = pos + sideFallPosArr[i];
 
             if (this->blockConst(diagBlockCoord) == AIR)
             {
@@ -216,14 +217,18 @@ public:
         
         for (int i : validPosIndexes) // The block tries to move sideways
         {
-            if (this->blockConst(pos + posToTestArr3[i]) == AIR || this->blockConst(pos + posToTestArr3[(i+1)%this->posAmount]) == AIR)
+            if (this->blockConst(pos + diagFallPosArr[i]) == AIR || this->blockConst(pos + diagFallPosArr[(i+1)%this->posAmount]) == AIR)
             {
-                this->block(pos + posToTestArr1[i]) = SAND;
+                this->block(pos + sidePosArr[i]) = SAND;
                 block = AIR;
                 return;
             }
         }
+
+        voxel.canMove = false; // The block didn't have any move opportunities
     }
+
+
 
     bool isVoxelVisible(const Vec3I pos) const
     {
@@ -233,12 +238,12 @@ public:
             return true;
 
         return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
-            blockConst(pos + posToTestArr1[0]) == AIR ||
-            blockConst(pos + posToTestArr1[1]) == AIR ||
-            blockConst(pos + posToTestArr1[2]) == AIR ||
-            blockConst(pos + posToTestArr1[3]) == AIR ||
-            blockConst(pos + posToTestArr4[0]) == AIR ||
-            blockConst(pos + posToTestArr4[1]) == AIR;
+            blockConst(pos + sidePosArr[0]) == AIR ||
+            blockConst(pos + sidePosArr[1]) == AIR ||
+            blockConst(pos + sidePosArr[2]) == AIR ||
+            blockConst(pos + sidePosArr[3]) == AIR ||
+            blockConst(pos + verticalPosArr[0]) == AIR ||
+            blockConst(pos + verticalPosArr[1]) == AIR;
     }
 
     void updateWorldVoxelVisibility()
@@ -247,10 +252,29 @@ public:
             for (int x = 0; x < WLEN; x++)
                 for (int z = 0; z < DLEN; z++)
                 {
-                    Voxel& vx = this->getWorld()[x][y][z];
+                    Voxel & vx = this->getWorld()[x][y][z];
                     vx.isVisible = this->isVoxelVisible(Vec3I {x, y, z});
                 }
     }
+
+
+
+    // sandAmount        = blockAmountArr[0];
+    // staticBlockAmount = blockAmountArr[1];
+    void countBlockStats(array<int, 2> & blockAmountArr) const
+    {
+        for (int y = 0; y < HLEN; y++)
+            for (int x = 0; x < WLEN; x++)
+                for (int z = 0; z < DLEN; z++) 
+                {
+                    const BlockType & currentBt = this->blockConst(x,y,z);
+
+                    if (currentBt == SAND) blockAmountArr[0]++;
+                    if ((currentBt != AIR) && (currentBt != SAND)) blockAmountArr[1]++;
+                }
+    }
+
+
 
     void drawWorld() const
     {

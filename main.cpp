@@ -1,45 +1,42 @@
 #include <string>
-#include "counter.cpp"
+#include "counter.hpp"
 #include "camera.hpp"
 #include "i3dspace.hpp"
+#include "include/raylib.h"
 #include "ui.hpp"
 
 using namespace std;
 
 int main(void)
 {
-    const int screenWidth = 800*2;
-    const int screenHeight = 450*2;
+    const static int screenWidth = 1600;
+    const static int screenHeight = 900;
 
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
 
     OrientatedCamera camera{};
 
-    const int WL = 80;
-    const int HL = 50;
-    const int DL = 80;
+    const static int WL = 75;
+    const static int HL = 30;
+    const static int DL = 75;
     Int3DSpace<WL, HL, DL> sworld{};
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
 
-    for (int i = 2; i < 4; i++)
-        sworld.createFlatFloor(i, SAND);
-
-    sworld.updateWorldVoxelVisibility();
+    // for (int i = 2; i < 4; i++)
+    //     sworld.createFlatFloor(i, SAND);
     
     // placeChair3x4x3(sworld.getWorld(), {2,2,2});
     // placeTable5x5x5(sworld.getWorld(), {10,2,10});
 
-    // sworld.block(5, 7, 5) = SAND;
-    // sworld.block(5, 8, 5) = SAND;
-    // sworld.block(5, 9, 5) = SAND;
+    sworld.updateWorldVoxelVisibility();
 
-    int targetFPS = 60;
+    int targetFPS = GetMonitorRefreshRate(GetCurrentMonitor());
 
     int simulationCounter = 0;
-    int simulationPerSecond = 30;
+    const static int simulationPerSecond = 30;
     int spawnCounter = 0;
-    int spawnPerSecond = 30;
+    const static int spawnPerSecond = 30;
     int clock = 0;
 
     int sandAmount = 0;
@@ -47,24 +44,31 @@ int main(void)
 
     bool isAutomatonRun = false;
     bool isSpawningRun = false;
+
     {
-        array<int, 2> simuBlockStat = sworld.countBlockStats();
-        sandAmount = simuBlockStat[0];
-        staticBlockAmount = simuBlockStat[1];
+        array<int, 2> blockAmountArr{0, 0};
+        sworld.countBlockStats(blockAmountArr);
+        sandAmount = blockAmountArr[0];
+        staticBlockAmount = blockAmountArr[1];
     }
 
-    vector<RPressButton> rbtns{
-        // Change fps max, +1 or -1
-        RPressButton {10.0f, 10.0f, 26.0f, 19.0f, RED,   [&targetFPS]() { if (targetFPS > 5) targetFPS--; }, " - ", 20, BLACK},
-        RPressButton {46.0f, 10.0f, 26.0f, 19.0f, GREEN, [&targetFPS]() {                    targetFPS++; }, " + ", 20, BLACK},
-        //
+    const static int fontSize = 20;
+    const static int borderWidth = 10;
+
+    Counter<fontSize * 3> buttonX(borderWidth);
+
+    vector<RPressButton> rbtns{ // Buttons for changing FPS
+        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS > 15) targetFPS -= 10; else targetFPS = 5; SetTargetFPS(targetFPS); }, "  -10", fontSize, BLACK},
+        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS >  5) targetFPS--;                         SetTargetFPS(targetFPS); }, "  -1",  fontSize, BLACK},
+        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, LIGHTGRAY, [&targetFPS]() { targetFPS = GetMonitorRefreshRate(GetCurrentMonitor()); SetTargetFPS(targetFPS); }, " RES", fontSize, BLACK},
+        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS++;                         SetTargetFPS(targetFPS); }, "  +1",  fontSize, BLACK},
+        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS += 10;                     SetTargetFPS(targetFPS); }, "  +10", fontSize, BLACK},
     };
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
         // Update
-        SetTargetFPS(targetFPS);
         camera.moveCamera(GetFPS());
 
         if (IsKeyPressed(KEY_SPACE))
@@ -92,13 +96,6 @@ int main(void)
                             sworld.getDepth()/2 + flow
                         );
 
-                        // sworld.createOneBlockOnTop(
-                        //     (sworld.getWidth() - flow)/2 + 10,
-                        //     sworld.getWidth()/2 + flow + 10,
-                        //     (sworld.getDepth() - flow)/2,
-                        //     sworld.getDepth()/2 + flow
-                        // );
-
                         spawnCounter = simulationPerSecond / spawnPerSecond;
                     }
 
@@ -114,16 +111,16 @@ int main(void)
 
             simulationCounter--;
 
-            if ((clock % targetFPS) == 0) // blocks are counted only once every second
+            if ((clock % targetFPS) == 0) // Run once every seconds
             {
-                array<int, 2> simuBlockStat = sworld.countBlockStats();
-                sandAmount = simuBlockStat[0];
-                staticBlockAmount = simuBlockStat[1];
-            }
+                // Counting Blocks
+                array<int, 2> blockAmountArr{0, 0};
+                sworld.countBlockStats(blockAmountArr);
+                sandAmount = blockAmountArr[0];
+                staticBlockAmount = blockAmountArr[1];
 
-            if ((clock % (5*targetFPS)) == 0) // blocks are counted only once every 5 seconds - florent propose better optimisation by neighbors approche
-            {
-                sworld.updateWorldVoxelVisibility();
+                // Updating Blocks visibility
+                // sworld.updateWorldVoxelVisibility();
             }
         }
         else
@@ -151,37 +148,37 @@ int main(void)
             for (RPressButton rpb : rbtns)
                 rpb.draw();
 
-            Counter<20> posY(10);
+            Counter<fontSize> posY(borderWidth);
 
-            DrawText((to_string(targetFPS) + " FPS MAX").c_str(), 82, posY(), 20, BLACK);
-            DrawFPS(10, posY());
+            DrawText((to_string(targetFPS) + " FPS MAX").c_str(), buttonX.get(), posY(), fontSize, BLACK);
+            DrawText((to_string(GetFPS()) + " FPS").c_str(),      borderWidth,   posY(), fontSize, DARKGREEN);
 
             const string s01 = to_string(sandAmount) + " sand" + ((sandAmount > 1) ? "s" : "") + " / " + to_string(staticBlockAmount) + " static block" + ((staticBlockAmount > 1) ? "s" : "");
-            DrawText(s01.c_str(), 10, posY(), 20, DARKGRAY);
+            DrawText(s01.c_str(), borderWidth, posY(), fontSize, DARKGRAY);
 
             posY.step();
 
-            DrawText("SAND 3D SIMULATION", 10, posY(), 20, DARKGRAY);
+            DrawText("SAND 3D SIMULATION", borderWidth, posY(), fontSize, DARKGRAY);
 
-            if(isAutomatonRun) DrawText("PRESS [ SPACE ] TO PAUSE", 10, posY(), 20, GREEN);
-            else               DrawText("PRESS [ SPACE ] TO START", 10, posY(), 20, RED);
+            if(isAutomatonRun) DrawText("PRESS [ SPACE ] TO PAUSE", borderWidth, posY(), fontSize, GREEN);
+            else               DrawText("PRESS [ SPACE ] TO START", borderWidth, posY(), fontSize, RED);
 
-            if(isSpawningRun) DrawText("PRESS [ R ] TO DISABLE SAND POURING", 10, posY(), 20, GREEN);
-            else              DrawText("PRESS [ R ] TO ENABLE SAND POURING", 10, posY(), 20, RED);
+            if(isSpawningRun) DrawText("PRESS [ R ] TO DISABLE SAND POURING", borderWidth, posY(), fontSize, GREEN);
+            else              DrawText("PRESS [ R ] TO ENABLE SAND POURING",  borderWidth, posY(), fontSize, RED);
 
-            DrawText("Lateral Moves [ ZQSD | WASD ]", 10, posY(), 20, BLUE);
-            DrawText("Vertical Moves [ E/A | E/Q ]", 10, posY(), 20, BLUE);
-            DrawText("Rotating Camera [ Arrow Keys ]", 10, posY(), 20, BLUE);
-            DrawText("Fast/Slow Moves [ Left Shift / Left Ctrl ]", 10, posY(), 20, BLUE);
+            DrawText("Lateral Moves [ ZQSD | WASD ]",              borderWidth, posY(), fontSize, BLUE);
+            DrawText("Vertical Moves [ E/A | E/Q ]",               borderWidth, posY(), fontSize, BLUE);
+            DrawText("Rotating Camera [ Arrow Keys ]",             borderWidth, posY(), fontSize, BLUE);
+            DrawText("Fast/Slow Moves [ Left Shift / Left Ctrl ]", borderWidth, posY(), fontSize, BLUE);
 
             posY.step();
 
             const string s1 = "| x=" + to_string((int) camera.position.x);
             const string s2 = "| y=" + to_string((int) camera.position.y);
             const string s3 = "| z=" + to_string((int) camera.position.z);
-            DrawText(s1.c_str(), 10, posY(), 20, BLACK);
-            DrawText(s2.c_str(), 10, posY(), 20, BLACK);
-            DrawText(s3.c_str(), 10, posY(), 20, BLACK);
+            DrawText(s1.c_str(), borderWidth, posY(), fontSize, BLACK);
+            DrawText(s2.c_str(), borderWidth, posY(), fontSize, BLACK);
+            DrawText(s3.c_str(), borderWidth, posY(), fontSize, BLACK);
         }
         EndDrawing();
 
