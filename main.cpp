@@ -117,15 +117,14 @@ int main(void)
 
             simulationCounter--;
 
-            if ((clock % targetFPS) == 0) // Blocks are counted only once every second
+            if ((clock % targetFPS) == 0) // Run once every seconds
             {
+                // Counting Blocks
                 array<int, 2> simuBlockStat = sworld.countBlockStats();
                 sandAmount = simuBlockStat[0];
                 staticBlockAmount = simuBlockStat[1];
-            }
 
-            if ((clock % (5*targetFPS)) == 0) // Blocks visibility are updated only once everey 5 sevonds - Florent propose better optimisation by neighbors approche
-            {
+                // Updating Blocks visibility
                 sworld.updateWorldVoxelVisibility();
             }
         }
