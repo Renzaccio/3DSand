@@ -1,5 +1,7 @@
 #pragma once
 
+#include "include/raymath.h"
+
 struct Vec3I {
     int x;
     int y;
@@ -15,33 +17,22 @@ struct Vec3I {
     Vec3I(const Vec3I & v) : Vec3I(v.x, v.y, v.z) {}
 };
 
-inline Vec3I operator + (const Vec3I & lhs, const Vec3I & rhs)
-{
-    return Vec3I(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
-}
+inline Vec3I   operator +  (const Vec3I   & lhs, const Vec3I   & rhs) { return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z }; }
+inline Vec3I   operator -  (const Vec3I   & lhs, const Vec3I   & rhs) { return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z }; }
+inline Vector3 operator +  (const Vector3 & lhs, const Vec3I   & rhs) { return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z }; }
+inline Vector3 operator -  (const Vector3 & lhs, const Vec3I   & rhs) { return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z }; }
+inline Vector3 operator +  (const Vec3I   & lhs, const Vector3 & rhs) { return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z }; }
+inline Vector3 operator -  (const Vec3I   & lhs, const Vector3 & rhs) { return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z }; }
 
-inline const Vec3I & operator += (Vec3I & lhs, const Vec3I & rhs)
-{
-    lhs = lhs + rhs;
-    return lhs;
-}
-
-inline Vec3I operator - (const Vec3I & lhs, const Vec3I & rhs)
-{
-    return Vec3I(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
-}
-
-inline Vec3I & operator -= (Vec3I & lhs, const Vec3I & rhs)
-{
-    lhs = lhs - rhs;
-    return lhs;
-}
+inline Vec3I   & operator -= (Vec3I   & lhs, const Vec3I & rhs) { lhs = lhs - rhs; return lhs; }
+inline Vec3I   & operator += (Vec3I   & lhs, const Vec3I & rhs) { lhs = lhs + rhs; return lhs; }
+inline Vector3 & operator -= (Vector3 & lhs, const Vec3I & rhs) { lhs = lhs - rhs; return lhs; }
+inline Vector3 & operator += (Vector3 & lhs, const Vec3I & rhs) { lhs = lhs + rhs; return lhs; }
 
 inline bool operator == (const Vec3I & lhs, const Vec3I & rhs)
 {
     return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
 }
-
 inline bool operator != (const Vec3I & lhs, const Vec3I & rhs)
 {
     return lhs.x != rhs.x || lhs.y != rhs.y || lhs.z != rhs.z;

@@ -2,9 +2,8 @@
 
 #include <array>
 #include <iostream>
-#include "i3dvector.hpp"
 #include "include/raylib.h"
-#include "include/raymath.h"
+#include "i3dvector.hpp"
 #include "blocks.hpp"
 
 using namespace std;
