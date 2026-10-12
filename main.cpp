@@ -2,6 +2,7 @@
 #include "counter.cpp"
 #include "camera.hpp"
 #include "i3dspace.hpp"
+#include "ui.hpp"
 
 using namespace std;
 
@@ -28,7 +29,6 @@ int main(void)
     // sworld.block(5, 9, 5) = SAND;
 
     int targetFPS = 144;
-    SetTargetFPS(targetFPS);
 
     int simulationCounter = 0;
     int simulationPerSecond = 30;
@@ -47,10 +47,19 @@ int main(void)
         staticBlockAmount = simuBlockStat[1];
     }
 
+    vector<RPressButton> rbtns{
+        // Change fps max, +1 or -1
+        RPressButton {10.0f, 40+250.0f, 60.0f, 40.0f, RED, [&targetFPS]() { if ((targetFPS-1) > 5) targetFPS--; cout << targetFPS << endl; }, " - ", 20, BLACK},
+        RPressButton {60+10+10.0f, 40+250.0f, 60.0f, 40.0f, GREEN, [&targetFPS]() { targetFPS++; cout << targetFPS << endl; }, " + ", 20, BLACK},
+        //
+    };
+
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
         // Update
+        cout << targetFPS << endl;
+        SetTargetFPS(targetFPS);
         camera.moveCamera(GetFPS());
 
         if (IsKeyPressed(KEY_SPACE))
@@ -105,6 +114,13 @@ int main(void)
             simulationCounter = 0;
             spawnCounter = 0;
         }
+
+        // check if btns is pressed
+        for (RPressButton rpb : rbtns)
+            if (CheckCollisionPointRec(GetMousePosition(), rpb))
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+                    rpb();
+
 
         BeginDrawing();
         {
