@@ -60,8 +60,6 @@ int main(void)
         //
     };
 
-    int
-
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
