@@ -1,14 +1,13 @@
 #pragma once
 
-#include "i3dvector.hpp"
+#include <array>
+#include <iostream>
 #include "include/raylib.h"
 #include "include/raymath.h"
 #include "blocks.hpp"
-#include <algorithm>
 #include <array>
 #include <cstdlib>
 #include <iostream>
-// #include <sys/stat.h>
 
 using namespace std;
 
@@ -18,6 +17,7 @@ class Int3DSpace
 private:
     WorldMTX mtx;
     const BlockType border = BORDER;
+    BlockType dummy = BORDER;
 
     static const int posAmount = 4;
     const array<Vec3I, posAmount> posToTestArr1 =
@@ -53,7 +53,7 @@ private:
         0.5f - WLEN / 2.0f
     };
 public:
-    Int3DSpace() : mtx(WLEN, vector<vector<Voxel>>(HLEN, vector<Voxel>(DLEN, Voxel{AIR}))) {}
+    Int3DSpace() : mtx(WLEN, vector<vector<Voxel>>(HLEN, vector<Voxel>(DLEN, Voxel()))) {}
 
     int getWidth() const { return WLEN; }
 

@@ -1,8 +1,8 @@
-#include "i3dspace.hpp"
-#include "camera.hpp"
-#include "counter.cpp"
-#include "ui.hpp"
 #include <string>
+#include "counter.cpp"
+#include "camera.hpp"
+#include "i3dspace.hpp"
+#include "ui.hpp"
 
 using namespace std;
 
@@ -34,7 +34,7 @@ int main(void)
     // sworld.block(5, 8, 5) = SAND;
     // sworld.block(5, 9, 5) = SAND;
 
-    int targetFPS = 144;
+    int targetFPS = 60;
 
     int simulationCounter = 0;
     int simulationPerSecond = 30;
@@ -55,10 +55,12 @@ int main(void)
 
     vector<RPressButton> rbtns{
         // Change fps max, +1 or -1
-        RPressButton {10.0f, 40+250.0f, 60.0f, 40.0f, RED, [&targetFPS]() { if ((targetFPS-1) > 5) targetFPS--; cout << targetFPS << endl; }, " - ", 20, BLACK},
-        RPressButton {60+10+10.0f, 40+250.0f, 60.0f, 40.0f, GREEN, [&targetFPS]() { targetFPS++; cout << targetFPS << endl; }, " + ", 20, BLACK},
+        RPressButton {10.0f, 10.0f, 26.0f, 19.0f, RED,   [&targetFPS]() { if (targetFPS > 5) targetFPS--; cout << targetFPS << endl; }, " - ", 20, BLACK},
+        RPressButton {46.0f, 10.0f, 26.0f, 19.0f, GREEN, [&targetFPS]() {                    targetFPS++; cout << targetFPS << endl; }, " + ", 20, BLACK},
         //
     };
+
+    int
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
@@ -71,7 +73,7 @@ int main(void)
         if (IsKeyPressed(KEY_SPACE))
             isAutomatonRun = !isAutomatonRun;
 
-        if (IsKeyPressed(KEY_L))
+        if (IsKeyPressed(KEY_R))
             isSpawningRun = !isSpawningRun;
 
         if(isAutomatonRun)
@@ -93,12 +95,12 @@ int main(void)
                             sworld.getDepth()/2 + flow
                         );
 
-                        sworld.createOneBlockOnTop(
-                            (sworld.getWidth() - flow)/2,
-                            sworld.getWidth()/2 + flow,
-                            (sworld.getDepth() - flow)/2,
-                            sworld.getDepth()/2 + flow
-                        );
+                        // sworld.createOneBlockOnTop(
+                        //     (sworld.getWidth() - flow)/2 + 10,
+                        //     sworld.getWidth()/2 + flow + 10,
+                        //     (sworld.getDepth() - flow)/2,
+                        //     sworld.getDepth()/2 + flow
+                        // );
 
                         spawnCounter = simulationPerSecond / spawnPerSecond;
                     }
@@ -140,19 +142,23 @@ int main(void)
                     rpb();
 
         BeginDrawing();
-
+        {
             ClearBackground(RAYWHITE);
 
             BeginMode3D(camera);
-
+            {
                 sworld.drawWorld();
                 // DrawGrid(20, 1.0f);
-
+            }
             EndMode3D();
 
 
-            Counter posY(10, 20);
+            for (RPressButton rpb : rbtns)
+                rpb.draw();
 
+            Counter<20> posY(10);
+
+            DrawText((to_string(targetFPS) + " FPS MAX").c_str(), 82, posY(), 20, BLACK);
             DrawFPS(10, posY());
 
             const string s01 = to_string(sandAmount) + " sand" + ((sandAmount > 1) ? "s" : "") + " / " + to_string(staticBlockAmount) + " static block" + ((staticBlockAmount > 1) ? "s" : "");
@@ -162,10 +168,11 @@ int main(void)
 
             DrawText("SAND 3D SIMULATION", 10, posY(), 20, DARKGRAY);
 
-            if(isAutomatonRun)
-                DrawText("PRESS [ SPACE ] TO PAUSE", 10, posY(), 20, GREEN);
-            else
-                DrawText("PRESS [ SPACE ] TO START", 10, posY(), 20, RED);
+            if(isAutomatonRun) DrawText("PRESS [ SPACE ] TO PAUSE", 10, posY(), 20, GREEN);
+            else               DrawText("PRESS [ SPACE ] TO START", 10, posY(), 20, RED);
+
+            if(isSpawningRun) DrawText("PRESS [ R ] TO DISABLE SAND POURING", 10, posY(), 20, GREEN);
+            else              DrawText("PRESS [ R ] TO ENABLE SAND POURING", 10, posY(), 20, RED);
 
             DrawText("Lateral Moves [ ZQSD | WASD ]", 10, posY(), 20, BLUE);
             DrawText("Vertical Moves [ E/A | E/Q ]", 10, posY(), 20, BLUE);
@@ -180,12 +187,7 @@ int main(void)
             DrawText(s1.c_str(), 10, posY(), 20, BLACK);
             DrawText(s2.c_str(), 10, posY(), 20, BLACK);
             DrawText(s3.c_str(), 10, posY(), 20, BLACK);
-
-            for (RPressButton rpb : rbtns)
-                rpb.draw();
-
-            DrawText((to_string(targetFPS) + " FPS MAX").c_str(), 2*rbtns[1].x, rbtns[1].y+10, 20, BLACK);
-
+        }
         EndDrawing();
 
         clock++;
