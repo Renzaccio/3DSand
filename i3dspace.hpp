@@ -124,29 +124,6 @@ public:
 
 
 
-    // could be optimised
-    // ret[0] = count sand
-    // ret[1] = count static block
-    // total_without_air = ret[0]+ret[1]
-    array<int, 2> countBlockStats() const
-    {
-        array<int, 2> acc{0,0};
-
-        for (int y = 0; y < HLEN; y++)
-            for (int x = 0; x < WLEN; x++)
-                for (int z = 0; z < DLEN; z++) 
-                {
-                    const BlockType & currentBt = this->blockConst(x,y,z);
-
-                    if (currentBt == SAND) acc[0]++;
-                    if ((currentBt != AIR) && (currentBt != SAND)) acc[1]++;
-                }
-
-        return acc;
-    }
-
-
-
     void createFlatFloor(int y, BlockType block)
     {
         if (y < 0 || HLEN <= y)
@@ -245,6 +222,8 @@ public:
         }
     }
 
+
+
     bool isVoxelVisible(const Vec3I pos) const
     {
         if (pos.x == 0 || pos.x == WLEN - 1 ||
@@ -271,6 +250,25 @@ public:
                     vx.isVisible = this->isVoxelVisible(Vec3I {x, y, z});
                 }
     }
+
+
+
+    // sandAmount        = blockAmountArr[0];
+    // staticBlockAmount = blockAmountArr[1];
+    void countBlockStats(array<int, 2> & blockAmountArr) const
+    {
+        for (int y = 0; y < HLEN; y++)
+            for (int x = 0; x < WLEN; x++)
+                for (int z = 0; z < DLEN; z++) 
+                {
+                    const BlockType & currentBt = this->blockConst(x,y,z);
+
+                    if (currentBt == SAND) blockAmountArr[0]++;
+                    if ((currentBt != AIR) && (currentBt != SAND)) blockAmountArr[1]++;
+                }
+    }
+
+
 
     void drawWorld() const
     {

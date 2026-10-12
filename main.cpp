@@ -44,10 +44,12 @@ int main(void)
 
     bool isAutomatonRun = false;
     bool isSpawningRun = false;
+
     {
-        array<int, 2> simuBlockStat = sworld.countBlockStats();
-        sandAmount = simuBlockStat[0];
-        staticBlockAmount = simuBlockStat[1];
+        array<int, 2> blockAmountArr{0, 0};
+        sworld.countBlockStats(blockAmountArr);
+        sandAmount = blockAmountArr[0];
+        staticBlockAmount = blockAmountArr[1];
     }
 
     const static int fontSize = 20;
@@ -113,9 +115,10 @@ int main(void)
             if ((clock % targetFPS) == 0) // Run once every seconds
             {
                 // Counting Blocks
-                array<int, 2> simuBlockStat = sworld.countBlockStats();
-                sandAmount = simuBlockStat[0];
-                staticBlockAmount = simuBlockStat[1];
+                array<int, 2> blockAmountArr{0, 0};
+                sworld.countBlockStats(blockAmountArr);
+                sandAmount = blockAmountArr[0];
+                staticBlockAmount = blockAmountArr[1];
 
                 // Updating Blocks visibility
                 // sworld.updateWorldVoxelVisibility();
