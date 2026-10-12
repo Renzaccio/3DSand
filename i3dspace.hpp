@@ -2,6 +2,7 @@
 
 #include <array>
 #include <iostream>
+#include "i3dvector.hpp"
 #include "include/raylib.h"
 #include "include/raymath.h"
 #include "blocks.hpp"

@@ -1,5 +1,5 @@
 #include <string>
-#include "counter.cpp"
+#include "counter.hpp"
 #include "camera.hpp"
 #include "i3dspace.hpp"
 #include "include/raylib.h"
@@ -23,17 +23,13 @@ int main(void)
     sworld.createFlatFloor(0, STONE);
     sworld.createFlatFloor(1, DIRT);
 
-    for (int i = 2; i < 4; i++)
-        sworld.createFlatFloor(i, SAND);
-
-    sworld.updateWorldVoxelVisibility();
+    // for (int i = 2; i < 4; i++)
+    //     sworld.createFlatFloor(i, SAND);
     
     // placeChair3x4x3(sworld.getWorld(), {2,2,2});
     // placeTable5x5x5(sworld.getWorld(), {10,2,10});
 
-    // sworld.block(5, 7, 5) = SAND;
-    // sworld.block(5, 8, 5) = SAND;
-    // sworld.block(5, 9, 5) = SAND;
+    sworld.updateWorldVoxelVisibility();
 
     int targetFPS = GetMonitorRefreshRate(GetCurrentMonitor());
 
@@ -54,8 +50,8 @@ int main(void)
         staticBlockAmount = simuBlockStat[1];
     }
 
-    const static int fontSize = 10;
-    const static int borderWidth = 30;
+    const static int fontSize = 20;
+    const static int borderWidth = 10;
 
     Counter<fontSize * 3> buttonX(borderWidth);
 
@@ -98,13 +94,6 @@ int main(void)
                             (sworld.getDepth() - flow)/2,
                             sworld.getDepth()/2 + flow
                         );
-
-                        // sworld.createOneBlockOnTop(
-                        //     (sworld.getWidth() - flow)/2 + 10,
-                        //     sworld.getWidth()/2 + flow + 10,
-                        //     (sworld.getDepth() - flow)/2,
-                        //     sworld.getDepth()/2 + flow
-                        // );
 
                         spawnCounter = simulationPerSecond / spawnPerSecond;
                     }
