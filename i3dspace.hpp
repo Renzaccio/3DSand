@@ -4,6 +4,7 @@
 #include <array>
 #include "blocks.hpp"
 #include "i3dvector.hpp"
+#include "include/raylib.h"
 
 using namespace std;
 
@@ -57,9 +58,9 @@ private:
     };
 
     Vector3 drawShift = {
-        0.5f - WLEN / 2.0f,
-        0.5f,
-        0.5f - WLEN / 2.0f
+        0 - WLEN * 0.5f,
+        0,
+        0 - WLEN * 0.5f,
     };
 
 public:
@@ -231,6 +232,7 @@ public:
                 this->block(underBlockCoord) = SAND;
                 block = AIR;
                 activateAllNeighboursVisibility(pos);
+                activateAllNeighboursVisibility(underBlockCoord);
                 return;
             }
         }
@@ -265,6 +267,7 @@ public:
                 this->block(sideFallBlockCoord) = SAND;
                 block = AIR;
                 activateAllNeighboursVisibility(pos);
+                activateAllNeighboursVisibility(sideFallBlockCoord);
                 return;
             }
         }
@@ -277,6 +280,7 @@ public:
                 this->block(sideBlockCoord) = SAND;
                 block = AIR;
                 activateAllNeighboursVisibility(pos);
+                activateAllNeighboursVisibility(sideBlockCoord);
                 return;
             }
         }
@@ -288,18 +292,28 @@ public:
 
     bool isVoxelVisible(const Vec3I & pos) const
     {
-        if (pos.x == 0 || pos.x == WLEN - 1 ||
-            pos.y == 0 || pos.y == HLEN - 1 ||
-            pos.z == 0 || pos.z == DLEN - 1)
-            return true;
-
-        return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
-            blockConst(pos + sidePosArr[0]) == AIR ||
-            blockConst(pos + sidePosArr[1]) == AIR ||
-            blockConst(pos + sidePosArr[2]) == AIR ||
-            blockConst(pos + sidePosArr[3]) == AIR ||
-            blockConst(pos + verticalPosArr[0]) == AIR ||
-            blockConst(pos + verticalPosArr[1]) == AIR;
+        switch (this->block(pos)) {
+            case AIR:
+                return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
+                    blockConst(pos + sidePosArr[0]) != AIR ||
+                    blockConst(pos + sidePosArr[1]) != AIR ||
+                    blockConst(pos + sidePosArr[2]) != AIR ||
+                    blockConst(pos + sidePosArr[3]) != AIR ||
+                    blockConst(pos + verticalPosArr[0]) != AIR ||
+                    blockConst(pos + verticalPosArr[1]) != AIR;
+            default:
+                if (pos.x == 0 || pos.x == WLEN - 1 ||
+                    pos.y == 0 || pos.y == HLEN - 1 ||
+                    pos.z == 0 || pos.z == DLEN - 1)
+                    return true;
+                return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
+                    blockConst(pos + sidePosArr[0]) == AIR ||
+                    blockConst(pos + sidePosArr[1]) == AIR ||
+                    blockConst(pos + sidePosArr[2]) == AIR ||
+                    blockConst(pos + sidePosArr[3]) == AIR ||
+                    blockConst(pos + verticalPosArr[0]) == AIR ||
+                    blockConst(pos + verticalPosArr[1]) == AIR;
+        }
     }
 
     void updateWorldVoxelVisibility()
@@ -342,16 +356,29 @@ public:
 
     void drawWorld() const
     {
-        for (int y = 0; y < HLEN; y++)
-            for (int x = 0; x < WLEN; x++)
-                for (int z = 0; z < DLEN; z++)
+        for (int x = 0; x <= WLEN; x++)
+            for (int y = 0; y <= HLEN; y++)
+                for (int z = 0; z <= DLEN; z++)
                     if (this->voxelConst(x, y, z).isVisible)
                         this->drawVoxel({ x, y, z });
     }
 
     void drawVoxel(const Vec3I & pos) const
     {
-        this->voxel(pos).draw(pos + this->drawShift);
+        const Voxel & voxel = this->voxel(pos);
+
+        Vector3 drawPos = pos + this->drawShift;
+
+        {
+            const Voxel & adjacentVoxel = this->voxel(pos + verticalPosArr[0]);
+            if (adjacentVoxel.isVisible)
+            {
+                voxel.drawZ(drawPos, adjacentVoxel.block);
+                // this->voxel(pos).draw(pos + this->drawShift, this->voxel(pos).block);
+            }
+        }
+
+        voxel.drawLines(drawPos + Vector3{0.5f, 0.5f, 0.5f});
     }
     
     void printWorld() const

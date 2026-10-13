@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "include/raylib.h"
+#include "include/raymath.h"
 
 using namespace std;
 
@@ -40,30 +41,74 @@ struct Voxel
     Voxel(BlockType bl) : block{ bl } {}
 
 
-    void draw(const Vector3 position) const
+    bool isSurfaceVisible(BlockType adjacentBlock) const
+    {
+        switch (this->block)
+        {
+            case BORDER:
+            case AIR:
+                return false;
+            default:
+                switch(adjacentBlock)
+                {
+                    case BORDER:
+                    case AIR:
+                        return true;
+                    default:
+                        return false;
+                }
+        }
+    }
+
+    Color getColor() const
     {
         switch (this->block)
         {
             case DEBUG:
-                DrawCube(position, 1.0f, 1.0f, 1.0f, PURPLE);
+                return PURPLE;
+            case STONE:
+                return GRAY;
+            case WOOD:
+            case DIRT:
+                return BROWN;
+            case SAND:
+                return YELLOW;
+            default:
+                return BLANK;
+        }
+    }
+
+    void drawZ(const Vector3 & position, BlockType adjacentBlock) const
+    {
+        if (this->isSurfaceVisible(adjacentBlock))
+        {
+            Color color = this->getColor();
+            DrawTriangle3D(position + Vector3{ 0.0f, 1.0f, 0.0f }, position + Vector3{ 0.0f, 1.0f, 1.0f }, position + Vector3{ 1.0f, 1.0f, 0.0f }, color);
+            DrawTriangle3D(position + Vector3{ 1.0f, 1.0f, 0.0f }, position + Vector3{ 0.0f, 1.0f, 1.0f }, position + Vector3{ 1.0f, 1.0f, 1.0f }, color);
+        }
+    }
+    
+    void drawLines(const Vector3 position) const
+    {
+        switch (this->block)
+        {
+            case DEBUG:
                 DrawCubeWires(position, 1.0f, 1.0f, 1.0f, ORANGE);
                 break;
-            case STONE:
-                DrawCube(position, 1.0f, 1.0f, 1.0f, GRAY);
-                break;
             case WOOD:
-                DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
                 DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BLACK);
                 break;
-            case DIRT:
-                DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
-                break;
             case SAND:
-                DrawCube(position, 1.0f, 1.0f, 1.0f, YELLOW);
                 DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BROWN);
                 break;
             default:
                 break;
         }
+    }
+
+    void draw(const Vector3 position) const
+    {
+        DrawCube(position, 1.0f, 1.0f, 1.0f, this->getColor());
+        this->drawLines(position);
     }
 };
