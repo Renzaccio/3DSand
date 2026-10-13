@@ -1,8 +1,6 @@
-#include <string>
 #include "counter.hpp"
 #include "camera.hpp"
 #include "i3dspace.hpp"
-#include "include/raylib.h"
 #include "ui.hpp"
 
 using namespace std;
@@ -10,10 +8,12 @@ using namespace std;
 int main(void)
 {
     const static int screenWidth = 1600;
-    const static int screenHeight = 900;
+    const static int screenHeight = 700;
 
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
     // SetWindowMonitor(1);
+
+    cout << endl;
 
     OrientatedCamera camera{};
 
@@ -21,14 +21,19 @@ int main(void)
     const static int HL = 30;
     const static int DL = 75;
     Int3DSpace<WL, HL, DL> sworld{};
-    // sworld.createFlatFloor(0, STONE);
-    // sworld.createFlatFloor(1, DIRT);
+    sworld.placeFlatFloor(0, STONE);
+    sworld.placeFlatFloor(1, DIRT);
 
     // for (int i = 2; i < 4; i++)
     //     sworld.createFlatFloor(i, SAND);
+
+    sworld.placeChair3x4x3({  2, 2,  2 });
+    sworld.placeTable5x4x5({ 10, 2, 10 });
     
-    // placeChair3x4x3(sworld.getWorld(), {2,2,2});
-    // placeTable5x5x5(sworld.getWorld(), {10,2,10});
+    // OOB place() calls for testing
+    // sworld.placeFlatFloor(100, DIRT);
+    // sworld.placeChair3x4x3({  9, 2, -1 });
+    // sworld.placeTable5x4x5({ -3, 2,  8 });
 
     sworld.updateWorldVoxelVisibility();
 
@@ -47,7 +52,7 @@ int main(void)
     bool isSpawningRun = false;
 
     {
-        array<int, 2> blockAmountArr{0, 0};
+        array<int, 2> blockAmountArr{ 0, 0 };
         sworld.countBlockStats(blockAmountArr);
         sandAmount = blockAmountArr[0];
         staticBlockAmount = blockAmountArr[1];
@@ -59,11 +64,11 @@ int main(void)
     Counter<fontSize * 3> buttonX(borderWidth);
 
     vector<RPressButton> rbtns{ // Buttons for changing FPS
-        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS > 15) targetFPS -= 10; else targetFPS = 5; SetTargetFPS(targetFPS); }, "  -10", fontSize, BLACK},
-        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS >  5) targetFPS--;                         SetTargetFPS(targetFPS); }, "  -1",  fontSize, BLACK},
-        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, LIGHTGRAY, [&targetFPS]() { targetFPS = GetMonitorRefreshRate(GetCurrentMonitor()); SetTargetFPS(targetFPS); }, " RES", fontSize, BLACK},
-        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS++;                         SetTargetFPS(targetFPS); }, "  +1",  fontSize, BLACK},
-        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS += 10;                     SetTargetFPS(targetFPS); }, "  +10", fontSize, BLACK},
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS > 15) targetFPS -= 10; else targetFPS = 5; SetTargetFPS(targetFPS); }, "  -10", fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS >  5) targetFPS--;                         SetTargetFPS(targetFPS); }, "  -1",  fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, LIGHTGRAY, [&targetFPS]() { targetFPS = GetMonitorRefreshRate(GetCurrentMonitor()); SetTargetFPS(targetFPS); }, " RES", fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS++;                         SetTargetFPS(targetFPS); }, "  +1",  fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS += 10;                     SetTargetFPS(targetFPS); }, "  +10", fontSize, BLACK },
     };
 
     // Main game loop
@@ -78,7 +83,7 @@ int main(void)
         if (IsKeyPressed(KEY_R))
             isSpawningRun = !isSpawningRun;
 
-        if(isAutomatonRun)
+        if (isAutomatonRun)
         {
             if (simulationCounter <= 0)
             {
@@ -90,7 +95,7 @@ int main(void)
                     {
                         int flow = 2;
 
-                        sworld.createOneBlockOnTop(
+                        sworld.placeOneBlockOnTop(
                             (sworld.getWidth() - flow)/2,
                             sworld.getWidth()/2 + flow,
                             (sworld.getDepth() - flow)/2,
@@ -115,7 +120,7 @@ int main(void)
             if ((clock % targetFPS) == 0) // Run once every seconds
             {
                 // Counting Blocks
-                array<int, 2> blockAmountArr{0, 0};
+                array<int, 2> blockAmountArr{ 0, 0 };
                 sworld.countBlockStats(blockAmountArr);
                 sandAmount = blockAmountArr[0];
                 staticBlockAmount = blockAmountArr[1];
@@ -161,10 +166,10 @@ int main(void)
 
             DrawText("SAND 3D SIMULATION", borderWidth, posY(), fontSize, DARKGRAY);
 
-            if(isAutomatonRun) DrawText("PRESS [ SPACE ] TO PAUSE", borderWidth, posY(), fontSize, GREEN);
+            if (isAutomatonRun) DrawText("PRESS [ SPACE ] TO PAUSE", borderWidth, posY(), fontSize, GREEN);
             else               DrawText("PRESS [ SPACE ] TO START", borderWidth, posY(), fontSize, RED);
 
-            if(isSpawningRun) DrawText("PRESS [ R ] TO DISABLE SAND POURING", borderWidth, posY(), fontSize, GREEN);
+            if (isSpawningRun) DrawText("PRESS [ R ] TO DISABLE SAND POURING", borderWidth, posY(), fontSize, GREEN);
             else              DrawText("PRESS [ R ] TO ENABLE SAND POURING",  borderWidth, posY(), fontSize, RED);
 
             DrawText("Lateral Moves [ ZQSD | WASD ]",              borderWidth, posY(), fontSize, BLUE);
@@ -185,6 +190,8 @@ int main(void)
 
         clock++;
     }
+
+    cout << endl;
 
     CloseWindow(); 
 

@@ -1,68 +1,114 @@
 #pragma once
 
-#include <vector>
-#include "i3dvector.hpp"
+#include <iostream>
+#include "include/raylib.h"
+#include "include/raymath.h"
 
 using namespace std;
 
-enum BlockType { AIR, STONE, DIRT, WOOD, SAND, BORDER, DEBUG };
+enum BlockType { BORDER, DEBUG, STONE, WOOD, DIRT, SAND, AIR };
+
+inline ostream & operator << (ostream & stream, BlockType block)
+{
+    switch (block) {
+        case BORDER:
+            stream << "BORDER"; break;
+        case DEBUG:
+            stream << "DEBUG";  break;
+        case STONE:
+            stream << "STONE";  break;
+        case WOOD:
+            stream << "WOOD";   break;
+        case DIRT:
+            stream << "DIRT";   break;
+        case SAND:
+            stream << "SAND";   break;
+        case AIR:
+            stream << "AIR";    break;
+    }
+
+    return stream;
+}
 
 struct Voxel
 {
     BlockType block;
-    bool canMove = true;
+    bool canMove   = true;
     bool isVisible = true;
 
-    Voxel() : block{AIR} {}
-    Voxel(BlockType bl) : block{bl} {}
+
+    Voxel() : block{ AIR } {}
+    Voxel(BlockType bl) : block{ bl } {}
+
+
+    bool isSurfaceVisible(BlockType adjacentBlock) const
+    {
+        switch (this->block)
+        {
+            case BORDER:
+            case AIR:
+                return false;
+            default:
+                switch(adjacentBlock)
+                {
+                    case BORDER:
+                    case AIR:
+                        return true;
+                    default:
+                        return false;
+                }
+        }
+    }
+
+    Color getColor() const
+    {
+        switch (this->block)
+        {
+            case DEBUG:
+                return PURPLE;
+            case STONE:
+                return GRAY;
+            case WOOD:
+            case DIRT:
+                return BROWN;
+            case SAND:
+                return YELLOW;
+            default:
+                return BLANK;
+        }
+    }
+
+    void drawZ(const Vector3 & position, BlockType adjacentBlock) const
+    {
+        if (this->isSurfaceVisible(adjacentBlock))
+        {
+            Color color = this->getColor();
+            DrawTriangle3D(position + Vector3{ 0.0f, 1.0f, 0.0f }, position + Vector3{ 0.0f, 1.0f, 1.0f }, position + Vector3{ 1.0f, 1.0f, 0.0f }, color);
+            DrawTriangle3D(position + Vector3{ 1.0f, 1.0f, 0.0f }, position + Vector3{ 0.0f, 1.0f, 1.0f }, position + Vector3{ 1.0f, 1.0f, 1.0f }, color);
+        }
+    }
+    
+    void drawLines(const Vector3 position) const
+    {
+        switch (this->block)
+        {
+            case DEBUG:
+                DrawCubeWires(position, 1.0f, 1.0f, 1.0f, ORANGE);
+                break;
+            case WOOD:
+                DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BLACK);
+                break;
+            case SAND:
+                DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BROWN);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void draw(const Vector3 position) const
+    {
+        DrawCube(position, 1.0f, 1.0f, 1.0f, this->getColor());
+        this->drawLines(position);
+    }
 };
-
-typedef vector<vector<vector<Voxel>>> WorldMTX;
-
-void placeChair3x4x3(WorldMTX & atmtx, const Vec3I & origin)
-{
-    //pieds
-    atmtx[origin.x  ][origin.y][origin.z  ] = Voxel{WOOD};
-    atmtx[origin.x  ][origin.y][origin.z+2] = Voxel{WOOD};
-    atmtx[origin.x+2][origin.y][origin.z  ] = Voxel{WOOD};
-    atmtx[origin.x+2][origin.y][origin.z+2] = Voxel{WOOD};
-
-    //plateau
-    for (int x = 0; x < 3; x++)
-    {
-        for (int z = 0; z < 3; z++)
-        {
-            atmtx[origin.x+x][origin.y+1][origin.z+z] = Voxel{WOOD};
-        }
-    }
-
-    //dossier
-    for (int y = 2; y <= 3; y++)
-    {
-        for (int x = 0; x < 3; x++)
-        {
-            atmtx[origin.x+x][origin.y+y][origin.z+2] = Voxel{WOOD};
-        }
-    }
-}
-
-void placeTable5x5x5(WorldMTX & atmtx, const Vec3I & origin)
-{
-    //pieds
-    for (int y = 0; y < 3; y++)
-    {
-    atmtx[origin.x  ][origin.y+y][origin.z  ] = Voxel{STONE};
-    atmtx[origin.x  ][origin.y+y][origin.z+4] = Voxel{STONE};
-    atmtx[origin.x+4][origin.y+y][origin.z  ] = Voxel{STONE};
-    atmtx[origin.x+4][origin.y+y][origin.z+4] = Voxel{STONE};
-    }
-
-    //plateau
-    for (int x = 0; x < 5; x++)
-    {
-        for (int z = 0; z < 5; z++)
-        {
-            atmtx[origin.x+x][origin.y+3][origin.z+z] = Voxel{WOOD};
-        }
-    }
-}

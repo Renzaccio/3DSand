@@ -8,32 +8,30 @@ using namespace std;
 
 struct RPressButton : Rectangle
 {
-    Color color{255,255,255,255};
-    string text = "";
-    int textSize;
-    Color textColor{0,0,0,255};
+private:
+
+    Color            color{ 255,255,255,255 };
+    string           text = "";
+    int              textSize;
+    Color            textColor{ 0,0,0,255 };
     function<void()> callback;
-    
 
-    RPressButton(float x, float y, float width, float height, Color co, function<void()> cb, string txt, int txtSize, Color txtCo) 
-        : Rectangle{x,y,width,height}, callback(cb), color{co}, text(txt), textSize(txtSize), textColor{txtCo} {}
+public:
 
-    void draw()
-    {
-        draw(this->x, this->y);
-    }
+    RPressButton(float x, float y, float width, float height, Color col, function<void()> cb, string txt, int txtSize, Color txtCol) :
+        Rectangle{ x,y,width,height }, color{ col }, callback{ cb }, text(txt), textSize{ txtSize }, textColor{ txtCol } {}
 
-    void draw(int xX, int yY)
+
+    void draw()               const { this->draw(this->x, this->y); }
+    void draw(int yY)         const { this->draw(this->x, yY); }
+    void draw(int xX, int yY) const
     {
         DrawRectangle(xX, yY, this->width, this->height, this->color);
-        DrawText(text.c_str(), xX, yY, this->textSize, this->textColor);
-    }
-    
-    void draw(int yY) {
-        draw(this->x, yY);
+        DrawText(this->text.c_str(), xX, yY, this->textSize, this->textColor);
     }
 
-    void executeIfPressed()
+
+    void executeIfPressed() const
     {
         if (CheckCollisionPointRec(GetMousePosition(), *this))
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
