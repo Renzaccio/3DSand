@@ -229,10 +229,8 @@ public:
 
             if (this->blockConst(underBlockCoord) == AIR)
             {
-                this->block(underBlockCoord) = SAND;
-                block = AIR;
-                activateAllNeighboursVisibility(pos);
-                activateAllNeighboursVisibility(underBlockCoord);
+                this->updateBlock(underBlockCoord, SAND);
+                this->updateBlock(pos, AIR);
                 return;
             }
         }
@@ -264,10 +262,8 @@ public:
 
             if (this->blockConst(sideFallBlockCoord) == AIR)
             {
-                this->block(sideFallBlockCoord) = SAND;
-                block = AIR;
-                activateAllNeighboursVisibility(pos);
-                activateAllNeighboursVisibility(sideFallBlockCoord);
+                this->updateBlock(sideFallBlockCoord, SAND);
+                this->updateBlock(pos, AIR);
                 return;
             }
         }
@@ -276,16 +272,19 @@ public:
         {
             if (this->blockConst(pos + diagFallPosArr[i]) == AIR || this->blockConst(pos + diagFallPosArr[(i+1)%this->posAmount]) == AIR)
             {
-                Vec3I sideBlockCoord = pos + sidePosArr[i];
-                this->block(sideBlockCoord) = SAND;
-                block = AIR;
-                activateAllNeighboursVisibility(pos);
-                activateAllNeighboursVisibility(sideBlockCoord);
+                this->updateBlock(pos + sidePosArr[i], SAND);
+                this->updateBlock(pos, AIR);
                 return;
             }
         }
 
         voxel.canMove = false; // The block didn't have any move opportunities
+    }
+
+    void updateBlock(const Vec3I & pos, BlockType block)
+    {
+        this->block(pos) = block;
+        activateAllNeighboursVisibility(pos);
     }
 
 
