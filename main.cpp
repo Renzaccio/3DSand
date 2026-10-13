@@ -13,6 +13,7 @@ int main(void)
     const static int screenHeight = 900;
 
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
+    // SetWindowMonitor(1);
 
     OrientatedCamera camera{};
 
@@ -20,8 +21,8 @@ int main(void)
     const static int HL = 30;
     const static int DL = 75;
     Int3DSpace<WL, HL, DL> sworld{};
-    sworld.createFlatFloor(0, STONE);
-    sworld.createFlatFloor(1, DIRT);
+    // sworld.createFlatFloor(0, STONE);
+    // sworld.createFlatFloor(1, DIRT);
 
     // for (int i = 2; i < 4; i++)
     //     sworld.createFlatFloor(i, SAND);
@@ -120,7 +121,7 @@ int main(void)
                 staticBlockAmount = blockAmountArr[1];
 
                 // Updating Blocks visibility
-                // sworld.updateWorldVoxelVisibility();
+                sworld.updateWorldVoxelVisibility();
             }
         }
         else
