@@ -8,15 +8,15 @@ using namespace std;
 
 struct RPressButton : Rectangle
 {
-    Color color{255,255,255,255};
+    Color color{ 255,255,255,255 };
     string text = "";
     int textSize;
-    Color textColor{0,0,0,255};
+    Color textColor{ 0,0,0,255 };
     function<void()> callback;
     
 
-    RPressButton(float x, float y, float width, float height, Color co, function<void()> cb, string txt, int txtSize, Color txtCo) 
-        : Rectangle{x,y,width,height}, callback(cb), color{co}, text(txt), textSize(txtSize), textColor{txtCo} {}
+    RPressButton(float x, float y, float width, float height, Color co, function<void()> cb, string txt, int txtSize, Color txtCo) :
+        Rectangle{ x,y,width,height }, callback(cb), color{ co }, text(txt), textSize(txtSize), textColor{ txtCo } {}
 
     void draw()
     {
