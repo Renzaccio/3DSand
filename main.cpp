@@ -63,13 +63,13 @@ int main(void)
 
     Counter<fontSize * 3> buttonX(borderWidth);
 
-    vector<RPressButton> rbtns{ // Buttons for changing FPS
+    RPressButtonLogicalGroup fpsBtnGroup{{ // Buttons for changing FPS
         RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS > 15) targetFPS -= 10; else targetFPS = 5; SetTargetFPS(targetFPS); }, "  -10", fontSize, BLACK },
         RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS >  5) targetFPS--;                         SetTargetFPS(targetFPS); }, "  -1",  fontSize, BLACK },
         RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, LIGHTGRAY, [&targetFPS]() { targetFPS = GetMonitorRefreshRate(GetCurrentMonitor()); SetTargetFPS(targetFPS); }, " RES", fontSize, BLACK },
         RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS++;                         SetTargetFPS(targetFPS); }, "  +1",  fontSize, BLACK },
         RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS += 10;                     SetTargetFPS(targetFPS); }, "  +10", fontSize, BLACK },
-    };
+    }};
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
@@ -135,9 +135,7 @@ int main(void)
             spawnCounter = 0;
         }
 
-        // check if btns is pressed
-        for (RPressButton rpb : rbtns)
-            rpb.executeIfPressed();
+        fpsBtnGroup.pressDetection(); 
 
         BeginDrawing();
         {
@@ -150,9 +148,7 @@ int main(void)
             }
             EndMode3D();
 
-
-            for (RPressButton rpb : rbtns)
-                rpb.draw();
+            fpsBtnGroup.drawAll();
 
             Counter<fontSize> posY(borderWidth);
 
