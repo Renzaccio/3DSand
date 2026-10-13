@@ -1,8 +1,6 @@
-#include <string>
 #include "counter.hpp"
 #include "camera.hpp"
 #include "i3dspace.hpp"
-#include "include/raylib.h"
 #include "ui.hpp"
 
 using namespace std;
@@ -31,6 +29,11 @@ int main(void)
 
     sworld.placeChair3x4x3({  2, 2,  2 });
     sworld.placeTable5x4x5({ 10, 2, 10 });
+    
+    // OOB place() calls for testing
+    // sworld.placeFlatFloor(100, DIRT);
+    // sworld.placeChair3x4x3({  9, 2, -1 });
+    // sworld.placeTable5x4x5({ -3, 2,  8 });
 
     sworld.updateWorldVoxelVisibility();
 

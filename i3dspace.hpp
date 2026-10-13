@@ -1,12 +1,13 @@
 #pragma once
 
+#include <vector>
 #include <array>
-#include <iostream>
-#include "include/raylib.h"
-#include "i3dvector.hpp"
 #include "blocks.hpp"
+#include "i3dvector.hpp"
 
 using namespace std;
+
+typedef vector<vector<vector<Voxel>>> WorldMTX;
 
 template<int WLEN, int HLEN, int DLEN>
 class Int3DSpace
@@ -63,7 +64,7 @@ private:
 
 public:
 
-    Int3DSpace() : mtx(WLEN, vector<vector<Voxel>>(HLEN, vector<Voxel>(DLEN, Voxel()))) {}
+    Int3DSpace() : mtx{ WLEN, vector<vector<Voxel>>{ HLEN, vector<Voxel>{ DLEN, Voxel{} } } } {}
 
 
 
@@ -132,7 +133,7 @@ public:
     {
         if (!(this->isInBounds(pos)))
         {
-            cout << "OOB when trying to place a block at " << pos << endl;
+            cout << "OOB when trying to place a " << block << " block at " << pos << endl;
             return;
         }
 
@@ -143,7 +144,7 @@ public:
     {
         if (!(this->isInBounds(startPos) && this->isInBounds(endPos)))
         {
-            cout << "OOB when trying to place a parallelepiped from " << startPos << " to " << endPos << endl;
+            cout << "OOB when trying to place a " << block << " parallelepiped from " << startPos << " to " << endPos << endl;
             return;
         }
 
@@ -212,6 +213,8 @@ public:
         {
             case SAND:
                 sandStep(pos, voxel);
+                break;
+            default:
                 break;
         }
     }
@@ -348,31 +351,7 @@ public:
 
     void drawVoxel(const Vec3I & pos) const
     {
-        Vector3 position = pos + this->drawShift;
-
-        switch (this->block(pos))
-        {
-            case DIRT:
-                DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
-                break;
-            case SAND:
-                DrawCube(position, 1.0f, 1.0f, 1.0f, YELLOW);
-                DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BROWN);
-                break;
-            case STONE:
-                DrawCube(position, 1.0f, 1.0f, 1.0f, GRAY);
-                break;
-            case WOOD:
-                DrawCube(position, 1.0f, 1.0f, 1.0f, BROWN);
-                DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BLACK);
-                break;
-            case DEBUG:
-                DrawCube(position, 1.0f, 1.0f, 1.0f, PURPLE);
-                DrawCubeWires(position, 1.0f, 1.0f, 1.0f, ORANGE);
-                break;
-            case AIR:
-                break;
-        }
+        this->voxel(pos).draw(pos + this->drawShift);
     }
     
     void printWorld() const
