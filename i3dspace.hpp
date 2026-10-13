@@ -68,6 +68,10 @@ public:
     int getDepth()  const { return DLEN; }
     
     int getVolume() const { return WLEN*HLEN*DLEN; }
+    
+    bool isInBounds(int x, int y, int z) const { return 0 <= x && x < WLEN && 0 <= y && y < HLEN && 0 <= z && z < DLEN; }
+
+    bool isInBounds(const Vec3I & pos) const { return this->isInBounds(pos.x, pos.y, pos.z); }
 
 
 
@@ -89,8 +93,8 @@ public:
 
     const Voxel & voxel(int x, int y, int z) const
     {
-        if(x < 0 || WLEN <= x || y < 0 || HLEN <= y || z < 0 || DLEN <= z) return this->border;
-        return this->getWorld()[x][y][z];
+        if (this->isInBounds(x, y, z)) return this->getWorld()[x][y][z];
+        return this->border;
     }
 
     const Voxel & voxelConst(int x, int y, int z) const
@@ -179,7 +183,7 @@ public:
             {
                 this->block(underBlockCoord) = SAND;
                 block = AIR;
-                activateNeighboursVisibility(pos);
+                activateAllNeighboursVisibility(pos);
                 return;
             }
         }
@@ -213,7 +217,7 @@ public:
             {
                 this->block(sideFallBlockCoord) = SAND;
                 block = AIR;
-                activateNeighboursVisibility(pos);
+                activateAllNeighboursVisibility(pos);
                 return;
             }
         }
@@ -225,7 +229,7 @@ public:
                 Vec3I sideBlockCoord = pos + sidePosArr[i];
                 this->block(sideBlockCoord) = SAND;
                 block = AIR;
-                activateNeighboursVisibility(pos);
+                activateAllNeighboursVisibility(pos);
                 return;
             }
         }
@@ -251,31 +255,23 @@ public:
             blockConst(pos + verticalPosArr[1]) == AIR;
     }
 
-    void activateNeighboursVisibility(const Vec3I & pos)
-    {
-        for (const Vec3I & verticalPos : this->verticalPosArr)
-        {
-            Vec3I neighbourPos = pos + verticalPos;
-            if (0 <= neighbourPos.x && neighbourPos.x < WLEN && 0 <= neighbourPos.y && neighbourPos.y < HLEN && 0 <= neighbourPos.z && neighbourPos.z < DLEN)
-                this->voxel(neighbourPos).isVisible = true;
-        }
-
-        for (const Vec3I & sidePos     : this->sidePosArr)
-        {
-            Vec3I neighbourPos = pos + sidePos;
-            if (0 <= neighbourPos.x && neighbourPos.x < WLEN && 0 <= neighbourPos.y && neighbourPos.y < HLEN && 0 <= neighbourPos.z && neighbourPos.z < DLEN)
-                this->voxel(neighbourPos).isVisible = true;
-        }
-    }
-
     void updateWorldVoxelVisibility()
     {
         for (int y = 0; y < HLEN; y++)
             for (int x = 0; x < WLEN; x++)
                 for (int z = 0; z < DLEN; z++)
-                {
                     this->voxel(x, y, z).isVisible = this->isVoxelVisible({ x, y, z });
-                }
+    }
+
+    void activateAllNeighboursVisibility(const Vec3I & pos)
+    {
+        for (const Vec3I & verticalPos : this->verticalPosArr) activateNeighbourVisibility(pos + verticalPos);
+        for (const Vec3I & sidePos     : this->sidePosArr)     activateNeighbourVisibility(pos + sidePos);
+    }
+
+    void activateNeighbourVisibility(const Vec3I & neighbourPos)
+    {
+        if (this->isInBounds(neighbourPos)) this->voxel(neighbourPos).isVisible = true;
     }
 
 
