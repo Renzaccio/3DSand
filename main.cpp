@@ -10,10 +10,12 @@ using namespace std;
 int main(void)
 {
     const static int screenWidth = 1600;
-    const static int screenHeight = 900;
+    const static int screenHeight = 700;
 
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
     // SetWindowMonitor(1);
+
+    cout << endl;
 
     OrientatedCamera camera{};
 
@@ -21,14 +23,14 @@ int main(void)
     const static int HL = 30;
     const static int DL = 75;
     Int3DSpace<WL, HL, DL> sworld{};
-    // sworld.createFlatFloor(0, STONE);
-    // sworld.createFlatFloor(1, DIRT);
+    sworld.placeFlatFloor(0, STONE);
+    sworld.placeFlatFloor(1, DIRT);
 
     // for (int i = 2; i < 4; i++)
     //     sworld.createFlatFloor(i, SAND);
-    
-    // placeChair3x4x3(sworld.getWorld(), {  2, 2,  2 });
-    // placeTable5x5x5(sworld.getWorld(), { 10, 2, 10 });
+
+    sworld.placeChair3x4x3({  2, 2,  2 });
+    sworld.placeTable5x4x5({ 10, 2, 10 });
 
     sworld.updateWorldVoxelVisibility();
 
@@ -90,7 +92,7 @@ int main(void)
                     {
                         int flow = 2;
 
-                        sworld.createOneBlockOnTop(
+                        sworld.placeOneBlockOnTop(
                             (sworld.getWidth() - flow)/2,
                             sworld.getWidth()/2 + flow,
                             (sworld.getDepth() - flow)/2,
@@ -185,6 +187,8 @@ int main(void)
 
         clock++;
     }
+
+    cout << endl;
 
     CloseWindow(); 
 

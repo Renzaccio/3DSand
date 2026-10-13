@@ -12,8 +12,12 @@ template<int WLEN, int HLEN, int DLEN>
 class Int3DSpace
 {
 private:
+
     WorldMTX mtx;
     const Voxel border{ BORDER };
+
+    WorldMTX & getWorld()             { return this->mtx; }
+    const WorldMTX & getWorld() const { return this->mtx; }
 
     static const int posAmountShort = 2;
     static const int posAmount = 4;
@@ -56,7 +60,9 @@ private:
         0.5f,
         0.5f - WLEN / 2.0f
     };
+
 public:
+
     Int3DSpace() : mtx(WLEN, vector<vector<Voxel>>(HLEN, vector<Voxel>(DLEN, Voxel()))) {}
 
 
@@ -72,12 +78,6 @@ public:
     bool isInBounds(int x, int y, int z) const { return 0 <= x && x < WLEN && 0 <= y && y < HLEN && 0 <= z && z < DLEN; }
 
     bool isInBounds(const Vec3I & pos) const { return this->isInBounds(pos.x, pos.y, pos.z); }
-
-
-
-    WorldMTX & getWorld()             { return this->mtx; }
-
-    const WorldMTX & getWorld() const { return this->mtx; }
 
 
 
@@ -128,27 +128,71 @@ public:
 
 
 
-    void createFlatFloor(int y, BlockType block)
+    void placeBlock(Vec3I pos, BlockType block)
     {
-        if (y < 0 || HLEN <= y)
+        if (!(this->isInBounds(pos)))
         {
-            cout << "y is out of bound." << endl;
+            cout << "OOB when trying to place a block at " << pos << endl;
             return;
         }
 
-        for (int x = 0; x < WLEN; x++)
-            for (int z = 0; z < DLEN; z++)
-                this->block(x, y, z) = block;
+        this->block(pos) = block;
     }
 
-    void createOneBlockOnTop(int xStart = 0, int xEnd = WLEN, int zStart = 0, int zEnd = DLEN)
+    void placeParallelepiped(Vec3I startPos, Vec3I endPos, BlockType block)
+    {
+        if (!(this->isInBounds(startPos) && this->isInBounds(endPos)))
+        {
+            cout << "OOB when trying to place a parallelepiped from " << startPos << " to " << endPos << endl;
+            return;
+        }
+
+        for (int x = startPos.x; x <= endPos.x; x++)
+            for (int y = startPos.y; y <= endPos.y; y++)
+                for (int z = startPos.z; z <= endPos.z; z++)
+                    this->block(x, y, z) = block;
+    }
+
+    void placeFlatFloor(int y, BlockType block)
+    {
+        placeParallelepiped({ 0, y, 0 }, { WLEN - 1, y, DLEN - 1 }, block);
+    }
+
+    void placeOneBlockOnTop(int xStart = 0, int xEnd = WLEN, int zStart = 0, int zEnd = DLEN)
     {
         this->block(rand() % (xStart - xEnd) + xStart, HLEN - 1, rand() % (zStart - zEnd) + zStart) = SAND;
     }
 
+    void placeChair3x4x3(const Vec3I & origin)
+    {
+        //pieds
+        placeBlock(origin + Vec3I{ 0, 0, 0 }, WOOD);
+        placeBlock(origin + Vec3I{ 0, 0, 2 }, WOOD);
+        placeBlock(origin + Vec3I{ 2, 0, 0 }, WOOD);
+        placeBlock(origin + Vec3I{ 2, 0, 2 }, WOOD);
+
+        //plateau
+        placeParallelepiped(origin + Vec3I{ 0, 1, 0 }, origin + Vec3I{ 2, 1, 2 }, WOOD);
+
+        //dossier
+        placeParallelepiped(origin + Vec3I{ 0, 2, 2 }, origin + Vec3I{ 2, 3, 2 }, WOOD);
+    }
+
+    void placeTable5x4x5(const Vec3I & origin)
+    {
+        //pieds
+        placeParallelepiped(origin + Vec3I{ 0, 0, 0 }, origin + Vec3I{ 0, 2, 0 }, STONE);
+        placeParallelepiped(origin + Vec3I{ 0, 0, 4 }, origin + Vec3I{ 0, 2, 4 }, STONE);
+        placeParallelepiped(origin + Vec3I{ 4, 0, 0 }, origin + Vec3I{ 4, 2, 0 }, STONE);
+        placeParallelepiped(origin + Vec3I{ 4, 0, 4 }, origin + Vec3I{ 4, 2, 4 }, STONE);
+
+        //plateau
+        placeParallelepiped(origin + Vec3I{ 0, 3, 0 }, origin + Vec3I{ 4, 3, 4 }, WOOD);
+    }
 
 
-    void step()
+
+     void step()
     {
         // Le sable tombe.
 

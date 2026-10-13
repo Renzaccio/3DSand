@@ -1,6 +1,9 @@
 #pragma once
 
+#include <iostream>
 #include "include/raymath.h"
+
+using namespace std;
 
 struct Vec3I {
     int x;
@@ -16,6 +19,12 @@ struct Vec3I {
     }
     Vec3I(const Vec3I & v) : Vec3I(v.x, v.y, v.z) {}
 };
+
+ostream & operator << (ostream & stream, const Vec3I & v)
+{
+    stream << "{ " << v.x << ", " << v.y << ", " << v.z << " }";
+    return stream;
+}
 
 inline Vec3I   operator +  (const Vec3I   & lhs, const Vec3I   & rhs) { return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z }; }
 inline Vec3I   operator -  (const Vec3I   & lhs, const Vec3I   & rhs) { return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z }; }
