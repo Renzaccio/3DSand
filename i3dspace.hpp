@@ -157,7 +157,7 @@ public:
 
     void placeFlatFloor(int y, BlockType block)
     {
-        placeParallelepiped({ 0, y, 0 }, { WLEN - 1, y, DLEN - 1 }, block);
+        this->placeParallelepiped({ 0, y, 0 }, { WLEN - 1, y, DLEN - 1 }, block);
     }
 
     void placeOneBlockOnTop(int xStart = 0, int xEnd = WLEN, int zStart = 0, int zEnd = DLEN)
@@ -168,33 +168,33 @@ public:
     void placeChair3x4x3(const Vec3I & origin)
     {
         //pieds
-        placeBlock(origin + Vec3I{ 0, 0, 0 }, WOOD);
-        placeBlock(origin + Vec3I{ 0, 0, 2 }, WOOD);
-        placeBlock(origin + Vec3I{ 2, 0, 0 }, WOOD);
-        placeBlock(origin + Vec3I{ 2, 0, 2 }, WOOD);
+        this->placeBlock(origin + Vec3I{ 0, 0, 0 }, WOOD);
+        this->placeBlock(origin + Vec3I{ 0, 0, 2 }, WOOD);
+        this->placeBlock(origin + Vec3I{ 2, 0, 0 }, WOOD);
+        this->placeBlock(origin + Vec3I{ 2, 0, 2 }, WOOD);
 
         //plateau
-        placeParallelepiped(origin + Vec3I{ 0, 1, 0 }, origin + Vec3I{ 2, 1, 2 }, WOOD);
+        this->placeParallelepiped(origin + Vec3I{ 0, 1, 0 }, origin + Vec3I{ 2, 1, 2 }, WOOD);
 
         //dossier
-        placeParallelepiped(origin + Vec3I{ 0, 2, 2 }, origin + Vec3I{ 2, 3, 2 }, WOOD);
+        this->placeParallelepiped(origin + Vec3I{ 0, 2, 2 }, origin + Vec3I{ 2, 3, 2 }, WOOD);
     }
 
     void placeTable5x4x5(const Vec3I & origin)
     {
         //pieds
-        placeParallelepiped(origin + Vec3I{ 0, 0, 0 }, origin + Vec3I{ 0, 2, 0 }, STONE);
-        placeParallelepiped(origin + Vec3I{ 0, 0, 4 }, origin + Vec3I{ 0, 2, 4 }, STONE);
-        placeParallelepiped(origin + Vec3I{ 4, 0, 0 }, origin + Vec3I{ 4, 2, 0 }, STONE);
-        placeParallelepiped(origin + Vec3I{ 4, 0, 4 }, origin + Vec3I{ 4, 2, 4 }, STONE);
+        this->placeParallelepiped(origin + Vec3I{ 0, 0, 0 }, origin + Vec3I{ 0, 2, 0 }, STONE);
+        this->placeParallelepiped(origin + Vec3I{ 0, 0, 4 }, origin + Vec3I{ 0, 2, 4 }, STONE);
+        this->placeParallelepiped(origin + Vec3I{ 4, 0, 0 }, origin + Vec3I{ 4, 2, 0 }, STONE);
+        this->placeParallelepiped(origin + Vec3I{ 4, 0, 4 }, origin + Vec3I{ 4, 2, 4 }, STONE);
 
         //plateau
-        placeParallelepiped(origin + Vec3I{ 0, 3, 0 }, origin + Vec3I{ 4, 3, 4 }, WOOD);
+        this->placeParallelepiped(origin + Vec3I{ 0, 3, 0 }, origin + Vec3I{ 4, 3, 4 }, WOOD);
     }
 
 
 
-     void step()
+    void step()
     {
         // Le sable tombe.
 
@@ -213,7 +213,7 @@ public:
         switch(voxel.block)
         {
             case SAND:
-                sandStep(pos, voxel);
+                this->sandStep(pos, voxel);
                 break;
             default:
                 break;
@@ -225,7 +225,7 @@ public:
         BlockType & block = voxel.block;
 
         { // The block tries to fall straight down
-            const Vec3I underBlockCoord = pos - verticalPosArr[0];
+            const Vec3I underBlockCoord = pos - this->verticalPosArr[0];
 
             if (this->blockConst(underBlockCoord) == AIR)
             {
@@ -237,7 +237,7 @@ public:
 
         vector<int> validPosIndexes; // The block checks which horizontal directions it is allowed to move in
         for (int i = 0; i < this->posAmount; i++)
-            if (this->blockConst(pos + sidePosArr[i]) == AIR)
+            if (this->blockConst(pos + this->sidePosArr[i]) == AIR)
                 validPosIndexes.push_back(i);
 
         int validPosAmount = validPosIndexes.size(); // The block counts the horizontal directions it is allowed to move in
@@ -258,7 +258,7 @@ public:
         
         for (int i : validPosIndexes) // The block tries to fall sideways
         {
-            const Vec3I sideFallBlockCoord = pos + sideFallPosArr[i];
+            const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[i];
 
             if (this->blockConst(sideFallBlockCoord) == AIR)
             {
@@ -272,7 +272,7 @@ public:
         {
             if (this->blockConst(pos + diagFallPosArr[i]) == AIR || this->blockConst(pos + diagFallPosArr[(i+1)%this->posAmount]) == AIR)
             {
-                this->updateBlock(pos + sidePosArr[i], SAND);
+                this->updateBlock(pos + this->sidePosArr[i], SAND);
                 this->updateBlock(pos, AIR);
                 return;
             }
@@ -284,7 +284,7 @@ public:
     void updateBlock(const Vec3I & pos, BlockType block)
     {
         this->block(pos) = block;
-        activateAllNeighboursVisibility(pos);
+        this->activateAllNeighboursVisibility(pos);
     }
 
 
@@ -294,24 +294,24 @@ public:
         switch (this->block(pos)) {
             case AIR:
                 return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
-                    blockConst(pos + sidePosArr[0]) != AIR ||
-                    blockConst(pos + sidePosArr[1]) != AIR ||
-                    blockConst(pos + sidePosArr[2]) != AIR ||
-                    blockConst(pos + sidePosArr[3]) != AIR ||
-                    blockConst(pos + verticalPosArr[0]) != AIR ||
-                    blockConst(pos + verticalPosArr[1]) != AIR;
+                    this->blockConst(pos + this->sidePosArr[0]) != AIR ||
+                    this->blockConst(pos + this->sidePosArr[1]) != AIR ||
+                    this->blockConst(pos + this->sidePosArr[2]) != AIR ||
+                    this->blockConst(pos + this->sidePosArr[3]) != AIR ||
+                    this->blockConst(pos + this->verticalPosArr[0]) != AIR ||
+                    this->blockConst(pos + this->verticalPosArr[1]) != AIR;
             default:
                 if (pos.x == 0 || pos.x == WLEN - 1 ||
                     pos.y == 0 || pos.y == HLEN - 1 ||
                     pos.z == 0 || pos.z == DLEN - 1)
                     return true;
                 return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
-                    blockConst(pos + sidePosArr[0]) == AIR ||
-                    blockConst(pos + sidePosArr[1]) == AIR ||
-                    blockConst(pos + sidePosArr[2]) == AIR ||
-                    blockConst(pos + sidePosArr[3]) == AIR ||
-                    blockConst(pos + verticalPosArr[0]) == AIR ||
-                    blockConst(pos + verticalPosArr[1]) == AIR;
+                    this->blockConst(pos + this->sidePosArr[0]) == AIR ||
+                    this->blockConst(pos + this->sidePosArr[1]) == AIR ||
+                    this->blockConst(pos + this->sidePosArr[2]) == AIR ||
+                    this->blockConst(pos + this->sidePosArr[3]) == AIR ||
+                    this->blockConst(pos + this->verticalPosArr[0]) == AIR ||
+                    this->blockConst(pos + this->verticalPosArr[1]) == AIR;
         }
     }
 
@@ -325,8 +325,8 @@ public:
 
     void activateAllNeighboursVisibility(const Vec3I & pos)
     {
-        for (const Vec3I & verticalPos : this->verticalPosArr) activateNeighbourVisibility(pos + verticalPos);
-        for (const Vec3I & sidePos     : this->sidePosArr)     activateNeighbourVisibility(pos + sidePos);
+        for (const Vec3I & verticalPos : this->verticalPosArr) this->activateNeighbourVisibility(pos + verticalPos);
+        for (const Vec3I & sidePos     : this->sidePosArr)     this->activateNeighbourVisibility(pos + sidePos);
     }
 
     void activateNeighbourVisibility(const Vec3I & neighbourPos)
@@ -369,7 +369,7 @@ public:
         Vector3 drawPos = pos + this->drawShift;
 
         {
-            const Voxel & adjacentVoxel = this->voxel(pos + verticalPosArr[0]);
+            const Voxel & adjacentVoxel = this->voxel(pos + this->verticalPosArr[0]);
             if (adjacentVoxel.isVisible)
             {
                 voxel.drawZ(drawPos, adjacentVoxel.block);

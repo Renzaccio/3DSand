@@ -44,7 +44,7 @@ public:
         // if (IsKeyPressed(KEY_F))
             // this->isFocused = !this->isFocused;
 
-        if (!isFocused)
+        if (!this->isFocused)
             this->rotateCameraKeys(fps);
 
         this->translateCameraKeys(fps);
@@ -110,7 +110,7 @@ public:
         if (IsKeyDown(KEY_E)) this->position += frameSpeed * verticalDirection;
         if (IsKeyDown(KEY_Q)) this->position -= frameSpeed * verticalDirection;
 
-        if (isFocused)
+        if (this->isFocused)
             this->updateDirFromTar();
         else
             this->updateTarFromDir();
