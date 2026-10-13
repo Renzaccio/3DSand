@@ -13,42 +13,42 @@ class Int3DSpace
 {
 private:
     WorldMTX mtx;
-    const Voxel border{BORDER};
+    const Voxel border{ BORDER };
 
     static const int posAmountShort = 2;
     static const int posAmount = 4;
     const array<Vec3I, posAmountShort> verticalPosArr = // not really a "logic suit" compare to the other posArrays
     { 
-        Vec3I{0,  1, 0},
-        Vec3I{0, -1, 0}
+        Vec3I{ 0,  1, 0 },
+        Vec3I{ 0, -1, 0 }
     };
     const array<Vec3I, posAmount> sidePosArr =
     {
-        Vec3I{ 0, 0, -1},
-        Vec3I{-1, 0,  0},
-        Vec3I{ 0, 0,  1},
-        Vec3I{ 1, 0,  0}
+        Vec3I{  0, 0, -1 },
+        Vec3I{ -1, 0,  0 },
+        Vec3I{  0, 0,  1 },
+        Vec3I{  1, 0,  0 }
     };
     const array<Vec3I, posAmount> sideFallPosArr =
     {
-        Vec3I{ 0, -1, -1},
-        Vec3I{-1, -1,  0},
-        Vec3I{ 0, -1,  1},
-        Vec3I{ 1, -1,  0}
+        Vec3I{  0, -1, -1 },
+        Vec3I{ -1, -1,  0 },
+        Vec3I{  0, -1,  1 },
+        Vec3I{  1, -1,  0 }
     };
     const array<Vec3I, posAmount> diagPosArr =
     {
-        Vec3I{ 1, 0, -1},
-        Vec3I{-1, 0, -1},
-        Vec3I{-1, 0,  1},
-        Vec3I{ 1, 0,  1}
+        Vec3I{  1, 0, -1 },
+        Vec3I{ -1, 0, -1 },
+        Vec3I{ -1, 0,  1 },
+        Vec3I{  1, 0,  1 }
     };
     const array<Vec3I, posAmount> diagFallPosArr =
     {
-        Vec3I{ 1, -1, -1},
-        Vec3I{-1, -1, -1},
-        Vec3I{-1, -1,  1},
-        Vec3I{ 1, -1,  1}
+        Vec3I{  1, -1, -1 },
+        Vec3I{ -1, -1, -1 },
+        Vec3I{ -1, -1,  1 },
+        Vec3I{  1, -1,  1 }
     };
 
     Vector3 drawShift = {
@@ -155,7 +155,7 @@ public:
         for (int y = 0; y < HLEN; y++)
             for (int x = 0; x < WLEN; x++)
                 for (int z = 0; z < DLEN; z++)
-                    this->voxelStep({x, y, z});
+                    this->voxelStep({ x, y, z });
     }
     
     void voxelStep(const Vec3I & pos)

@@ -27,8 +27,8 @@ int main(void)
     // for (int i = 2; i < 4; i++)
     //     sworld.createFlatFloor(i, SAND);
     
-    // placeChair3x4x3(sworld.getWorld(), {2,2,2});
-    // placeTable5x5x5(sworld.getWorld(), {10,2,10});
+    // placeChair3x4x3(sworld.getWorld(), {  2, 2,  2 });
+    // placeTable5x5x5(sworld.getWorld(), { 10, 2, 10 });
 
     sworld.updateWorldVoxelVisibility();
 
@@ -47,7 +47,7 @@ int main(void)
     bool isSpawningRun = false;
 
     {
-        array<int, 2> blockAmountArr{0, 0};
+        array<int, 2> blockAmountArr{ 0, 0 };
         sworld.countBlockStats(blockAmountArr);
         sandAmount = blockAmountArr[0];
         staticBlockAmount = blockAmountArr[1];
@@ -59,11 +59,11 @@ int main(void)
     Counter<fontSize * 3> buttonX(borderWidth);
 
     vector<RPressButton> rbtns{ // Buttons for changing FPS
-        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS > 15) targetFPS -= 10; else targetFPS = 5; SetTargetFPS(targetFPS); }, "  -10", fontSize, BLACK},
-        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS >  5) targetFPS--;                         SetTargetFPS(targetFPS); }, "  -1",  fontSize, BLACK},
-        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, LIGHTGRAY, [&targetFPS]() { targetFPS = GetMonitorRefreshRate(GetCurrentMonitor()); SetTargetFPS(targetFPS); }, " RES", fontSize, BLACK},
-        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS++;                         SetTargetFPS(targetFPS); }, "  +1",  fontSize, BLACK},
-        RPressButton {(float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS += 10;                     SetTargetFPS(targetFPS); }, "  +10", fontSize, BLACK},
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS > 15) targetFPS -= 10; else targetFPS = 5; SetTargetFPS(targetFPS); }, "  -10", fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS]() { if (targetFPS >  5) targetFPS--;                         SetTargetFPS(targetFPS); }, "  -1",  fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, LIGHTGRAY, [&targetFPS]() { targetFPS = GetMonitorRefreshRate(GetCurrentMonitor()); SetTargetFPS(targetFPS); }, " RES", fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS++;                         SetTargetFPS(targetFPS); }, "  +1",  fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS += 10;                     SetTargetFPS(targetFPS); }, "  +10", fontSize, BLACK },
     };
 
     // Main game loop
@@ -78,7 +78,7 @@ int main(void)
         if (IsKeyPressed(KEY_R))
             isSpawningRun = !isSpawningRun;
 
-        if(isAutomatonRun)
+        if (isAutomatonRun)
         {
             if (simulationCounter <= 0)
             {
@@ -115,7 +115,7 @@ int main(void)
             if ((clock % targetFPS) == 0) // Run once every seconds
             {
                 // Counting Blocks
-                array<int, 2> blockAmountArr{0, 0};
+                array<int, 2> blockAmountArr{ 0, 0 };
                 sworld.countBlockStats(blockAmountArr);
                 sandAmount = blockAmountArr[0];
                 staticBlockAmount = blockAmountArr[1];
@@ -161,10 +161,10 @@ int main(void)
 
             DrawText("SAND 3D SIMULATION", borderWidth, posY(), fontSize, DARKGRAY);
 
-            if(isAutomatonRun) DrawText("PRESS [ SPACE ] TO PAUSE", borderWidth, posY(), fontSize, GREEN);
+            if (isAutomatonRun) DrawText("PRESS [ SPACE ] TO PAUSE", borderWidth, posY(), fontSize, GREEN);
             else               DrawText("PRESS [ SPACE ] TO START", borderWidth, posY(), fontSize, RED);
 
-            if(isSpawningRun) DrawText("PRESS [ R ] TO DISABLE SAND POURING", borderWidth, posY(), fontSize, GREEN);
+            if (isSpawningRun) DrawText("PRESS [ R ] TO DISABLE SAND POURING", borderWidth, posY(), fontSize, GREEN);
             else              DrawText("PRESS [ R ] TO ENABLE SAND POURING",  borderWidth, posY(), fontSize, RED);
 
             DrawText("Lateral Moves [ ZQSD | WASD ]",              borderWidth, posY(), fontSize, BLUE);

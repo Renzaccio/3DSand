@@ -698,18 +698,18 @@ RMAPI Vector3 Vector3Perpendicular(Vector3 v)
     Vector3 result = { 0 };
 
     float min = fabsf(v.x);
-    Vector3 cardinalAxis = {1.0f, 0.0f, 0.0f};
+    Vector3 cardinalAxis = { 1.0f, 0.0f, 0.0f };
 
     if (fabsf(v.y) < min)
     {
         min = fabsf(v.y);
-        Vector3 tmp = {0.0f, 1.0f, 0.0f};
+        Vector3 tmp = { 0.0f, 1.0f, 0.0f };
         cardinalAxis = tmp;
     }
 
     if (fabsf(v.z) < min)
     {
-        Vector3 tmp = {0.0f, 0.0f, 1.0f};
+        Vector3 tmp = { 0.0f, 0.0f, 1.0f };
         cardinalAxis = tmp;
     }
 
@@ -2145,7 +2145,7 @@ RMAPI float16 MatrixToFloatV(Matrix mat)
 // Add two quaternions
 RMAPI Quaternion QuaternionAdd(Quaternion q1, Quaternion q2)
 {
-    Quaternion result = {q1.x + q2.x, q1.y + q2.y, q1.z + q2.z, q1.w + q2.w};
+    Quaternion result = { q1.x + q2.x, q1.y + q2.y, q1.z + q2.z, q1.w + q2.w };
 
     return result;
 }
@@ -2153,7 +2153,7 @@ RMAPI Quaternion QuaternionAdd(Quaternion q1, Quaternion q2)
 // Add quaternion and float value
 RMAPI Quaternion QuaternionAddValue(Quaternion q, float add)
 {
-    Quaternion result = {q.x + add, q.y + add, q.z + add, q.w + add};
+    Quaternion result = { q.x + add, q.y + add, q.z + add, q.w + add };
 
     return result;
 }
@@ -2161,7 +2161,7 @@ RMAPI Quaternion QuaternionAddValue(Quaternion q, float add)
 // Subtract two quaternions
 RMAPI Quaternion QuaternionSubtract(Quaternion q1, Quaternion q2)
 {
-    Quaternion result = {q1.x - q2.x, q1.y - q2.y, q1.z - q2.z, q1.w - q2.w};
+    Quaternion result = { q1.x - q2.x, q1.y - q2.y, q1.z - q2.z, q1.w - q2.w };
 
     return result;
 }
@@ -2169,7 +2169,7 @@ RMAPI Quaternion QuaternionSubtract(Quaternion q1, Quaternion q2)
 // Subtract quaternion and float value
 RMAPI Quaternion QuaternionSubtractValue(Quaternion q, float sub)
 {
-    Quaternion result = {q.x - sub, q.y - sub, q.z - sub, q.w - sub};
+    Quaternion result = { q.x - sub, q.y - sub, q.z - sub, q.w - sub };
 
     return result;
 }
@@ -2696,9 +2696,9 @@ RMAPI void MatrixDecompose(Matrix mat, Vector3 *translation, Quaternion *rotatio
     translation->z = mat.m14;
 
     // Matrix Columns - Rotation will be extracted into here
-    Vector3 matColumns[3] = {{ mat.m0, mat.m4, mat.m8 },
-                             { mat.m1, mat.m5, mat.m9 },
-                             { mat.m2, mat.m6, mat.m10 }};
+    Vector3 matColumns[3] = { { mat.m0, mat.m4, mat.m8 },
+                              { mat.m1, mat.m5, mat.m9 },
+                              { mat.m2, mat.m6, mat.m10 } };
 
     // Shear Parameters XY, XZ, and YZ (extract and ignored)
     float shear[3] = { 0 };
