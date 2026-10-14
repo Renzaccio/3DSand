@@ -8,10 +8,11 @@ using namespace std;
 int main(void)
 {
     const static int screenWidth = 1600;
-    const static int screenHeight = 700;
+    const static int screenHeight = 900;
 
     InitWindow(screenWidth, screenHeight, "Sand3D Prototype");
-    // SetWindowMonitor(1);
+    SetWindowMonitor(GetMonitorCount() - 1);
+    SetWindowFocused();
 
     cout << endl;
 
@@ -37,7 +38,7 @@ int main(void)
 
     sworld.updateWorldVoxelVisibility();
 
-    int targetFPS = GetMonitorRefreshRate(GetCurrentMonitor());
+    int targetFPS = GetMonitorRefreshRate(GetCurrentMonitor()); SetTargetFPS(targetFPS);
 
     int simulationCounter = 0;
     const static int simulationPerSecond = 30;
@@ -70,6 +71,8 @@ int main(void)
         RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS++;                         SetTargetFPS(targetFPS); }, "  +1",  fontSize, BLACK },
         RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS]() {                     targetFPS += 10;                     SetTargetFPS(targetFPS); }, "  +10", fontSize, BLACK },
     };
+
+    cout << endl;
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key

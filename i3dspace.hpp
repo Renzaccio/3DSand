@@ -134,7 +134,7 @@ public:
     {
         if (!(this->isInBounds(pos)))
         {
-            cout << "OOB when trying to place a " << block << " block at " << pos << endl;
+            cout << "OoB when trying to place a " << block << " block at " << pos << endl;
             return;
         }
 
@@ -145,7 +145,7 @@ public:
     {
         if (!(this->isInBounds(startPos) && this->isInBounds(endPos)))
         {
-            cout << "OOB when trying to place a " << block << " parallelepiped from " << startPos << " to " << endPos << endl;
+            cout << "OoB when trying to place a " << block << " parallelepiped from " << startPos << " to " << endPos << endl;
             return;
         }
 
