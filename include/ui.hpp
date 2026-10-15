@@ -6,7 +6,7 @@
 #include <vector>
 #include <array>
 #include <unordered_map>
-#include "include/raylib.h"
+#include "../raylib/include/raylib.h"
 #include "counter.hpp"
 
 using namespace std; 

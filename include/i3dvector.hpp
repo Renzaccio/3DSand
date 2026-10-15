@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "include/raymath.h"
+#include "../raylib/include/raymath.h"
 
 using namespace std;
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include/raylib.h"
-#include "include/raymath.h"
+#include "../raylib/include/raylib.h"
+#include "../raylib/include/raymath.h"
 
 class OrientatedCamera : public Camera3D
 {

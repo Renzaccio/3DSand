@@ -4,7 +4,7 @@
 #include <array>
 #include "blocks.hpp"
 #include "i3dvector.hpp"
-#include "include/raylib.h"
+#include "../raylib/include/raylib.h"
 
 using namespace std;
 

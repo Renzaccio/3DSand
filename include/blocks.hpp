@@ -1,8 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include "include/raylib.h"
-#include "include/raymath.h"
+#include "../raylib/include/raylib.h"
+#include "../raylib/include/raymath.h"
 
 using namespace std;
 

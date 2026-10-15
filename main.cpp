@@ -1,7 +1,7 @@
-#include "counter.hpp"
-#include "camera.hpp"
-#include "i3dspace.hpp"
-#include "ui.hpp"
+#include "include/counter.hpp"
+#include "include/camera.hpp"
+#include "include/i3dspace.hpp"
+#include "include/ui.hpp"
 
 using namespace std;
 
