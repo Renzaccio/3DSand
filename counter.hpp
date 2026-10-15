@@ -1,3 +1,5 @@
+#pragma once
+
 template<int stepVal = 1> struct Counter
 {
 private:

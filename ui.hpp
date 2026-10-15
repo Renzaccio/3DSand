@@ -3,16 +3,18 @@
 #include <algorithm>
 #include <string>
 #include <functional>
-#include "include/raylib.h"
 #include <vector>
 #include <array>
 #include <unordered_map>
+#include "include/raylib.h"
+#include "counter.hpp"
 
 using namespace std; 
 
 struct RPressButton : Rectangle
 {
 private:
+
     bool             isVisible = true;
     Color            color{ 255,255,255,255 };
     string           text = "";
@@ -53,8 +55,11 @@ public:
 struct RPressButtonLogicalGroup
 {
 private:
+
     vector<RPressButton> rbtns;
+
 public:
+
     RPressButtonLogicalGroup() {}
     RPressButtonLogicalGroup(vector<RPressButton> rbs) :  rbtns{std::move(rbs)} {}
 
@@ -123,8 +128,10 @@ struct DockActionSupport {
     RPressButtonLogicalGroup rbtns;
     Counter<80> beginXActions;
 };
-typedef  unordered_map<string, DockActionSupport> DockActions;
-typedef  unordered_map<string, RPressButton> DockMenu;
+
+typedef unordered_map<string, DockActionSupport> DockActions;
+typedef unordered_map<string, RPressButton> DockMenu;
+
 struct Dock
 {
     DockMenu menu;
