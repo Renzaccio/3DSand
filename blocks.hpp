@@ -8,6 +8,8 @@ using namespace std;
 
 enum BlockType { BORDER, DEBUG, STONE, WOOD, DIRT, SAND, AIR };
 
+enum BlockClass { SOLID, LIQUID, GAS };
+
 inline ostream & operator << (ostream & stream, BlockType block)
 {
     switch (block) {
@@ -40,6 +42,17 @@ struct Voxel
     Voxel() : block{ AIR } {}
     Voxel(BlockType bl) : block{ bl } {}
 
+
+    BlockClass getBlockClass() const
+    {
+        switch (this->block) {
+            default:
+                return SOLID;
+            case BORDER:
+            case AIR:
+                return GAS;
+        }
+    }
 
     bool isSurfaceVisible(BlockType adjacentBlock) const
     {

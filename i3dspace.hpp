@@ -203,7 +203,7 @@ public:
                 for (int z = 0; z < DLEN; z++)
                     this->voxelStep({ x, y, z });
     }
-    
+
     void voxelStep(const Vec3I & pos)
     {
         Voxel & voxel = this->voxel(pos);
@@ -255,7 +255,7 @@ public:
             validPosIndexes[i] = validPosIndexes[seed % (validPosAmount - i) + i];
             validPosIndexes[seed % (validPosAmount - i) + i] = tmp;
         }
-        
+
         for (int i : validPosIndexes) // The block tries to fall sideways
         {
             const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[i];
@@ -289,38 +289,29 @@ public:
 
 
 
-    bool isVoxelVisible(const Vec3I & pos) const
-    {
-        switch (this->block(pos)) {
-            case AIR:
-                return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
-                    this->blockConst(pos + this->sidePosArr[0]) != AIR ||
-                    this->blockConst(pos + this->sidePosArr[1]) != AIR ||
-                    this->blockConst(pos + this->sidePosArr[2]) != AIR ||
-                    this->blockConst(pos + this->sidePosArr[3]) != AIR ||
-                    this->blockConst(pos + this->verticalPosArr[0]) != AIR ||
-                    this->blockConst(pos + this->verticalPosArr[1]) != AIR;
-            default:
-                if (pos.x == 0 || pos.x == WLEN - 1 ||
-                    pos.y == 0 || pos.y == HLEN - 1 ||
-                    pos.z == 0 || pos.z == DLEN - 1)
-                    return true;
-                return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
-                    this->blockConst(pos + this->sidePosArr[0]) == AIR ||
-                    this->blockConst(pos + this->sidePosArr[1]) == AIR ||
-                    this->blockConst(pos + this->sidePosArr[2]) == AIR ||
-                    this->blockConst(pos + this->sidePosArr[3]) == AIR ||
-                    this->blockConst(pos + this->verticalPosArr[0]) == AIR ||
-                    this->blockConst(pos + this->verticalPosArr[1]) == AIR;
-        }
-    }
-
     void updateWorldVoxelVisibility()
     {
         for (int y = 0; y < HLEN; y++)
             for (int x = 0; x < WLEN; x++)
                 for (int z = 0; z < DLEN; z++)
-                    this->voxel(x, y, z).isVisible = this->isVoxelVisible({ x, y, z });
+                { // This function only updates the visibility of blocks already visible. Hidden blocks are already updated inside step()
+                    bool & voxeIsVisible = this->voxel(x, y, z).isVisible;
+                    if (voxeIsVisible)
+                        voxeIsVisible = this->isVoxelVisible({ x, y, z });
+                }
+    }
+
+    bool isVoxelVisible(const Vec3I & pos) const
+    {
+        BlockClass blockClass = this->voxel(pos).getBlockClass();
+
+        return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
+            blockClass != this->voxel(pos + this->sidePosArr[0]).getBlockClass() ||
+            blockClass != this->voxel(pos + this->sidePosArr[1]).getBlockClass() ||
+            blockClass != this->voxel(pos + this->sidePosArr[2]).getBlockClass() ||
+            blockClass != this->voxel(pos + this->sidePosArr[3]).getBlockClass() ||
+            blockClass != this->voxel(pos + this->verticalPosArr[0]).getBlockClass() ||
+            blockClass != this->voxel(pos + this->verticalPosArr[1]).getBlockClass();
     }
 
     void activateAllNeighboursVisibility(const Vec3I & pos)
@@ -358,13 +349,15 @@ public:
         for (int x = 0; x <= WLEN; x++)
             for (int y = 0; y <= HLEN; y++)
                 for (int z = 0; z <= DLEN; z++)
-                    if (this->voxelConst(x, y, z).isVisible)
-                        this->drawVoxel({ x, y, z });
+                    this->drawVoxel({ x, y, z });
     }
 
     void drawVoxel(const Vec3I & pos) const
     {
         const Voxel & voxel = this->voxel(pos);
+
+        if (!voxel.isVisible || voxel.getBlockClass() == GAS)
+            return;
 
         Vector3 drawPos = pos + this->drawShift;
 
