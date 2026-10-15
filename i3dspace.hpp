@@ -284,24 +284,24 @@ public:
     void updateBlock(const Vec3I & pos, BlockType block)
     {
         this->block(pos) = block;
-        this->activateAllNeighboursVisibility(pos);
+        this->activateAllNeighboursSurfaceVisibility(pos);
     }
 
 
 
-    void updateWorldVoxelVisibility()
+    void updateWorldVoxelSurfaceVisibility()
     {
         for (int y = 0; y < HLEN; y++)
             for (int x = 0; x < WLEN; x++)
                 for (int z = 0; z < DLEN; z++)
                 { // This function only updates the visibility of blocks already visible. Hidden blocks are already updated inside step()
-                    bool & voxeIsVisible = this->voxel(x, y, z).isVisible;
-                    if (voxeIsVisible)
-                        voxeIsVisible = this->isVoxelVisible({ x, y, z });
+                    bool & voxelHasVisibleSurface = this->voxel(x, y, z).hasVisibleSurface;
+                    if (voxelHasVisibleSurface)
+                        voxelHasVisibleSurface = this->voxelHasVisibleSurface({ x, y, z });
                 }
     }
 
-    bool isVoxelVisible(const Vec3I & pos) const
+    bool voxelHasVisibleSurface(const Vec3I & pos) const
     {
         BlockClass blockClass = this->voxel(pos).getBlockClass();
 
@@ -314,15 +314,15 @@ public:
             blockClass != this->voxel(pos + this->verticalPosArr[1]).getBlockClass();
     }
 
-    void activateAllNeighboursVisibility(const Vec3I & pos)
+    void activateAllNeighboursSurfaceVisibility(const Vec3I & pos)
     {
-        for (const Vec3I & verticalPos : this->verticalPosArr) this->activateNeighbourVisibility(pos + verticalPos);
-        for (const Vec3I & sidePos     : this->sidePosArr)     this->activateNeighbourVisibility(pos + sidePos);
+        for (const Vec3I & verticalPos : this->verticalPosArr) this->activateNeighbourSurfaceVisibility(pos + verticalPos);
+        for (const Vec3I & sidePos     : this->sidePosArr)     this->activateNeighbourSurfaceVisibility(pos + sidePos);
     }
 
-    void activateNeighbourVisibility(const Vec3I & neighbourPos)
+    void activateNeighbourSurfaceVisibility(const Vec3I & neighbourPos)
     {
-        if (this->isInBounds(neighbourPos)) this->voxel(neighbourPos).isVisible = true;
+        if (this->isInBounds(neighbourPos)) this->voxel(neighbourPos).hasVisibleSurface = true;
     }
 
 
@@ -356,14 +356,14 @@ public:
     {
         const Voxel & voxel = this->voxel(pos);
 
-        if (!voxel.isVisible || voxel.getBlockClass() == GAS)
+        if (!voxel.hasVisibleSurface || voxel.getBlockClass() == GAS)
             return;
 
         Vector3 drawPos = pos + this->drawShift;
 
         {
             const Voxel & adjacentVoxel = this->voxel(pos + this->verticalPosArr[0]);
-            if (adjacentVoxel.isVisible)
+            if (adjacentVoxel.hasVisibleSurface)
             {
                 voxel.drawZ(drawPos, adjacentVoxel.block);
                 // this->voxel(pos).draw(pos + this->drawShift, this->voxel(pos).block);

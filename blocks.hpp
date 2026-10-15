@@ -35,8 +35,8 @@ inline ostream & operator << (ostream & stream, BlockType block)
 struct Voxel
 {
     BlockType block;
-    bool canMove   = true;
-    bool isVisible = true;
+    bool canMove           = true;
+    bool hasVisibleSurface = true;
 
 
     Voxel() : block{ AIR } {}

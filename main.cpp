@@ -36,7 +36,7 @@ int main(void)
     // sworld.placeChair3x4x3({  9, 2, -1 });
     // sworld.placeTable5x4x5({ -3, 2,  8 });
 
-    sworld.updateWorldVoxelVisibility();
+    sworld.updateWorldVoxelSurfaceVisibility();
 
     int targetFPS = GetMonitorRefreshRate(GetCurrentMonitor()); SetTargetFPS(targetFPS);
 
@@ -129,7 +129,7 @@ int main(void)
                 staticBlockAmount = blockAmountArr[1];
 
                 // Updating Blocks visibility
-                sworld.updateWorldVoxelVisibility();
+                sworld.updateWorldVoxelSurfaceVisibility();
             }
         }
         else
