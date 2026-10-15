@@ -3,7 +3,7 @@
 #include "../raylib/include/raylib.h"
 #include "../raylib/include/raymath.h"
 
-class OrientatedCamera : public Camera3D
+struct OrientatedCamera : public Camera3D
 {
 private:
     Vector3 direction;

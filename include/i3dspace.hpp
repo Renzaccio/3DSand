@@ -1,17 +1,16 @@
 #pragma once
 
-#include <vector>
 #include <array>
+#include <vector>
 #include "blocks.hpp"
 #include "i3dvector.hpp"
-#include "../raylib/include/raylib.h"
 
 using namespace std;
 
 typedef vector<vector<vector<Voxel>>> WorldMTX;
 
 template<int WLEN, int HLEN, int DLEN>
-class Int3DSpace
+struct Int3DSpace
 {
 private:
 

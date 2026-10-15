@@ -1,11 +1,9 @@
 #pragma once
 
-#include <algorithm>
-#include <string>
-#include <functional>
-#include <vector>
-#include <array>
+#include <iostream>
 #include <unordered_map>
+#include <algorithm>
+#include <functional>
 #include "../raylib/include/raylib.h"
 #include "counter.hpp"
 
