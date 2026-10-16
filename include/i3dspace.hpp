@@ -55,18 +55,15 @@ private:
         Vec3I{ -1, -1,  1 },
         Vec3I{  1, -1,  1 }
     };
-
     Vector3 drawShift = {
         0 - WLEN * 0.5f,
         0,
         0 - WLEN * 0.5f,
     };
-
 public:
-
     Int3DSpace() : mtx{ WLEN, vector<vector<Voxel>>{ HLEN, vector<Voxel>{ DLEN, Voxel{} } } } {}
 
-
+    Vector3 getDrawShift() const { return this->drawShift; }
 
     int getWidth()  const { return WLEN; }
 
