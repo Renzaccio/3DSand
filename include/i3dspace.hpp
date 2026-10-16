@@ -23,9 +23,9 @@ private:
     static const int posAmountShort = 2;
     static const int posAmount = 4;
     const array<Vec3I, posAmountShort> verticalPosArr = // not really a "logic suit" compare to the other posArrays
-    { 
-        Vec3I{ 0,  1, 0 },
-        Vec3I{ 0, -1, 0 }
+    {
+        Vec3I{ 0, -1, 0 },
+        Vec3I{ 0,  1, 0 }
     };
     const array<Vec3I, posAmount> sidePosArr =
     {
@@ -73,9 +73,9 @@ public:
     int getHeight() const { return HLEN; }
 
     int getDepth()  const { return DLEN; }
-    
+
     int getVolume() const { return WLEN*HLEN*DLEN; }
-    
+
     bool isInBounds(int x, int y, int z) const { return 0 <= x && x < WLEN && 0 <= y && y < HLEN && 0 <= z && z < DLEN; }
 
     bool isInBounds(const Vec3I & pos) const { return this->isInBounds(pos.x, pos.y, pos.z); }
@@ -102,12 +102,12 @@ public:
     {
         return this->voxel(x, y, z);
     }
-    
+
     const Voxel & voxel(const Vec3I & v) const
     {
         return this->voxel(v.x, v.y, v.z);
     }
-    
+
     const Voxel & voxelConst(const Vec3I & v) const
     {
         return this->voxel(v);
@@ -122,9 +122,9 @@ public:
     const BlockType & block(int x, int y, int z)      const { return (this->voxel(x, y, z)).block; }
 
     const BlockType & blockConst(int x, int y, int z) const { return (this->voxel(x, y, z)).block; }
-    
+
     const BlockType & block(const Vec3I & v)          const { return (this->voxel(v)).block; }
-    
+
     const BlockType & blockConst(const Vec3I & v)     const { return (this->voxel(v)).block; }
 
 
@@ -224,7 +224,7 @@ public:
         BlockType & block = voxel.block;
 
         { // The block tries to fall straight down
-            const Vec3I underBlockCoord = pos - this->verticalPosArr[0];
+            const Vec3I underBlockCoord = pos + this->verticalPosArr[0];
 
             if (this->blockConst(underBlockCoord) == AIR)
             {
@@ -266,7 +266,7 @@ public:
                 return;
             }
         }
-        
+
         for (int i : validPosIndexes) // The block tries to move sideways
         {
             if (this->blockConst(pos + diagFallPosArr[i]) == AIR || this->blockConst(pos + diagFallPosArr[(i+1)%this->posAmount]) == AIR)
@@ -332,7 +332,7 @@ public:
     {
         for (int y = 0; y < HLEN; y++)
             for (int x = 0; x < WLEN; x++)
-                for (int z = 0; z < DLEN; z++) 
+                for (int z = 0; z < DLEN; z++)
                 {
                     const BlockType & currentBt = this->blockConst(x,y,z);
 
@@ -361,17 +361,39 @@ public:
         Vector3 drawPos = pos + this->drawShift;
 
         {
+            const Voxel & adjacentVoxel = this->voxel(pos + this->sidePosArr[1]);
+            if (adjacentVoxel.hasVisibleSurface)
+                voxel.drawFace(drawPos, adjacentVoxel.block, RIGHT);
+        }
+        {
+            const Voxel & adjacentVoxel = this->voxel(pos + this->sidePosArr[3]);
+            if (adjacentVoxel.hasVisibleSurface)
+                voxel.drawFace(drawPos, adjacentVoxel.block, LEFT);
+        }
+        {
             const Voxel & adjacentVoxel = this->voxel(pos + this->verticalPosArr[0]);
             if (adjacentVoxel.hasVisibleSurface)
-            {
-                voxel.drawZ(drawPos, adjacentVoxel.block);
-                // this->voxel(pos).draw(pos + this->drawShift, this->voxel(pos).block);
-            }
+                voxel.drawFace(drawPos, adjacentVoxel.block, BOTTOM);
+        }
+        {
+            const Voxel & adjacentVoxel = this->voxel(pos + this->verticalPosArr[1]);
+            if (adjacentVoxel.hasVisibleSurface)
+                voxel.drawFace(drawPos, adjacentVoxel.block, TOP);
+        }
+        {
+            const Voxel & adjacentVoxel = this->voxel(pos + this->sidePosArr[0]);
+            if (adjacentVoxel.hasVisibleSurface)
+                voxel.drawFace(drawPos, adjacentVoxel.block, FRONT);
+        }
+        {
+            const Voxel & adjacentVoxel = this->voxel(pos + this->sidePosArr[2]);
+            if (adjacentVoxel.hasVisibleSurface)
+                voxel.drawFace(drawPos, adjacentVoxel.block, BACK);
         }
 
         voxel.drawLines(drawPos + Vector3{0.5f, 0.5f, 0.5f});
     }
-    
+
     void printWorld() const
     {
         for (int x = 0; x < WLEN; x++)
