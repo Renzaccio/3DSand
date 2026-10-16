@@ -100,7 +100,7 @@ struct Voxel
             DrawTriangle3D(position + Vector3{ 1.0f, 1.0f, 0.0f }, position + Vector3{ 0.0f, 1.0f, 1.0f }, position + Vector3{ 1.0f, 1.0f, 1.0f }, color);
         }
     }
-    
+
     void drawLines(const Vector3 position) const
     {
         switch (this->block)
