@@ -65,14 +65,15 @@ int main(void)
     Counter<fontSize * 3> buttonX(borderWidth);
 
     RPressButtonLogicalGroup fpsBtnGroup{{ // Buttons for changing FPS
-        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS](RPressButton& r) { if (targetFPS > 15) targetFPS -= 10; else targetFPS = 5;  SetTargetFPS(targetFPS); }, "  -10", fontSize, BLACK },
-        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS](RPressButton& r) { if (targetFPS >  5) targetFPS--;                          SetTargetFPS(targetFPS); }, "  -1",  fontSize, BLACK },
-        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, LIGHTGRAY, [&targetFPS](RPressButton& r) { targetFPS = GetMonitorRefreshRate(GetCurrentMonitor());   SetTargetFPS(targetFPS); }, " RES", fontSize,  BLACK },
-        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS](RPressButton& r) { targetFPS++;                                              SetTargetFPS(targetFPS); }, "  +1",  fontSize, BLACK },
-        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS](RPressButton& r) { targetFPS += 10;                                          SetTargetFPS(targetFPS); }, "  +10", fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS](RPressButton& r) { if (targetFPS > 15) targetFPS -= 10; else targetFPS = 5;  SetTargetFPS(targetFPS); }, "-10", fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, RED,       [&targetFPS](RPressButton& r) { if (targetFPS >  5) targetFPS--;                          SetTargetFPS(targetFPS); }, "-1",  fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, LIGHTGRAY, [&targetFPS](RPressButton& r) { targetFPS = GetMonitorRefreshRate(GetCurrentMonitor());   SetTargetFPS(targetFPS); }, "RES", fontSize,  BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS](RPressButton& r) { targetFPS++;                                              SetTargetFPS(targetFPS); }, "+1",  fontSize, BLACK },
+        RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS](RPressButton& r) { targetFPS += 10;                                          SetTargetFPS(targetFPS); }, "+10", fontSize, BLACK },
     }};
 
-    Dock menu = buildMenu();
+    DockRay menuRaySupport;
+    Dock menu = buildMenu(menuRaySupport);
 
     cout << endl;
 
@@ -142,6 +143,7 @@ int main(void)
 
         fpsBtnGroup.pressDetection();
         menu.pressDetection();
+        menuRaySupport.rayTest<WL, HL, DL>(sworld, camera, menu);
 
         BeginDrawing();
         {
