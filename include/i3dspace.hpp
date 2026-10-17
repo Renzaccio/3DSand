@@ -390,8 +390,6 @@ public:
             if (adjacentVoxel.hasVisibleSurface)
                 voxel.drawFace(drawPos, adjacentVoxel.block, BACK);
         }
-
-        voxel.drawLines(drawPos + Vector3{0.5f, 0.5f, 0.5f});
     }
 
     void printWorld() const

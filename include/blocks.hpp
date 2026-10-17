@@ -120,14 +120,44 @@ public:
         }
     }
 
+    unsigned char getLuminosity(Direction face) const
+    {
+        switch (face)
+        {
+            case TOP:
+                return 255;
+            case FRONT:
+            case BACK:
+                return 216;
+            case RIGHT:
+            case LEFT:
+                return 200;
+            case BOTTOM:
+                return 176;
+            default:
+                return 0;
+        }
+    }
+
+    Color getTint(Direction face) const
+    {
+        unsigned char luminosity = getLuminosity(face);
+        return { luminosity, luminosity, luminosity, 255 };
+    }
+
     void drawFace(const Vector3 & position, BlockType adjacentBlock, Direction face) const
     {
-        if (this->isSurfaceVisible(adjacentBlock))
+        if (this->isSurfaceVisible(adjacentBlock)) // && this->block == SAND)
         {
-            const Color & color = this->getColor();
+            const Color & color = ColorTint(this->getColor(), this->getTint(face));
             const array<int, 4> & faceIndexes = faceIndexesMap.find(face)->second;
-            DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[1]], position + this->verticesPosArr[faceIndexes[3]], color);
-            DrawTriangle3D(position + this->verticesPosArr[faceIndexes[1]], position + this->verticesPosArr[faceIndexes[2]], position + this->verticesPosArr[faceIndexes[3]], color);
+            DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[1]], position + this->verticesPosArr[faceIndexes[2]], color);
+            DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], position + this->verticesPosArr[faceIndexes[3]], color);
+
+            // Debug display for looking at the mesh from the inside.
+            // for (int i = 0; i < 4; i++)
+            //     DrawLine3D(position + this->verticesPosArr[faceIndexes[i]], position + this->verticesPosArr[faceIndexes[(i + 1)%4]], color);
+            // DrawLine3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], color);
         }
     }
 

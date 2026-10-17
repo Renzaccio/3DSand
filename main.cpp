@@ -21,15 +21,16 @@ int main(void)
     const static int HL = 30;
     const static int DL = 75;
     Int3DSpace<WL, HL, DL> sworld{};
-    sworld.placeFlatFloor(0, STONE);
-    sworld.placeFlatFloor(1, DIRT);
+    for (int i = 0; i < 4; i++)
+        sworld.placeFlatFloor(i, STONE);
+    sworld.placeFlatFloor(4, DIRT);
 
-    // for (int i = 2; i < 4; i++)
-    //     sworld.createFlatFloor(i, SAND);
+    for (int i = 10; i < 12; i++)
+        sworld.placeFlatFloor(i, SAND);
 
-    sworld.placeChair3x4x3({  2, 2,  2 });
-    sworld.placeTable5x4x5({ 10, 2, 10 });
-    
+    sworld.placeChair3x4x3({  2, 5,  2 });
+    sworld.placeTable5x4x5({ 10, 5, 10 });
+
     // OOB place() calls for testing
     // sworld.placeFlatFloor(100, DIRT);
     // sworld.placeChair3x4x3({  9, 2, -1 });
@@ -139,7 +140,7 @@ int main(void)
             spawnCounter = 0;
         }
 
-        fpsBtnGroup.pressDetection(); 
+        fpsBtnGroup.pressDetection();
         menu.pressDetection();
 
         BeginDrawing();
@@ -195,7 +196,7 @@ int main(void)
 
     cout << endl;
 
-    CloseWindow(); 
+    CloseWindow();
 
     return 0;
 }
