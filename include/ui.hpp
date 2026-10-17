@@ -4,6 +4,7 @@
 #include <functional>
 #include "counter.hpp"
 #include "i3dspace.hpp"
+#include "i3dvector.hpp"
 
 using namespace std;
 
@@ -302,7 +303,7 @@ enum DockTools { Normal, SandPillar, SandBucket }; // define existing tools
 enum DockRayMode { OnePerOne, Compulsive };        // define mouse pression mode detecton (Compulsive=IsMouseButtonDown, OnePerOne=IsMouseButtonPressed)
 struct DockRay
 {
-    Vec3I targetedVoxel{ 0,0,0 };             // voxel targeted by Dock ray
+    Vec3I targetedPos{ 0,0,0 };             // voxel targeted by Dock ray
     BlockType dockSelectedBlock = SAND;     // the selected block in ui
     DockRayMode state = Compulsive;
     DockTools tool = Normal;
@@ -340,26 +341,30 @@ struct DockRay
                             (!collision.hit || (hit.distance < collision.distance)))
                         {
                             collision = hit;
-                            this->targetedVoxel.x = x;
-                            this->targetedVoxel.y = y;
-                            this->targetedVoxel.z = z;
+                            this->targetedPos.x = x;
+                            this->targetedPos.y = y;
+                            this->targetedPos.z = z;
                         }
                     }
 
             if (collision.hit)
+            {
+                Vec3I posToEdit = this->targetedPos;
                 switch(tool)
                 {
                     case Normal:
-                        if ((this->targetedVoxel.y + 1) >= HLEN)
-                            return;
-                        sworld.block(this->targetedVoxel + Vec3I { 0, 1, 0 }) = this->dockSelectedBlock;
+                        if (posToEdit.y + 1 < HLEN)
+                            posToEdit += { 0, 1, 0 };
+                        sworld.block(posToEdit) = this->dockSelectedBlock;
+                        sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
                         break;
                     case SandPillar:
-                        sworld.block(this->targetedVoxel + Vec3I { 0, (HLEN-1)-this->targetedVoxel.y, 0 }) = SAND;
-                        break;
-                    default:
+                        posToEdit.y = HLEN - 1;
+                        sworld.block(posToEdit) = this->dockSelectedBlock;
+                        sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
                         break;
                 }
+            }
         }
     }
 };
