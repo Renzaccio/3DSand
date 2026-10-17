@@ -317,8 +317,8 @@ struct DockRay
     DockRayMode state = Compulsive;
     DockTools tool = Normal;
 
-    template<int X, int Y, int Z>
-    void rayTest(Int3DSpace<X,Y,Z>& sworld, Camera& camera, Dock& dockMenu) // we take the closest block to camera
+    template<int WLEN, int HLEN, int DLEN>
+    void rayTest(Int3DSpace<WLEN, HLEN, DLEN>& sworld, Camera& camera, Dock& dockMenu) // we take the closest block to camera
     {
         Ray ray = { 0 };
         RayCollision collision = { 0 };
@@ -330,22 +330,22 @@ struct DockRay
             ray = GetScreenToWorldRay(GetMousePosition(), camera);
             collision = {};
 
-            for (int j = 0; j < Y; j++)
+            for (int x = 0; x < WLEN; x++)
             {
-                for (int i = 0; i < X; i++)
+                for (int y = 0; y < HLEN; y++)
                 {
-                    for (int k = 0; k < Z; k++)
+                    for (int z = 0; z < DLEN; z++)
                     {
-                        if (sworld.blockConst(i, j, k) == AIR)
+                        if (sworld.blockConst(x, y, z) == AIR)
                             continue;
 
                         Vector3 pos = Vector3{
-                            (float)i, (float)j, (float)k
+                            (float)x, (float)y, (float)z
                         } + sworld.getDrawShift();
 
                         BoundingBox box{
                             pos,
-                            Vector3{pos.x + 1, pos.y + 1, pos.z + 1}
+                            pos + Vector3{1, 1, 1}
                         };
 
                         RayCollision hit = GetRayCollisionBox(ray, box);
@@ -354,9 +354,9 @@ struct DockRay
                             (!collision.hit || (hit.distance < collision.distance)))
                         {
                             collision = hit;
-                            this->targetedVoxel.x = i;
-                            this->targetedVoxel.y = j;
-                            this->targetedVoxel.z = k;
+                            this->targetedVoxel.x = x;
+                            this->targetedVoxel.y = y;
+                            this->targetedVoxel.z = z;
                         }
                     }
                 }
@@ -368,17 +368,15 @@ struct DockRay
                 {
                     case Normal:
                     {
-                        if ((this->targetedVoxel.y + 1) >= Y)
+                        if ((this->targetedVoxel.y + 1) >= HLEN)
                             return;
 
                         sworld.block(this->targetedVoxel + Vec3I { 0, 1, 0}) = this->dockSelectedBlock;
                         break;
                     }
                     case SandPillar:
-                    {
-                        sworld.block(this->targetedVoxel + Vec3I { 0, (Y-1)-this->targetedVoxel.y, 0}) = SAND;
+                        sworld.block(this->targetedVoxel + Vec3I { 0, (HLEN-1)-this->targetedVoxel.y, 0}) = SAND;
                         break;
-                    }
                     default:
                         break;
                 }
