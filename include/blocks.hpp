@@ -1,10 +1,8 @@
 #pragma once
 
 #include <array>
-#include <iostream>
 #include <unordered_map>
 #include "../raylib/include/raylib.h"
-// #include "../raylib/include/raymath.h"
 #include "i3dvector.hpp"
 
 using namespace std;

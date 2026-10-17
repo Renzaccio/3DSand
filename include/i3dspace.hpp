@@ -1,9 +1,6 @@
 #pragma once
 
-#include <array>
-#include <vector>
 #include "blocks.hpp"
-#include "i3dvector.hpp"
 
 using namespace std;
 

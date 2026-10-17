@@ -1,6 +1,6 @@
+#include <string>
 #include "include/ui.hpp"
 #include "include/camera.hpp"
-#include "include/i3dspace.hpp"
 
 using namespace std;
 
