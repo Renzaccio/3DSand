@@ -16,11 +16,11 @@ private:
     string           text = "";
     int              textSize;
     Color            textColor{ 0,0,0,255 };
-    function<void(RPressButton&)> callback; // a acces a l'object
+    function<void(RPressButton &)> callback; // a acces a l'object
     string           payload = "unknown";
 
 public:
-    RPressButton(float x, float y, float width, float height, Color col, function<void(RPressButton&)> cb, string txt, int txtSize, Color txtCol) :
+    RPressButton(float x, float y, float width, float height, Color col, function<void(RPressButton &)> cb, string txt, int txtSize, Color txtCol) :
         Rectangle{ x,y,width,height }, color{ col }, callback{ cb }, text(txt), textSize{ txtSize }, textColor{ txtCol } {}
 
     void draw()               const { this->draw(this->x, this->y); }
@@ -39,25 +39,23 @@ public:
         DrawText(this->text.c_str(), posX, posY, this->textSize, this->textColor);
     }
 
-    string getPayload() { return this->payload; }
+    string getPayload() const  { return this->payload; }
     void setPayload(string pa) { this->payload = pa; }
 
-    void setBackgroundColor(Color co)     { this->color = co;}
-    void setTextColor(Color co)     { this->textColor = co;}
+    void setBackgroundColor(Color co) { this->color = co; }
+    void setTextColor(Color co)       { this->textColor = co; }
 
-    void setVisibility(bool vb)   { this->isVisible = vb; }
-    bool buttonIsVisible() const  { return this->isVisible; }
+    bool buttonIsVisible() const { return this->isVisible; }
+    void setVisibility(bool vb)  { this->isVisible = vb; }
 
     bool executeIfPressed()
     {
         if (CheckCollisionPointRec(GetMousePosition(), *this))
-        {
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             {
                 this->callback(*this);
                 return true;
             }
-        }
 
         return false;
     }
@@ -74,7 +72,7 @@ private:
 public:
 
     RPressButtonLogicalGroup() {}
-    RPressButtonLogicalGroup(vector<RPressButton> rbs) :  rbtns{std::move(rbs)} {}
+    RPressButtonLogicalGroup(vector<RPressButton> rbs) : rbtns{ std::move(rbs) } {}
 
     void push(RPressButton btn)
     {
@@ -83,29 +81,21 @@ public:
 
     void drawAll()
     {
-        for (RPressButton& rb : rbtns)
-        {
+        for (RPressButton & rb : rbtns)
             if (rb.buttonIsVisible())
-            {
                 rb.draw();
-            }
-        }
     }
 
     string pressDetection()
     {
         string lastexec = "unknown";
 
-        for (RPressButton& rb : rbtns)
-        {
+        for (RPressButton & rb : rbtns)
             if (rb.buttonIsVisible())
-            {
                 if (rb.executeIfPressed())
                 {
                     lastexec = rb.getPayload();
                 }
-            }
-        }
 
         return lastexec;
     }
@@ -117,7 +107,7 @@ public:
         for_each(
             this->rbtns.begin(),
             this->rbtns.end(),
-            [payload, bgCo, txtCo](RPressButton& rb) {
+            [payload, bgCo, txtCo](RPressButton & rb) {
                 if (rb.getPayload() == payload)
                 {
                     rb.setBackgroundColor(bgCo);
@@ -132,7 +122,7 @@ public:
         for_each(
             this->rbtns.begin(),
             this->rbtns.end(),
-            [bgCo, txtCo](RPressButton& rb) {
+            [bgCo, txtCo](RPressButton & rb) {
                 rb.setBackgroundColor(bgCo);
                 rb.setTextColor(txtCo);
             }
@@ -150,7 +140,7 @@ public:
         for_each(
             this->rbtns.begin(),
             this->rbtns.end(),
-            [](RPressButton& rb) {
+            [](RPressButton & rb) {
                 rb.setVisibility(false);
             }
         );
@@ -161,7 +151,7 @@ public:
         for_each(
             this->rbtns.begin(),
             this->rbtns.end(),
-            [](RPressButton& rb) {
+            [](RPressButton & rb) {
                 rb.setVisibility(true);
             }
         );
@@ -196,18 +186,16 @@ struct Dock
         if (!this->menu.contains(menuKey))
         {
             RPressButton rbtn { (float) (GetRenderWidth()-(MeasureText(menuName.c_str(), 17)+10)), (float) beginYMenu(), (float) (MeasureText(menuName.c_str(), 17)+5), 17.0, BLACK,
-                [this, menuKey](RPressButton& _) {
+                [this, menuKey](RPressButton & _) {
                     this->hideAllActions(); // Hide all actions menus
                     this->selectSectionMenu(menuKey);
 
-                    for (auto& acts : this->actions) // show logical group that respect current key
-                    {
+                    for (auto & acts : this->actions) // show logical group that respect current key
                         if (acts.second.originMenu == menuKey)
                         {
                             acts.second.rbtns.showAll();
                             break;
                         }
-                    }
                 },
             menuName, 17, WHITE };
 
@@ -228,26 +216,27 @@ struct Dock
         if (this->actions.contains(menuKey))
         {
             RPressButton rbtn { (float) this->actions[menuKey].beginXActions(), (float) (GetRenderHeight()-100), 100, 70.0, MENU_BLACK,
-                [actKey, cb](RPressButton& rpb)
+                [actKey, cb](RPressButton & rpb)
                 {
                     if (rpb.getPayload() == actKey)
                         cb();
-                }
-            , actName, 15, WHITE };
+                },
+            actName, 15, WHITE };
 
             rbtn.setVisibility(false);
             rbtn.setPayload(actKey);
 
             this->actions[menuKey].rbtns.push(rbtn);
-        } else
+        }
+        else
         {
             RPressButton rbtn { 0.0, (float) (GetRenderHeight()-100), 100, 70.0, MENU_BLACK,
-                [actKey, cb](RPressButton& rpb)
+                [actKey, cb](RPressButton & rpb)
                 {
                     if (rpb.getPayload() == actKey)
                         cb();
-                }
-            , actName, 15, WHITE };
+                },
+            actName, 15, WHITE };
 
             rbtn.setVisibility(false);
             rbtn.setPayload(actKey);
@@ -257,26 +246,29 @@ struct Dock
                 DockActionSupport {
                     menuKey,
                     RPressButtonLogicalGroup {
-                        vector<RPressButton>{ {rbtn} }
+                        vector<RPressButton>{ { rbtn } }
                     },
-                    Counter<100>{ (100) } });
+                    Counter<100>{ (100) }
+                }
+            );
         }
     }
 
     void hideAllActions() {
-        for (auto& acts : this->actions)
+        for (auto & acts : this->actions)
             acts.second.rbtns.hideAll();
     }
 
     void draw()
     {
-        for (auto& sectionMenu : this->menu)
+        for (auto & sectionMenu : this->menu)
         {
-            if(this->currentMenu == sectionMenu.first)
+            if (this->currentMenu == sectionMenu.first)
             {
                 sectionMenu.second.setBackgroundColor(YELLOW);
                 sectionMenu.second.setTextColor(BLACK);
-            } else
+            }
+            else
             {
                 sectionMenu.second.setTextColor(WHITE);
                 sectionMenu.second.setBackgroundColor(BLACK);
@@ -284,27 +276,25 @@ struct Dock
             sectionMenu.second.draw();
         }
 
-        for (auto& acts : this->actions)
+        for (auto & acts : this->actions)
             acts.second.rbtns.drawAll();
     }
 
     void pressDetection()
     {
-        for (auto& sectionMenu : this->menu)
+        for (auto & sectionMenu : this->menu)
             sectionMenu.second.executeIfPressed();
 
-        for (auto& acts : this->actions)
-        {
+        for (auto & acts : this->actions)
             if (this->currentMenu == acts.first)
             {
                 string pressedOne = acts.second.rbtns.pressDetection();
 
-                if(pressedOne != "unknown")
+                if (pressedOne != "unknown")
                     acts.second.rbtns.updateColorsByPayload(YELLOW, MENU_BLACK, pressedOne);
                 else
                     acts.second.rbtns.updateColors(MENU_BLACK, WHITE);
             }
-        }
     }
 };
 
@@ -312,28 +302,24 @@ enum DockTools { Normal, SandPillar, SandBucket }; // define existing tools
 enum DockRayMode { OnePerOne, Compulsive };        // define mouse pression mode detecton (Compulsive=IsMouseButtonDown, OnePerOne=IsMouseButtonPressed)
 struct DockRay
 {
-    Vec3I targetedVoxel{0,0,0};             // voxel targeted by Dock ray
+    Vec3I targetedVoxel{ 0,0,0 };             // voxel targeted by Dock ray
     BlockType dockSelectedBlock = SAND;     // the selected block in ui
     DockRayMode state = Compulsive;
     DockTools tool = Normal;
 
     template<int WLEN, int HLEN, int DLEN>
-    void rayTest(Int3DSpace<WLEN, HLEN, DLEN>& sworld, Camera& camera, Dock& dockMenu) // we take the closest block to camera
+    void rayTest(Int3DSpace<WLEN, HLEN, DLEN> & sworld, Camera & camera, Dock & dockMenu) // we take the closest block to camera
     {
         Ray ray = { 0 };
         RayCollision collision = { 0 };
 
-        if (
-            (state == Compulsive ? IsMouseButtonDown : IsMouseButtonPressed)(MOUSE_BUTTON_LEFT)
-        )
+        if ((state == Compulsive ? IsMouseButtonDown : IsMouseButtonPressed)(MOUSE_BUTTON_LEFT))
         {
             ray = GetScreenToWorldRay(GetMousePosition(), camera);
             collision = {};
 
             for (int x = 0; x < WLEN; x++)
-            {
                 for (int y = 0; y < HLEN; y++)
-                {
                     for (int z = 0; z < DLEN; z++)
                     {
                         if (sworld.blockConst(x, y, z) == AIR)
@@ -345,7 +331,7 @@ struct DockRay
 
                         BoundingBox box{
                             pos,
-                            pos + Vector3{1, 1, 1}
+                            pos + Vector3{ 1, 1, 1 }
                         };
 
                         RayCollision hit = GetRayCollisionBox(ray, box);
@@ -359,33 +345,26 @@ struct DockRay
                             this->targetedVoxel.z = z;
                         }
                     }
-                }
-            }
 
             if (collision.hit)
-            {
                 switch(tool)
                 {
                     case Normal:
-                    {
                         if ((this->targetedVoxel.y + 1) >= HLEN)
                             return;
-
-                        sworld.block(this->targetedVoxel + Vec3I { 0, 1, 0}) = this->dockSelectedBlock;
+                        sworld.block(this->targetedVoxel + Vec3I { 0, 1, 0 }) = this->dockSelectedBlock;
                         break;
-                    }
                     case SandPillar:
-                        sworld.block(this->targetedVoxel + Vec3I { 0, (HLEN-1)-this->targetedVoxel.y, 0}) = SAND;
+                        sworld.block(this->targetedVoxel + Vec3I { 0, (HLEN-1)-this->targetedVoxel.y, 0 }) = SAND;
                         break;
                     default:
                         break;
                 }
-            }
         }
     }
 };
 
-Dock buildMenu(DockRay& dockray)
+Dock buildMenu(DockRay & dockray)
 {
     Dock dock;
 
