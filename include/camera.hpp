@@ -99,16 +99,29 @@ public:
     {
         float frameSpeed = this->speed / fps;
 
-        Vector3 verticalDirection = this->up - this->direction * Vector3DotProduct(this->up, this->direction);
-        verticalDirection /= Vector3Length(verticalDirection);
+        Vector3 forwardDirection;
+        Vector3 verticalDirection;
 
-        Vector3 horizontalDirection = Vector3CrossProduct(verticalDirection, this->direction);
+        if (this->isInFirstPerson)
+        {
+            forwardDirection = this->direction;
+            verticalDirection = this->up - this->direction * Vector3DotProduct(this->up, this->direction);
+            verticalDirection /= Vector3Length(verticalDirection);
+        }
+        else
+        {
+            forwardDirection = this->direction - this->up * Vector3DotProduct(this->direction, this->up);
+            forwardDirection /= Vector3Length(forwardDirection);
+            verticalDirection = this->up;
+        }
 
-        if (IsKeyDown(KEY_W)) this->position += frameSpeed * this->direction;
-        if (IsKeyDown(KEY_S)) this->position -= frameSpeed * this->direction;
+        Vector3 lateralDirection = Vector3CrossProduct(verticalDirection, forwardDirection);
 
-        if (IsKeyDown(KEY_A)) this->position += frameSpeed * horizontalDirection;
-        if (IsKeyDown(KEY_D)) this->position -= frameSpeed * horizontalDirection;
+        if (IsKeyDown(KEY_W)) this->position += frameSpeed * forwardDirection;
+        if (IsKeyDown(KEY_S)) this->position -= frameSpeed * forwardDirection;
+
+        if (IsKeyDown(KEY_A)) this->position += frameSpeed * lateralDirection;
+        if (IsKeyDown(KEY_D)) this->position -= frameSpeed * lateralDirection;
 
         if (IsKeyDown(KEY_E)) this->position += frameSpeed * verticalDirection;
         if (IsKeyDown(KEY_Q)) this->position -= frameSpeed * verticalDirection;
