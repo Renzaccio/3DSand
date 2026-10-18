@@ -64,6 +64,7 @@ public:
     BlockType block;
     bool canMove           = true;
     bool hasVisibleSurface = true;
+    bool isTargeted        = false;
 
 
     Voxel() : block{ AIR } {}
