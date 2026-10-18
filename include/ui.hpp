@@ -314,7 +314,7 @@ struct DockRay
         Ray ray = { 0 };
         RayCollision collision = { 0 };
 
-        if ((state == Compulsive ? IsMouseButtonDown : IsMouseButtonPressed)(MOUSE_BUTTON_LEFT))
+        if ((this->state == Compulsive ? IsMouseButtonDown : IsMouseButtonPressed)(MOUSE_BUTTON_LEFT))
         {
             ray = GetScreenToWorldRay(GetMousePosition(), camera);
             collision = {};
@@ -350,10 +350,10 @@ struct DockRay
             if (collision.hit)
             {
                 Vec3I posToEdit = this->targetedPos;
-                switch(tool)
+                switch(this->tool)
                 {
                     case Normal:
-                        if (posToEdit.y + 1 < HLEN)
+                        if (this->dockSelectedBlock != AIR && sworld.block(posToEdit + (Vec3I){ 0, 1, 0 }) == AIR &&posToEdit.y + 1 < HLEN)
                             posToEdit += { 0, 1, 0 };
                         sworld.block(posToEdit) = this->dockSelectedBlock;
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
@@ -362,6 +362,8 @@ struct DockRay
                         posToEdit.y = HLEN - 1;
                         sworld.block(posToEdit) = this->dockSelectedBlock;
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
+                        break;
+                    default:
                         break;
                 }
             }
