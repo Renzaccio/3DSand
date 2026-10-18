@@ -22,7 +22,7 @@ private:
     const float speedFactor = 3.0f;
 
     bool isInFirstPerson;
-    const float focusDistance = 100.0f;
+    float focusDistance;
 
 public:
 
@@ -31,13 +31,14 @@ public:
         this->position = { -40.0f, 40.0f, -40.0f };
         this->up = { 0.0f, 1.0f, 0.0f };
 
-        this->fovy = 45.0f;
-        this->projection = CAMERA_PERSPECTIVE;
-
         this->yaw = PI * 0.25f;
         this->pitch = atan(- sqrt(2.0f) * 0.5f);
 
+        this->fovy = 45.0f;
+        this->projection = CAMERA_PERSPECTIVE;
+
         this->isInFirstPerson = true;
+        this->focusDistance = 100.0f;
     }
 
     bool getIsInFirstPerson() const { return isInFirstPerson; }
@@ -63,12 +64,12 @@ public:
 
         switch (IsKeyDown(KEY_LEFT_SHIFT) - IsKeyDown(KEY_LEFT_CONTROL))
         {
-            case -1 :
-                this->frameSpeed         /= this->speedFactor;
+            case -1 : // Slowed Movement
+                this->frameSpeed /= this->speedFactor;
                 // this->frameRotationSpeed /= this->speedFactor;
                 break;
-            case 1 :
-                this->frameSpeed         *= this->speedFactor;
+            case 1 : // Accelerated movement
+                this->frameSpeed *= this->speedFactor;
                 // this->frameRotationSpeed *= this->speedFactor;
                 break;
         }
@@ -84,9 +85,9 @@ public:
         this->updateDirFromAngle();
 
         if (this->isInFirstPerson)
-            this->updateTarFromPosAndDir();
+            this->updateTarFromPosAndDir(); // Camera rotates around its position
         else
-            this->updatePosFromTarAndDir();
+            this->updatePosFromTarAndDir(); // Camera rotates around a focal points located in front of it
     }
 
     void translateCameraKeys()
@@ -94,13 +95,13 @@ public:
         Vector3 forwardDirection;
         Vector3 verticalDirection;
 
-        if (this->isInFirstPerson)
+        if (this->isInFirstPerson) // The camera translation depends on its pitch
         {
             forwardDirection = this->direction;
             verticalDirection = this->up - this->direction * Vector3DotProduct(this->up, this->direction);
             verticalDirection /= Vector3Length(verticalDirection);
         }
-        else
+        else // The camera translation doesn't depend on its pitch
         {
             forwardDirection = this->direction - this->up * Vector3DotProduct(this->direction, this->up);
             forwardDirection /= Vector3Length(forwardDirection);
@@ -109,7 +110,7 @@ public:
 
         Vector3 lateralDirection = Vector3CrossProduct(verticalDirection, forwardDirection);
 
-        this->position += (
+        this->position += ( // Position update
             (IsKeyDown(KEY_W) - IsKeyDown(KEY_S)) * forwardDirection +
             (IsKeyDown(KEY_A) - IsKeyDown(KEY_D)) * lateralDirection +
             (IsKeyDown(KEY_E) - IsKeyDown(KEY_Q)) * verticalDirection
@@ -131,7 +132,7 @@ public:
 
     void drawInfo() const
     {
-        if (!this->isInFirstPerson)
+        if (!this->isInFirstPerson) // Small 3D cross located at the point the camera rotates around
         {
             DrawLine3D(target - (Vec3I){ 1, 0, 0 }, target + (Vec3I){ 1, 0, 0 }, BLACK);
             DrawLine3D(target - (Vec3I){ 0, 1, 0 }, target + (Vec3I){ 0, 1, 0 }, BLACK);

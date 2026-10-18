@@ -15,12 +15,17 @@ int main(void)
 
     cout << endl;
 
+    int targetFPS = GetMonitorRefreshRate(GetCurrentMonitor()); SetTargetFPS(targetFPS);
+
     OrientatedCamera camera{};
 
+
+    //// WORLD SETUP ////
     const static int WL = 75;
     const static int HL = 30;
     const static int DL = 75;
     Int3DSpace<WL, HL, DL> sworld{};
+
     for (int i = 0; i < 4; i++)
         sworld.placeFlatFloor(i, STONE);
     sworld.placeFlatFloor(4, DIRT);
@@ -38,27 +43,31 @@ int main(void)
 
     sworld.updateWorldVoxelSurfaceVisibility();
 
-    int targetFPS = GetMonitorRefreshRate(GetCurrentMonitor()); SetTargetFPS(targetFPS);
-
-    int simulationCounter = 0;
-    const static int simulationPerSecond = 30;
-    int spawnCounter = 0;
-    const static int spawnPerSecond = 30;
-    int clock = 0;
-
     int sandAmount = 0;
     int staticBlockAmount = 0;
-
-    bool isAutomatonRun = false;
-    bool isSpawningRun = false;
-
-    {
+    { // Conting initial blocks amounts
         array<int, 2> blockAmountArr{ 0, 0 };
         sworld.countBlockStats(blockAmountArr);
         sandAmount = blockAmountArr[0];
         staticBlockAmount = blockAmountArr[1];
     }
+    //// End of WORLD SETUP ////
 
+
+    //// CLOCK SETUP ////
+    int simulationCounter = 0;
+    const static int simulationPerSecond = 30;
+    bool isAutomatonRun = false;
+
+    int spawnCounter = 0;
+    const static int spawnPerSecond = 30;
+    bool isSpawningRun = false;
+
+    int clock = 0;
+    //// End of CLOCK SETUP ////
+
+
+    //// UI SETUP ////
     const static int fontSize = 20;
     const static int borderWidth = 10;
 
@@ -74,8 +83,11 @@ int main(void)
 
     DockRay menuRaySupport;
     Dock menu = buildMenu(menuRaySupport);
+    //// End of UI SETUP ////
+
 
     cout << endl;
+
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
@@ -123,7 +135,7 @@ int main(void)
 
             simulationCounter--;
 
-            if ((clock % targetFPS) == 0) // Run once every seconds
+            if ((clock % targetFPS) <= 0) // Run once every seconds
             {
                 // Counting Blocks
                 array<int, 2> blockAmountArr{ 0, 0 };
@@ -141,14 +153,18 @@ int main(void)
             spawnCounter = 0;
         }
 
+        // Button clicking
         fpsBtnGroup.pressDetection();
         menu.pressDetection();
+
+        // Mouse interaction with the world
         menuRaySupport.rayTest<WL, HL, DL>(sworld, camera, menu);
 
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
 
+            //// 3D RENDER ////
             BeginMode3D(camera);
             {
                 sworld.drawWorld();
@@ -157,7 +173,10 @@ int main(void)
                 camera.drawInfo();
             }
             EndMode3D();
+            //// End of 3D RENDER ////
 
+
+            //// USER INTERFACE ////
             fpsBtnGroup.drawAll();
             menu.draw();
 
@@ -195,6 +214,7 @@ int main(void)
             DrawText(s1.c_str(), borderWidth, posY(), fontSize, BLACK);
             DrawText(s2.c_str(), borderWidth, posY(), fontSize, BLACK);
             DrawText(s3.c_str(), borderWidth, posY(), fontSize, BLACK);
+            //// End of USER INTERFACE ////
         }
         EndDrawing();
 
