@@ -348,11 +348,14 @@ public:
     void drawVoxel(const Vec3I & pos) const
     {
         const Voxel & voxel = this->voxel(pos);
+        Vector3 drawPos = pos + this->drawShift;
+
+        if (voxel.isTargeted)
+            // Faces use the minimum corner; DrawCubeWires expects the center
+            DrawCubeWires(drawPos + Vector3{ 0.5f, 0.5f, 0.5f }, 1.0f, 1.0f, 1.0f, BLACK);
 
         if (!voxel.hasVisibleSurface || voxel.getBlockClass() == GAS)
             return;
-
-        Vector3 drawPos = pos + this->drawShift;
 
         {
             const Voxel & adjacentVoxel = this->voxel(pos + this->sidePosArr[1]);

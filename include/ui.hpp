@@ -28,8 +28,13 @@ public:
     void draw(int yY)         const { this->draw(this->x, yY); }
     void draw(int xX, int yY) const
     {
+        const Rectangle bounds{ (float)xX, (float)yY, this->width, this->height };
+        const bool hovered = this->isVisible && CheckCollisionPointRec(GetMousePosition(), bounds);
+        const Color backgroundColor = hovered ? YELLOW : this->color;
+        const Color foregroundColor = hovered ? BLACK : this->textColor;
+
         DrawRectangle(xX, yY, this->width+2, this->height+2, BLACK);
-        DrawRectangle(xX, yY, this->width, this->height, this->color);
+        DrawRectangle(xX, yY, this->width, this->height, backgroundColor);
 
         int txtRealWidth = MeasureText(this->text.c_str(), this->textSize);
         int txtHeight = this->textSize;
@@ -37,7 +42,7 @@ public:
         int posX = xX + ((this->width - txtRealWidth)/2);
         int posY = yY + ((this->height - txtHeight)/2);
 
-        DrawText(this->text.c_str(), posX, posY, this->textSize, this->textColor);
+        DrawText(this->text.c_str(), posX, posY, this->textSize, foregroundColor);
     }
 
     string getPayload() const  { return this->payload; }
@@ -314,40 +319,45 @@ struct DockRay
         Ray ray = { 0 };
         RayCollision collision = { 0 };
 
-        if ((this->state == Compulsive ? IsMouseButtonDown : IsMouseButtonPressed)(MOUSE_BUTTON_LEFT))
-        {
-            ray = GetScreenToWorldRay(GetMousePosition(), camera);
-            collision = {};
+        ray = GetScreenToWorldRay(GetMousePosition(), camera);
+        collision = {};
 
-            for (int x = 0; x < WLEN; x++)
-                for (int y = 0; y < HLEN; y++)
-                    for (int z = 0; z < DLEN; z++)
+        sworld.voxel(this->targetedPos).isTargeted = false;
+
+        for (int x = 0; x < WLEN; x++)
+            for (int y = 0; y < HLEN; y++)
+                for (int z = 0; z < DLEN; z++)
+                {
+                    if (sworld.blockConst(x, y, z) == AIR)
+                        continue;
+
+                    Vector3 pos = Vector3{
+                        (float)x, (float)y, (float)z
+                    } + sworld.getDrawShift();
+
+                    BoundingBox box{
+                        pos,
+                        pos + Vector3{ 1, 1, 1 }
+                    };
+
+                    RayCollision hit = GetRayCollisionBox(ray, box);
+
+                    if (hit.hit &&
+                        (!collision.hit || (hit.distance < collision.distance)))
                     {
-                        if (sworld.blockConst(x, y, z) == AIR)
-                            continue;
-
-                        Vector3 pos = Vector3{
-                            (float)x, (float)y, (float)z
-                        } + sworld.getDrawShift();
-
-                        BoundingBox box{
-                            pos,
-                            pos + Vector3{ 1, 1, 1 }
-                        };
-
-                        RayCollision hit = GetRayCollisionBox(ray, box);
-
-                        if (hit.hit &&
-                            (!collision.hit || (hit.distance < collision.distance)))
-                        {
-                            collision = hit;
-                            this->targetedPos.x = x;
-                            this->targetedPos.y = y;
-                            this->targetedPos.z = z;
-                        }
+                        collision = hit;
+                        this->targetedPos.x = x;
+                        this->targetedPos.y = y;
+                        this->targetedPos.z = z;
                     }
+                }
 
-            if (collision.hit)
+        if (collision.hit)
+        {
+            Voxel& vx = sworld.voxel(this->targetedPos);
+            vx.isTargeted = true;
+
+            if ((state == Compulsive ? IsMouseButtonDown :  IsMouseButtonPressed)(MOUSE_BUTTON_LEFT))
             {
                 Vec3I posToEdit = this->targetedPos;
                 switch(this->tool)
@@ -362,8 +372,6 @@ struct DockRay
                         posToEdit.y = HLEN - 1;
                         sworld.block(posToEdit) = this->dockSelectedBlock;
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
-                        break;
-                    default:
                         break;
                 }
             }
@@ -383,9 +391,8 @@ Dock buildMenu(DockRay & dockray)
     dock.addAction("blocks", "blocks::air", "Air (2)", [&dockray]() { dockray.dockSelectedBlock = AIR; });
     dock.addAction("blocks", "blocks::dirt", "Dirt (3)", [&dockray]() { dockray.dockSelectedBlock = DIRT; });
 
-    dock.addAction("tools", "tools::normal", "Place Block\nSelected", [&dockray]() { dockray.tool = Normal; });
-    dock.addAction("tools", "tools::sandbucket", "Sand\nBucket", [&dockray]() {  dockray.tool = SandBucket; });
-    dock.addAction("tools", "tools::sandpillar", "Sand\nPillar", [&dockray]() { dockray.tool = SandPillar; });
+    dock.addAction("tools", "tools::normal", "Place Block\nOn Top", [&dockray]() { dockray.tool = Normal; });
+    dock.addAction("tools", "tools::sandpillar", "Sand\nRain", [&dockray]() { dockray.tool = SandPillar; });
 
     dock.addAction("settings", "settings::interaction::compulsive", "Selection\nCompulsive", [&dockray]() { dockray.state = Compulsive; });
     dock.addAction("settings", "settings::interaction::oneperone", "Selection\nUnique", [&dockray]() { dockray.state = OnePerOne; });
