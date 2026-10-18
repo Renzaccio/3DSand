@@ -153,6 +153,8 @@ int main(void)
             {
                 sworld.drawWorld();
                 // DrawGrid(20, 1.0f);
+
+                camera.drawInfo();
             }
             EndMode3D();
 
@@ -175,7 +177,10 @@ int main(void)
             else               DrawText("PRESS [ SPACE ] TO START", borderWidth, posY(), fontSize, RED);
 
             if (isSpawningRun) DrawText("PRESS [ R ] TO DISABLE SAND POURING", borderWidth, posY(), fontSize, GREEN);
-            else              DrawText("PRESS [ R ] TO ENABLE SAND POURING",  borderWidth, posY(), fontSize, RED);
+            else              DrawText("PRESS [ R ] TO ENABLE SAND POURING", borderWidth, posY(), fontSize, RED);
+
+            if (camera.getIsInFirstPerson()) DrawText("PRESS [ F ] TO ENABLE LAID BACK CAMERA", borderWidth, posY(), fontSize, ORANGE);
+            else                             DrawText("PRESS [ F ] TO ENABLE FIRST PERSON CAMERA", borderWidth, posY(), fontSize, ORANGE);
 
             DrawText("Lateral Moves [ ZQSD | WASD ]",              borderWidth, posY(), fontSize, BLUE);
             DrawText("Vertical Moves [ E/A | E/Q ]",               borderWidth, posY(), fontSize, BLUE);
