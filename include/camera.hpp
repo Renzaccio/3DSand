@@ -7,16 +7,17 @@
 struct OrientatedCamera : public Camera3D
 {
 private:
+
     Vector3 direction;
 
     float yaw;
     float pitch;
 
     const float defaultSpeed = 10.0f;
-    float speed;
+    float frameSpeed;
 
     const float defaultRotationSpeed = PI * 0.5f;
-    float rotationSpeed;
+    float frameRotationSpeed;
 
     const float speedFactor = 3.0f;
 
@@ -24,6 +25,7 @@ private:
     const float focusDistance = 100.0f;
 
 public:
+
     OrientatedCamera() : Camera3D()
     {
         this->position = { -40.0f, 40.0f, -40.0f };
@@ -42,50 +44,42 @@ public:
 
     void moveCamera(int fps)
     {
-        this->setSpeedMode();
+        fps = max(fps, 1); // Safety to prevent a division by 0 further in the code
+
+        this->setFrameSpeed(fps);
 
         if (IsKeyPressed(KEY_F))
             this->isInFirstPerson = !this->isInFirstPerson;
 
-        this->rotateCameraKeys(fps);
+        this->rotateCameraKeys();
 
-        this->translateCameraKeys(fps);
+        this->translateCameraKeys();
     }
 
-    void setSpeedMode()
+    void setFrameSpeed(int fps)
     {
-        int speedMode = IsKeyDown(KEY_LEFT_SHIFT) - IsKeyDown(KEY_LEFT_CONTROL);
+        this->frameSpeed = this->defaultSpeed / fps;
+        this->frameRotationSpeed = this->defaultRotationSpeed / fps;
 
-        switch (speedMode)
+        switch (IsKeyDown(KEY_LEFT_SHIFT) - IsKeyDown(KEY_LEFT_CONTROL))
         {
             case -1 :
-                this->speed = this->defaultSpeed / this->speedFactor;
-                // this->rotationSpeed = this->defaultRotationSpeed / this->speedFactor;
-                break;
-            case 0 :
-                this->speed = this->defaultSpeed;
-                // this->rotationSpeed = this->defaultRotationSpeed;
+                this->frameSpeed         /= this->speedFactor;
+                // this->frameRotationSpeed /= this->speedFactor;
                 break;
             case 1 :
-                this->speed = this->defaultSpeed * this->speedFactor;
-                // this->rotationSpeed = this->defaultRotationSpeed * this->speedFactor;
+                this->frameSpeed         *= this->speedFactor;
+                // this->frameRotationSpeed *= this->speedFactor;
                 break;
         }
-
-        this->rotationSpeed = defaultRotationSpeed;
     }
 
-    void rotateCameraKeys(int fps)
+    void rotateCameraKeys()
     {
-        float frameRotationSpeed = this->rotationSpeed / fps * (this->isInFirstPerson ? 1 : -1);
+        this->yaw   += (IsKeyDown(KEY_LEFT) - IsKeyDown(KEY_RIGHT)) * this->frameRotationSpeed;
+        this->pitch += (IsKeyDown(KEY_UP)   - IsKeyDown(KEY_DOWN))  * this->frameRotationSpeed;
 
-        if (IsKeyDown(KEY_LEFT))  this->yaw   += frameRotationSpeed;
-        if (IsKeyDown(KEY_RIGHT)) this->yaw   -= frameRotationSpeed;
-
-        if (IsKeyDown(KEY_UP))    this->pitch += frameRotationSpeed;
-        if (IsKeyDown(KEY_DOWN))  this->pitch -= frameRotationSpeed;
-
-        if (abs(this->pitch) > PI * 0.49f) this->pitch = PI * 0.49f * (this->pitch > 0 ? 1 : -1);
+        if (abs(this->pitch) > PI * 0.49f) this->pitch = PI * 0.49f * (this->pitch > 0 ? 1 : -1); // Application of Pitch Bounds
 
         this->updateDirFromAngle();
 
@@ -95,10 +89,8 @@ public:
             this->updatePosFromTarAndDir();
     }
 
-    void translateCameraKeys(int fps)
+    void translateCameraKeys()
     {
-        float frameSpeed = this->speed / fps;
-
         Vector3 forwardDirection;
         Vector3 verticalDirection;
 
@@ -117,14 +109,11 @@ public:
 
         Vector3 lateralDirection = Vector3CrossProduct(verticalDirection, forwardDirection);
 
-        if (IsKeyDown(KEY_W)) this->position += frameSpeed * forwardDirection;
-        if (IsKeyDown(KEY_S)) this->position -= frameSpeed * forwardDirection;
-
-        if (IsKeyDown(KEY_A)) this->position += frameSpeed * lateralDirection;
-        if (IsKeyDown(KEY_D)) this->position -= frameSpeed * lateralDirection;
-
-        if (IsKeyDown(KEY_E)) this->position += frameSpeed * verticalDirection;
-        if (IsKeyDown(KEY_Q)) this->position -= frameSpeed * verticalDirection;
+        this->position += (
+            (IsKeyDown(KEY_W) - IsKeyDown(KEY_S)) * forwardDirection +
+            (IsKeyDown(KEY_A) - IsKeyDown(KEY_D)) * lateralDirection +
+            (IsKeyDown(KEY_E) - IsKeyDown(KEY_Q)) * verticalDirection
+        ) * this->frameSpeed;
 
         this->updateTarFromPosAndDir();
     }
