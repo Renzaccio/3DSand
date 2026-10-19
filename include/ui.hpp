@@ -304,7 +304,7 @@ struct Dock
     }
 };
 
-enum DockTools { Normal, SandPillar }; // define existing tools
+enum DockTools { Normal, Rain }; // define existing tools
 enum DockRayMode { OnePerOne, Compulsive };        // define mouse pression mode detecton (Compulsive=IsMouseButtonDown, OnePerOne=IsMouseButtonPressed)
 struct DockRay
 {
@@ -369,7 +369,7 @@ struct DockRay
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
                         sworld.activateNeighboursMobility(posToEdit);
                         break;
-                    case SandPillar:
+                    case Rain:
                         posToEdit.y = HLEN - 1;
                         sworld.block(posToEdit) = this->dockSelectedBlock;
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
@@ -393,8 +393,13 @@ Dock buildMenu(DockRay & dockray)
     dock.addAction("blocks", "blocks::air", "Air (2)", [&dockray]() { dockray.dockSelectedBlock = AIR; });
     dock.addAction("blocks", "blocks::dirt", "Dirt (3)", [&dockray]() { dockray.dockSelectedBlock = DIRT; });
 
+    dock.addAction("blocks", "blocks::water", "Water (4)", [&dockray]() { dockray.dockSelectedBlock = WATER; });
+    dock.addAction("blocks", "blocks::wood", "Wood (5)", [&dockray]() { dockray.dockSelectedBlock = WOOD; });
+    dock.addAction("blocks", "blocks::stone", "Stone (6)", [&dockray]() { dockray.dockSelectedBlock = STONE; });
+    dock.addAction("blocks", "blocks::debug", "Debug (7)", [&dockray]() { dockray.dockSelectedBlock = DEBUG; });
+
     dock.addAction("tools", "tools::normal", "Place Block\nOn Top", [&dockray]() { dockray.tool = Normal; });
-    dock.addAction("tools", "tools::sandpillar", "Sand\nRain", [&dockray]() { dockray.tool = SandPillar; });
+    dock.addAction("tools", "tools::rain", "Water\nRain", [&dockray]() { dockray.tool = Rain; });
 
     dock.addAction("settings", "settings::interaction::compulsive", "Selection\nCompulsive", [&dockray]() { dockray.state = Compulsive; });
     dock.addAction("settings", "settings::interaction::oneperone", "Selection\nUnique", [&dockray]() { dockray.state = OnePerOne; });
