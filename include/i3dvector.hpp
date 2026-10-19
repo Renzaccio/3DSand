@@ -20,6 +20,13 @@ struct Vec3I {
     Vec3I(const Vec3I & v) : Vec3I(v.x, v.y, v.z) {}
 };
 
+#define RIGHTVOXEL Vec3I{ -1,  0,  0 }
+#define LEFTVOXEL  Vec3I{  1,  0,  0 }
+#define LOWERVOXEL Vec3I{  0, -1,  0 }
+#define UPPERVOXEL Vec3I{  0,  1,  0 }
+#define FRONTVOXEL Vec3I{  0,  0, -1 }
+#define BACKVOXEL  Vec3I{  0,  0,  1 }
+
 inline ostream & operator << (ostream & stream, const Vec3I & v)
 {
     stream << "{ " << v.x << ", " << v.y << ", " << v.z << " }";

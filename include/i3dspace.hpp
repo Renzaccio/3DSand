@@ -1,6 +1,7 @@
 #pragma once
 
 #include "blocks.hpp"
+#include "i3dvector.hpp"
 
 using namespace std;
 
@@ -17,40 +18,34 @@ private:
     WorldMTX & getWorld()             { return this->mtx; }
     const WorldMTX & getWorld() const { return this->mtx; }
 
-    static const int posAmountShort = 2;
     static const int posAmount = 4;
-    const array<Vec3I, posAmountShort> verticalPosArr = // not really a "logic suit" compare to the other posArrays
-    {
-        Vec3I{ 0, -1, 0 },
-        Vec3I{ 0,  1, 0 }
-    };
     const array<Vec3I, posAmount> sidePosArr =
     {
-        Vec3I{  0, 0, -1 },
-        Vec3I{ -1, 0,  0 },
-        Vec3I{  0, 0,  1 },
-        Vec3I{  1, 0,  0 }
+        RIGHTVOXEL,
+        FRONTVOXEL,
+        LEFTVOXEL,
+        BACKVOXEL
     };
     const array<Vec3I, posAmount> sideFallPosArr =
     {
-        Vec3I{  0, -1, -1 },
-        Vec3I{ -1, -1,  0 },
-        Vec3I{  0, -1,  1 },
-        Vec3I{  1, -1,  0 }
+        RIGHTVOXEL + LOWERVOXEL,
+        FRONTVOXEL + LOWERVOXEL,
+        LEFTVOXEL  + LOWERVOXEL,
+        BACKVOXEL  + LOWERVOXEL
     };
     const array<Vec3I, posAmount> diagPosArr =
     {
-        Vec3I{  1, 0, -1 },
-        Vec3I{ -1, 0, -1 },
-        Vec3I{ -1, 0,  1 },
-        Vec3I{  1, 0,  1 }
+        RIGHTVOXEL + BACKVOXEL,
+        RIGHTVOXEL + FRONTVOXEL,
+        LEFTVOXEL  + FRONTVOXEL,
+        LEFTVOXEL  + BACKVOXEL,
     };
     const array<Vec3I, posAmount> diagFallPosArr =
     {
-        Vec3I{  1, -1, -1 },
-        Vec3I{ -1, -1, -1 },
-        Vec3I{ -1, -1,  1 },
-        Vec3I{  1, -1,  1 }
+        RIGHTVOXEL + BACKVOXEL  + LOWERVOXEL,
+        RIGHTVOXEL + FRONTVOXEL + LOWERVOXEL,
+        LEFTVOXEL  + FRONTVOXEL + LOWERVOXEL,
+        LEFTVOXEL  + BACKVOXEL  + LOWERVOXEL,
     };
     Vector3 drawShift = {
         0 - WLEN * 0.5f,
@@ -218,7 +213,7 @@ public:
         BlockType & block = voxel.block;
 
         { // The block tries to fall straight down
-            const Vec3I underBlockCoord = pos + this->verticalPosArr[0];
+            const Vec3I underBlockCoord = pos + LOWERVOXEL;
 
             if (this->blockConst(underBlockCoord) == AIR)
             {
@@ -299,23 +294,21 @@ public:
         BlockClass blockClass = this->voxel(pos).getBlockClass();
 
         return // test each neighbors up down and direct lateral side. if one neighbors is AIR, show voxel.
-            blockClass != this->voxel(pos + this->sidePosArr[0]).getBlockClass() ||
-            blockClass != this->voxel(pos + this->sidePosArr[1]).getBlockClass() ||
-            blockClass != this->voxel(pos + this->sidePosArr[2]).getBlockClass() ||
-            blockClass != this->voxel(pos + this->sidePosArr[3]).getBlockClass() ||
-            blockClass != this->voxel(pos + this->verticalPosArr[0]).getBlockClass() ||
-            blockClass != this->voxel(pos + this->verticalPosArr[1]).getBlockClass();
+            blockClass != this->voxel(pos + RIGHTVOXEL).getBlockClass() || blockClass != this->voxel(pos +  LEFTVOXEL).getBlockClass() ||
+            blockClass != this->voxel(pos + UPPERVOXEL).getBlockClass() || blockClass != this->voxel(pos + LOWERVOXEL).getBlockClass() ||
+            blockClass != this->voxel(pos + FRONTVOXEL).getBlockClass() || blockClass != this->voxel(pos +  BACKVOXEL).getBlockClass();
     }
 
     void activateAllNeighboursSurfaceVisibility(const Vec3I & pos)
     {
-        for (const Vec3I & verticalPos : this->verticalPosArr) this->activateNeighbourSurfaceVisibility(pos + verticalPos);
-        for (const Vec3I & sidePos     : this->sidePosArr)     this->activateNeighbourSurfaceVisibility(pos + sidePos);
+        this->activateSurfaceVisibility(pos + RIGHTVOXEL); this->activateSurfaceVisibility(pos +  LEFTVOXEL);
+        this->activateSurfaceVisibility(pos + UPPERVOXEL); this->activateSurfaceVisibility(pos + LOWERVOXEL);
+        this->activateSurfaceVisibility(pos + FRONTVOXEL); this->activateSurfaceVisibility(pos +  BACKVOXEL);
     }
 
-    void activateNeighbourSurfaceVisibility(const Vec3I & neighbourPos)
+    void activateSurfaceVisibility(const Vec3I & pos)
     {
-        if (this->isInBounds(neighbourPos)) this->voxel(neighbourPos).hasVisibleSurface = true;
+        if (this->isInBounds(pos)) this->voxel(pos).hasVisibleSurface = true;
     }
 
 
@@ -348,44 +341,44 @@ public:
     void drawVoxel(const Vec3I & pos) const
     {
         const Voxel & voxel = this->voxel(pos);
-        Vector3 drawPos = pos + this->drawShift;
+        Vector3 drawOriginPos = pos + this->drawShift;
 
         if (voxel.isTargeted)
             // Faces use the minimum corner; DrawCubeWires expects the center
-            DrawCubeWires(drawPos + Vector3{ 0.5f, 0.5f, 0.5f }, 1.0f, 1.0f, 1.0f, BLACK);
+            DrawCubeWires(drawOriginPos + Vector3{ 0.5f, 0.5f, 0.5f }, 1.0f, 1.0f, 1.0f, BLACK);
 
         if (!voxel.hasVisibleSurface || voxel.getBlockClass() == GAS)
             return;
 
         {
-            const Voxel & adjacentVoxel = this->voxel(pos + this->sidePosArr[1]);
+            const Voxel & adjacentVoxel = this->voxel(pos + RIGHTVOXEL);
             if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawPos, adjacentVoxel.block, RIGHT);
+                voxel.drawFace(drawOriginPos, adjacentVoxel.block, RIGHT);
         }
         {
-            const Voxel & adjacentVoxel = this->voxel(pos + this->sidePosArr[3]);
+            const Voxel & adjacentVoxel = this->voxel(pos + LEFTVOXEL);
             if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawPos, adjacentVoxel.block, LEFT);
+                voxel.drawFace(drawOriginPos, adjacentVoxel.block, LEFT);
         }
         {
-            const Voxel & adjacentVoxel = this->voxel(pos + this->verticalPosArr[0]);
+            const Voxel & adjacentVoxel = this->voxel(pos + LOWERVOXEL);
             if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawPos, adjacentVoxel.block, BOTTOM);
+                voxel.drawFace(drawOriginPos, adjacentVoxel.block, BOTTOM);
         }
         {
-            const Voxel & adjacentVoxel = this->voxel(pos + this->verticalPosArr[1]);
+            const Voxel & adjacentVoxel = this->voxel(pos + UPPERVOXEL);
             if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawPos, adjacentVoxel.block, TOP);
+                voxel.drawFace(drawOriginPos, adjacentVoxel.block, TOP);
         }
         {
-            const Voxel & adjacentVoxel = this->voxel(pos + this->sidePosArr[0]);
+            const Voxel & adjacentVoxel = this->voxel(pos + FRONTVOXEL);
             if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawPos, adjacentVoxel.block, FRONT);
+                voxel.drawFace(drawOriginPos, adjacentVoxel.block, FRONT);
         }
         {
-            const Voxel & adjacentVoxel = this->voxel(pos + this->sidePosArr[2]);
+            const Voxel & adjacentVoxel = this->voxel(pos + BACKVOXEL);
             if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawPos, adjacentVoxel.block, BACK);
+                voxel.drawFace(drawOriginPos, adjacentVoxel.block, BACK);
         }
     }
 
