@@ -260,7 +260,7 @@ public:
         BlockType & block = voxel.block;
 
         { // The sand block tries to fall straight down
-            const Vec3I underBlockCoord = pos + LOWERVOXEL;
+            const Vec3I & underBlockCoord = pos + LOWERVOXEL;
 
             if (SAND < this->blockConst(underBlockCoord))
             {
@@ -287,7 +287,7 @@ public:
 
         for (int posIndex : validPosIndexVec) // The sand block tries to fall sideways
         {
-            const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
+            const Vec3I & sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
 
             if (SAND < this->blockConst(sideFallBlockCoord))
             {
@@ -303,7 +303,7 @@ public:
         {
             if (SAND < this->blockConst(pos + diagFallPosArr[posIndex]) || SAND < this->blockConst(pos + diagFallPosArr[(posIndex+1)%this->posAmount]))
             {
-                const Vec3I sideBlockCoord = pos + this->sidePosArr[posIndex];
+                const Vec3I & sideBlockCoord = pos + this->sidePosArr[posIndex];
                 this->updateBlock(pos, this->block(sideBlockCoord));
                 this->activateNeighboursMobility(pos);
                 this->updateBlock(sideBlockCoord, SAND);
@@ -320,7 +320,7 @@ public:
         BlockType & block = voxel.block;
 
         { // The water block tries to fall straight down
-            const Vec3I underBlockCoord = pos + LOWERVOXEL;
+            const Vec3I & underBlockCoord = pos + LOWERVOXEL;
 
             if (this->blockConst(underBlockCoord) == AIR)
             {
@@ -347,7 +347,7 @@ public:
 
         for (int posIndex : validPosIndexVec) // The water block tries to fall sideways
         {
-            const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
+            const Vec3I & sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
 
             if (this->blockConst(sideFallBlockCoord) == AIR)
             {
@@ -361,7 +361,7 @@ public:
 
         for (int posIndex : validPosIndexVec) // The water block tries to move sideways
         {
-            const Vec3I sideBlockCoord = pos + this->sidePosArr[posIndex];
+            const Vec3I & sideBlockCoord = pos + this->sidePosArr[posIndex];
 
             if (this->blockConst(sideBlockCoord) == AIR)
             {
