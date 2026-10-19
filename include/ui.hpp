@@ -363,12 +363,21 @@ struct DockRay
                 switch(this->tool)
                 {
                     case NORMAL:
-                        if (this->dockSelectedBlock != AIR && sworld.block(posToEdit + (Vec3I){ 0, 1, 0 }) == AIR &&posToEdit.y + 1 < HLEN)
-                            posToEdit += { 0, 1, 0 };
-                        sworld.block(posToEdit) = this->dockSelectedBlock;
-                        sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
-                        sworld.activateNeighboursMobility(posToEdit);
+                    {
+                        Vector3 norm = collision.normal;
+                        int newX = posToEdit.x + (int) roundf(norm.x);
+                        int newY = posToEdit.y + (int) roundf(norm.y);
+                        int newZ = posToEdit.z + (int) roundf(norm.z);
+                        Vec3I blockNearSelectedBlock {newX, newY, newZ};
+                        
+                        if (!sworld.isInBounds(blockNearSelectedBlock))
+                            break;
+
+                        sworld.block(blockNearSelectedBlock) = this->dockSelectedBlock;
+                        sworld.activateAllNeighboursSurfaceVisibility(blockNearSelectedBlock);
+                        sworld.activateNeighboursMobility(blockNearSelectedBlock);
                         break;
+                    }
                     case RAIN:
                         posToEdit.y = HLEN - 1;
                         sworld.block(posToEdit) = this->dockSelectedBlock;
@@ -398,7 +407,7 @@ Dock buildMenu(DockRay & dockray)
     dock.addAction("blocks", "blocks::stone", "Stone (6)", [&dockray]() { dockray.dockSelectedBlock = STONE; });
     dock.addAction("blocks", "blocks::debug", "Debug (7)", [&dockray]() { dockray.dockSelectedBlock = DEBUG; });
 
-    dock.addAction("tools", "tools::normal", "Place Block\nOn Top", [&dockray]() { dockray.tool = NORMAL; });
+    dock.addAction("tools", "tools::normal", "Place Block", [&dockray]() { dockray.tool = NORMAL; });
     dock.addAction("tools", "tools::rain", "Rain", [&dockray]() { dockray.tool = RAIN; });
 
     dock.addAction("settings", "settings::interaction::hold", "Selection\nHold", [&dockray]() { dockray.state = HOLD; });
