@@ -153,11 +153,17 @@ public:
             DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[1]], position + this->verticesPosArr[faceIndexes[2]], color);
             DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], position + this->verticesPosArr[faceIndexes[3]], color);
 
-            // Debug display for looking at the mesh from the inside.
+            // // Display the inside of the world mesh. Only useful for debugging.
             // for (int i = 0; i < 4; i++)
             //     DrawLine3D(position + this->verticesPosArr[faceIndexes[i]], position + this->verticesPosArr[faceIndexes[(i + 1)%4]], color);
             // DrawLine3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], color);
         }
+    }
+
+    void draw(const Vector3 position) const
+    {
+        DrawCube(position, 1.0f, 1.0f, 1.0f, this->getColor());
+        this->drawLines(position);
     }
 
     void drawLines(const Vector3 position) const
@@ -176,11 +182,5 @@ public:
             default:
                 break;
         }
-    }
-
-    void draw(const Vector3 position) const
-    {
-        DrawCube(position, 1.0f, 1.0f, 1.0f, this->getColor());
-        this->drawLines(position);
     }
 };

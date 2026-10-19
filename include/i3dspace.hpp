@@ -219,6 +219,7 @@ public:
             {
                 this->updateBlock(underBlockCoord, SAND);
                 this->updateBlock(pos, AIR);
+                this->activateNeighboursMobility(pos);
                 return;
             }
         }
@@ -252,6 +253,7 @@ public:
             {
                 this->updateBlock(sideFallBlockCoord, SAND);
                 this->updateBlock(pos, AIR);
+                this->activateNeighboursMobility(pos);
                 return;
             }
         }
@@ -262,6 +264,7 @@ public:
             {
                 this->updateBlock(pos + this->sidePosArr[i], SAND);
                 this->updateBlock(pos, AIR);
+                this->activateNeighboursMobility(pos);
                 return;
             }
         }
@@ -273,6 +276,23 @@ public:
     {
         this->block(pos) = block;
         this->activateAllNeighboursSurfaceVisibility(pos);
+    }
+
+    void activateNeighboursMobility(const Vec3I & pos)
+    {
+        activateMobility(pos);
+        activateMobility(pos + RIGHTVOXEL);
+        activateMobility(pos +  LEFTVOXEL);
+        activateMobility(pos + FRONTVOXEL);
+        activateMobility(pos +  BACKVOXEL);
+        for(int x = -1; x <= 1; x++)
+            for(int z = -1; z <= 1; z++)
+                activateMobility(pos + Vec3I{ x, 1, z });
+    }
+
+    void activateMobility(const Vec3I & pos)
+    {
+        if (this->isInBounds(pos)) this->voxel(pos).canMove = true;
     }
 
 

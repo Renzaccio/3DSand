@@ -304,7 +304,7 @@ struct Dock
     }
 };
 
-enum DockTools { Normal, SandPillar, SandBucket }; // define existing tools
+enum DockTools { Normal, SandPillar }; // define existing tools
 enum DockRayMode { OnePerOne, Compulsive };        // define mouse pression mode detecton (Compulsive=IsMouseButtonDown, OnePerOne=IsMouseButtonPressed)
 struct DockRay
 {
@@ -367,11 +367,13 @@ struct DockRay
                             posToEdit += { 0, 1, 0 };
                         sworld.block(posToEdit) = this->dockSelectedBlock;
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
+                        sworld.activateNeighboursMobility(posToEdit);
                         break;
                     case SandPillar:
                         posToEdit.y = HLEN - 1;
                         sworld.block(posToEdit) = this->dockSelectedBlock;
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
+                        sworld.activateNeighboursMobility(posToEdit);
                         break;
                 }
             }
