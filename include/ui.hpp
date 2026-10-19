@@ -365,17 +365,19 @@ struct DockRay
                     case NORMAL:
                     {
                         Vector3 norm = collision.normal;
-                        int newX = posToEdit.x + (int) roundf(norm.x);
-                        int newY = posToEdit.y + (int) roundf(norm.y);
-                        int newZ = posToEdit.z + (int) roundf(norm.z);
-                        Vec3I blockNearSelectedBlock {newX, newY, newZ};
-                        
-                        if (!sworld.isInBounds(blockNearSelectedBlock))
+                        if (this->dockSelectedBlock != AIR)
+                            posToEdit += Vec3I{
+                                (int) roundf(norm.x),
+                                (int) roundf(norm.y),
+                                (int) roundf(norm.z)
+                            };
+
+                        if (!sworld.isInBounds(posToEdit))
                             break;
 
-                        sworld.block(blockNearSelectedBlock) = this->dockSelectedBlock;
-                        sworld.activateAllNeighboursSurfaceVisibility(blockNearSelectedBlock);
-                        sworld.activateNeighboursMobility(blockNearSelectedBlock);
+                        sworld.block(posToEdit) = this->dockSelectedBlock;
+                        sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
+                        sworld.activateNeighboursMobility(posToEdit);
                         break;
                     }
                     case RAIN:
