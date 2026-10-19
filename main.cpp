@@ -22,7 +22,7 @@ int main(void)
 
     //// WORLD SETUP ////
     const static int WL = 75;
-    const static int HL = 30;
+    const static int HL = 50;
     const static int DL = 75;
     Int3DSpace<WL, HL, DL> sworld{};
 
@@ -30,8 +30,11 @@ int main(void)
         sworld.placeFlatFloor(i, STONE);
     sworld.placeFlatFloor(4, DIRT);
 
-    for (int i = 10; i < 12; i++)
-        sworld.placeFlatFloor(i, SAND);
+    sworld.placeParallelepiped({ 20,  0, 20 }, { 40, 20, 40 }, STONE);
+    sworld.placeParallelepiped({ 22,  2, 22 }, { 38, 20, 38 }, AIR);
+    sworld.placeParallelepiped({ 24,  17, 20 }, { 25, 18, 21 }, AIR);
+
+    sworld.placeParallelepiped({ 22,  2, 22 }, { 38, 15, 38 }, WATER);
 
     sworld.placeChair3x4x3({  2, 5,  2 });
     sworld.placeTable5x4x5({ 10, 5, 10 });

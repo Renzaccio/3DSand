@@ -262,18 +262,19 @@ public:
         { // The sand block tries to fall straight down
             const Vec3I underBlockCoord = pos + LOWERVOXEL;
 
-            if (this->blockConst(underBlockCoord) == AIR)
+            if (SAND < this->blockConst(underBlockCoord))
             {
-                this->updateBlock(underBlockCoord, SAND);
-                this->updateBlock(pos, AIR);
+                this->updateBlock(pos, this->blockConst(underBlockCoord));
                 this->activateNeighboursMobility(pos);
+                this->updateBlock(underBlockCoord, SAND);
+                this->voxel(pos).canMove = true;
                 return;
             }
         }
 
         vector<int> validPosIndexVec; // The sand block checks which horizontal directions it is allowed to move in
         for (int i = 0; i < this->posAmount; i++)
-            if (this->blockConst(pos + this->sidePosArr[i]) == AIR)
+            if (SAND < this->blockConst(pos + this->sidePosArr[i]))
                 validPosIndexVec.push_back(i);
 
         if (validPosIndexVec.size() == 0) // The sand block is surrourded by 4 solid blocks
@@ -288,22 +289,25 @@ public:
         {
             const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
 
-            if (this->blockConst(sideFallBlockCoord) == AIR)
+            if (SAND < this->blockConst(sideFallBlockCoord))
             {
-                this->updateBlock(sideFallBlockCoord, SAND);
-                this->updateBlock(pos, AIR);
+                this->updateBlock(pos, this->blockConst(sideFallBlockCoord));
                 this->activateNeighboursMobility(pos);
+                this->updateBlock(sideFallBlockCoord, SAND);
+                this->voxel(sideFallBlockCoord).canMove = true;
                 return;
             }
         }
 
         for (int posIndex : validPosIndexVec) // The sand block tries to move sideways
         {
-            if (this->blockConst(pos + diagFallPosArr[posIndex]) == AIR || this->blockConst(pos + diagFallPosArr[(posIndex+1)%this->posAmount]) == AIR)
+            if (SAND < this->blockConst(pos + diagFallPosArr[posIndex]) || SAND < this->blockConst(pos + diagFallPosArr[(posIndex+1)%this->posAmount]))
             {
-                this->updateBlock(pos + this->sidePosArr[posIndex], SAND);
-                this->updateBlock(pos, AIR);
+                const Vec3I sideBlockCoord = pos + this->sidePosArr[posIndex];
+                this->updateBlock(pos, this->block(sideBlockCoord));
                 this->activateNeighboursMobility(pos);
+                this->updateBlock(sideBlockCoord, SAND);
+                this->voxel(sideBlockCoord).canMove = true;
                 return;
             }
         }
@@ -320,9 +324,10 @@ public:
 
             if (this->blockConst(underBlockCoord) == AIR)
             {
-                this->updateBlock(underBlockCoord, WATER);
                 this->updateBlock(pos, AIR);
                 this->activateNeighboursMobility(pos);
+                this->updateBlock(underBlockCoord, WATER);
+                this->voxel(underBlockCoord).canMove = true;
                 return;
             }
         }
@@ -346,9 +351,10 @@ public:
 
             if (this->blockConst(sideFallBlockCoord) == AIR)
             {
-                this->updateBlock(sideFallBlockCoord, WATER);
                 this->updateBlock(pos, AIR);
                 this->activateNeighboursMobility(pos);
+                this->updateBlock(sideFallBlockCoord, WATER);
+                this->voxel(sideFallBlockCoord).canMove = true;
                 return;
             }
         }
@@ -359,9 +365,10 @@ public:
 
             if (this->blockConst(sideBlockCoord) == AIR)
             {
-                this->updateBlock(sideBlockCoord, WATER);
                 this->updateBlock(pos, AIR);
                 this->activateNeighboursMobility(pos);
+                this->updateBlock(sideBlockCoord, WATER);
+                this->voxel(sideBlockCoord).canMove = true;
                 return;
             }
         }
