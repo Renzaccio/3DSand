@@ -49,13 +49,17 @@ private:
         LEFTVOXEL  + FRONTVOXEL + LOWERVOXEL,
         LEFTVOXEL  + BACKVOXEL  + LOWERVOXEL,
     };
+
     Vector3 drawShift = {
         0 - WLEN * 0.5f,
         0,
         0 - WLEN * 0.5f,
     };
+
 public:
-    Int3DSpace() : mtx{ WLEN, vector<vector<Voxel>>{ HLEN, vector<Voxel>{ DLEN, Voxel{} } } } {}
+
+    //// BASE FUNCTIONS ////
+    Int3DSpace() : mtx{ WLEN, vector<vector<Voxel>>{ HLEN, vector<Voxel>{ DLEN, Voxel{} } } } {} // Constructor
 
     Vector3 getDrawShift() const { return this->drawShift; }
 
@@ -65,7 +69,9 @@ public:
 
     int getDepth()  const { return DLEN; }
 
-    int getVolume() const { return WLEN*HLEN*DLEN; }
+    int getVolume() const { return WLEN * HLEN * DLEN; }
+
+
 
     bool isInBounds(int x, int y, int z) const { return 0 <= x && x < WLEN && 0 <= y && y < HLEN && 0 <= z && z < DLEN; }
 
@@ -117,9 +123,11 @@ public:
     const BlockType & block(const Vec3I & v)          const { return (this->voxel(v)).block; }
 
     const BlockType & blockConst(const Vec3I & v)     const { return (this->voxel(v)).block; }
+    //// End of BASE FUNCTIONS ////
 
 
 
+    //// WORLD MODIFICATION ////
     void placeBlock(Vec3I pos, BlockType block)
     {
         if (!(this->isInBounds(pos)))
@@ -181,17 +189,49 @@ public:
         // tray
         this->placeParallelepiped(origin + Vec3I{ 0, 3, 0 }, origin + Vec3I{ 4, 3, 4 }, WOOD);
     }
+    //// End of WORLD MODIFICATION ////
 
 
 
+    //// SIMULATION ////
     void step()
     {
         // the blocks fall.
 
-        for (int y = 0; y < HLEN; y++)
-            for (int x = 0; x < WLEN; x++)
-                for (int z = 0; z < DLEN; z++)
+        switch (((rand() % 8) + clock) % 8) {
+            case 0:
+                for (int y = 0; y < HLEN; y++) for (int x = 0; x < WLEN; x++) for (int z = 0; z < DLEN; z++)
                     this->voxelStep({ x, y, z });
+                break;
+            case 1:
+                for (int y = 0; y < HLEN; y++) for (int x = 0; x < WLEN; x++) for (int z = DLEN - 1; z >= 0; z--)
+                    this->voxelStep({ x, y, z });
+                break;
+            case 2:
+                for (int y = 0; y < HLEN; y++) for (int x = WLEN - 1; x >= 0; x--) for (int z = 0; z < DLEN; z++)
+                    this->voxelStep({ x, y, z });
+                break;
+            case 3:
+                for (int y = 0; y < HLEN; y++) for (int x = WLEN - 1; x >= 0; x--) for (int z = DLEN - 1; z >= 0; z--)
+                    this->voxelStep({ x, y, z });
+                break;
+            case 4:
+                for (int y = 0; y < HLEN; y++) for (int z = 0; z < DLEN; z++) for (int x = 0; x < WLEN; x++)
+                    this->voxelStep({ x, y, z });
+                break;
+            case 5:
+                for (int y = 0; y < HLEN; y++) for (int z = 0; z < DLEN; z++) for (int x = WLEN - 1; x >= 0; x--)
+                    this->voxelStep({ x, y, z });
+                break;
+            case 6:
+                for (int y = 0; y < HLEN; y++) for (int z = DLEN - 1; z >= 0; z--) for (int x = 0; x < WLEN; x++)
+                    this->voxelStep({ x, y, z });
+                break;
+            case 7:
+                for (int y = 0; y < HLEN; y++) for (int z = DLEN - 1; z >= 0; z--) for (int x = WLEN - 1; x >= 0; x--)
+                    this->voxelStep({ x, y, z });
+                break;
+        }
 
         this->clock++;
     }
@@ -231,28 +271,20 @@ public:
             }
         }
 
-        vector<int> validPosIndexArr; // The sand block checks which horizontal directions it is allowed to move in
+        vector<int> validPosIndexVec; // The sand block checks which horizontal directions it is allowed to move in
         for (int i = 0; i < this->posAmount; i++)
             if (this->blockConst(pos + this->sidePosArr[i]) == AIR)
-                validPosIndexArr.push_back(i);
+                validPosIndexVec.push_back(i);
 
-        int validPosAmount = validPosIndexArr.size(); // The sand block counts the horizontal directions it is allowed to move in
-
-        if (validPosAmount == 0) // The sand block is surrourded by 4 solid blocks
+        if (validPosIndexVec.size() == 0) // The sand block is surrourded by 4 solid blocks
         {
             voxel.canMove = false;
             return;
         }
 
-        int seed = rand(); // randomization of direction order the sand block will try to move in
-        for (int i = 0; i < validPosAmount - 1; i++)
-        {
-            int tmpIndex = validPosIndexArr[i];
-            validPosIndexArr[i] = validPosIndexArr[seed % (validPosAmount - i) + i];
-            validPosIndexArr[seed % (validPosAmount - i) + i] = tmpIndex;
-        }
+        this->shuffle(validPosIndexVec); // randomization of direction order the sand block will try to move in
 
-        for (int posIndex : validPosIndexArr) // The sand block tries to fall sideways
+        for (int posIndex : validPosIndexVec) // The sand block tries to fall sideways
         {
             const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
 
@@ -265,7 +297,7 @@ public:
             }
         }
 
-        for (int posIndex : validPosIndexArr) // The sand block tries to move sideways
+        for (int posIndex : validPosIndexVec) // The sand block tries to move sideways
         {
             if (this->blockConst(pos + diagFallPosArr[posIndex]) == AIR || this->blockConst(pos + diagFallPosArr[(posIndex+1)%this->posAmount]) == AIR)
             {
@@ -295,28 +327,20 @@ public:
             }
         }
 
-        vector<int> validPosIndexArr; // The water block checks which horizontal directions it is allowed to move in
+        vector<int> validPosIndexVec; // The water block checks which horizontal directions it is allowed to move in
         for (int i = 0; i < this->posAmount; i++)
             if (this->blockConst(pos + this->sidePosArr[i]) == AIR)
-                validPosIndexArr.push_back(i);
+                validPosIndexVec.push_back(i);
 
-        int validPosAmount = validPosIndexArr.size(); // The water block counts the horizontal directions it is allowed to move in
-
-        if (validPosAmount == 0) // The water block is surrourded by 4 solid blocks
+        if (validPosIndexVec.size() == 0) // The water block is surrourded by 4 solid blocks
         {
             voxel.canMove = false;
             return;
         }
 
-        int seed = rand(); // randomization of direction order the sand block will try to move in
-        for (int i = 0; i < validPosAmount - 1; i++)
-        {
-            int tmpIndex = validPosIndexArr[i];
-            validPosIndexArr[i] = validPosIndexArr[seed % (validPosAmount - i) + i];
-            validPosIndexArr[seed % (validPosAmount - i) + i] = tmpIndex;
-        }
+        this->shuffle(validPosIndexVec); // randomization of direction order the water block will try to move in
 
-        for (int posIndex : validPosIndexArr) // The water block tries to fall sideways
+        for (int posIndex : validPosIndexVec) // The water block tries to fall sideways
         {
             const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
 
@@ -329,7 +353,7 @@ public:
             }
         }
 
-        for (int posIndex : validPosIndexArr) // The water block tries to move sideways
+        for (int posIndex : validPosIndexVec) // The water block tries to move sideways
         {
             const Vec3I sideBlockCoord = pos + this->sidePosArr[posIndex];
 
@@ -343,6 +367,20 @@ public:
         }
 
         voxel.canMove = false; // The block didn't have any move opportunities
+    }
+
+    void shuffle(vector<int> & vector)
+    {
+        int size = vector.size();
+        int seed = rand(); // randomization of direction order the sand block will try to move in
+        for (int i = 0; i < vector.size() - 1; i++)
+        {
+            int i1 = (i + clock) % size;
+            int i2 = ((seed % (size - i) + i) % size + clock) % size;
+            int tmpIndex = vector[i1];
+            vector[i1]   = vector[i2];
+            vector[i2]   = tmpIndex;
+        }
     }
 
     void updateBlock(const Vec3I & pos, BlockType block)
@@ -367,9 +405,11 @@ public:
     {
         if (this->isInBounds(pos)) this->voxel(pos).canMove = true;
     }
+    //// End of SIMULATION ////
 
 
 
+    //// VISIBILITY ////
     void updateWorldVoxelSurfaceVisibility()
     {
         for (int y = 0; y < HLEN; y++)
@@ -403,6 +443,7 @@ public:
     {
         if (this->isInBounds(pos)) this->voxel(pos).hasVisibleSurface = true;
     }
+    //// End of VISIBILITY ////
 
 
 
@@ -423,6 +464,7 @@ public:
 
 
 
+    //// DRAWING ////
     void drawWorld() const
     {
         for (int x = 0; x <= WLEN; x++)
@@ -490,4 +532,6 @@ public:
             cout << endl;
         }
     }
+    //// End of DRAWING ////
+
 };

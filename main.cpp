@@ -105,29 +105,33 @@ int main(void)
         {
             if (simulationCounter <= 0)
             {
-                sworld.step();
+                // for(int i = 0; i < 1; i++)
+                    sworld.step();
 
                 if (isSpawningRun)
                 {
                     if (spawnCounter <= 0)
                     {
-                        int flow = 2;
+                        int flow = 5;
 
-                        sworld.placeOneBlockOnTop(
-                            (sworld.getWidth() - flow)/2,
-                            sworld.getWidth()/2 + flow,
-                            (sworld.getDepth() - flow)/2,
-                            sworld.getDepth()/2 + flow,
-                            SAND
-                        );
+                        for(int i = 0; i < 10; i++)
+                        {
+                            sworld.placeOneBlockOnTop(
+                                (sworld.getWidth() - flow)/2,
+                                sworld.getWidth()/2 + flow,
+                                (sworld.getDepth() - flow)/2,
+                                sworld.getDepth()/2 + flow,
+                                SAND
+                            );
 
-                        sworld.placeOneBlockOnTop(
-                            (sworld.getWidth() - flow)/2,
-                            sworld.getWidth()/2 + flow,
-                            (sworld.getDepth() - flow)/2,
-                            sworld.getDepth()/2 + flow,
-                            WATER
-                        );
+                            sworld.placeOneBlockOnTop(
+                                (sworld.getWidth() - flow)/2,
+                                sworld.getWidth()/2 + flow,
+                                (sworld.getDepth() - flow)/2,
+                                sworld.getDepth()/2 + flow,
+                                WATER
+                            );
+                        }
 
                         spawnCounter = simulationPerSecond / spawnPerSecond;
                     }

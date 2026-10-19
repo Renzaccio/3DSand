@@ -304,14 +304,14 @@ struct Dock
     }
 };
 
-enum DockTools { Normal, SandRain, WaterRain }; // define existing tools
-enum DockRayMode { OnePerOne, Compulsive };        // define mouse pression mode detecton (Compulsive=IsMouseButtonDown, OnePerOne=IsMouseButtonPressed)
+enum DockTools { NORMAL, RAIN }; // define existing tools
+enum DockRayMode { CLICK, HOLD };        // define mouse pression mode detecton (Compulsive=IsMouseButtonDown, OnePerOne=IsMouseButtonPressed)
 struct DockRay
 {
     Vec3I targetedPos{ 0,0,0 };             // voxel targeted by Dock ray
     BlockType dockSelectedBlock = SAND;     // the selected block in ui
-    DockRayMode state = Compulsive;
-    DockTools tool = Normal;
+    DockRayMode state = HOLD;
+    DockTools tool = NORMAL;
 
     template<int WLEN, int HLEN, int DLEN>
     void rayTest(Int3DSpace<WLEN, HLEN, DLEN> & sworld, Camera & camera, Dock & dockMenu) // we take the closest block to camera
@@ -357,27 +357,21 @@ struct DockRay
             Voxel& vx = sworld.voxel(this->targetedPos);
             vx.isTargeted = true;
 
-            if ((state == Compulsive ? IsMouseButtonDown :  IsMouseButtonPressed)(MOUSE_BUTTON_LEFT))
+            if ((state == HOLD ? IsMouseButtonDown :  IsMouseButtonPressed)(MOUSE_BUTTON_LEFT))
             {
                 Vec3I posToEdit = this->targetedPos;
                 switch(this->tool)
                 {
-                    case Normal:
+                    case NORMAL:
                         if (this->dockSelectedBlock != AIR && sworld.block(posToEdit + (Vec3I){ 0, 1, 0 }) == AIR &&posToEdit.y + 1 < HLEN)
                             posToEdit += { 0, 1, 0 };
                         sworld.block(posToEdit) = this->dockSelectedBlock;
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
                         sworld.activateNeighboursMobility(posToEdit);
                         break;
-                    case SandRain:
+                    case RAIN:
                         posToEdit.y = HLEN - 1;
-                        sworld.block(posToEdit) = SAND;
-                        sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
-                        sworld.activateNeighboursMobility(posToEdit);
-                        break;
-                    case WaterRain:
-                        posToEdit.y = HLEN - 1;
-                        sworld.block(posToEdit) = WATER;
+                        sworld.block(posToEdit) = this->dockSelectedBlock;
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
                         sworld.activateNeighboursMobility(posToEdit);
                         break;
@@ -404,12 +398,11 @@ Dock buildMenu(DockRay & dockray)
     dock.addAction("blocks", "blocks::stone", "Stone (6)", [&dockray]() { dockray.dockSelectedBlock = STONE; });
     dock.addAction("blocks", "blocks::debug", "Debug (7)", [&dockray]() { dockray.dockSelectedBlock = DEBUG; });
 
-    dock.addAction("tools", "tools::normal", "Place Block\nOn Top", [&dockray]() { dockray.tool = Normal; });
-    dock.addAction("tools", "tools::sandrain", "Sand\nRain", [&dockray]() { dockray.tool = SandRain; });
-    dock.addAction("tools", "tools::waterrain", "Water\nRain", [&dockray]() { dockray.tool = WaterRain; });
+    dock.addAction("tools", "tools::normal", "Place Block\nOn Top", [&dockray]() { dockray.tool = NORMAL; });
+    dock.addAction("tools", "tools::rain", "Water\nRain", [&dockray]() { dockray.tool = RAIN; });
 
-    dock.addAction("settings", "settings::interaction::compulsive", "Selection\nCompulsive", [&dockray]() { dockray.state = Compulsive; });
-    dock.addAction("settings", "settings::interaction::oneperone", "Selection\nUnique", [&dockray]() { dockray.state = OnePerOne; });
+    dock.addAction("settings", "settings::interaction::hold", "Selection\nHold", [&dockray]() { dockray.state = HOLD; });
+    dock.addAction("settings", "settings::interaction::click", "Selection\nClick", [&dockray]() { dockray.state = CLICK; });
 
     return dock;
 }

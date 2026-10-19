@@ -73,6 +73,8 @@ public:
     Voxel(BlockType bl) : block{ bl } {}
 
 
+
+    //// GETTERS ////
     BlockClass getBlockClass() const
     {
         switch (this->block) {
@@ -159,7 +161,11 @@ public:
         unsigned char luminosity = getLuminosity(face);
         return { luminosity, luminosity, luminosity, 255 };
     }
+    //// End of GETTERS ////
 
+
+
+    //// DRAWING ////
     void drawFace(const Vector3 & position, BlockType adjacentBlock, Direction face) const
     {
         if (this->isSurfaceVisible(adjacentBlock)) // && this->block == SAND)
@@ -205,4 +211,5 @@ public:
                 break;
         }
     }
+    //// End of DRAWING ////
 };
