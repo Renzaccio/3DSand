@@ -5,7 +5,7 @@
 
 using namespace std;
 
-typedef vector<vector<vector<Voxel>>> WorldMTX;
+typedef vector<Voxel> WorldMTX;
 
 template<int WLEN, int HLEN, int DLEN>
 struct Int3DSpace
@@ -59,7 +59,7 @@ private:
 public:
 
     //// BASE FUNCTIONS ////
-    Int3DSpace() : mtx{ WLEN, vector<vector<Voxel>>{ HLEN, vector<Voxel>{ DLEN, Voxel{} } } } {} // Constructor
+    Int3DSpace() : mtx(HLEN*WLEN*DLEN) {} // Constructor
 
     Vector3 getDrawShift() const { return this->drawShift; }
 
@@ -77,11 +77,19 @@ public:
 
     bool isInBounds(const Vec3I & pos) const { return this->isInBounds(pos.x, pos.y, pos.z); }
 
+    Voxel& operator()(size_t x, size_t y, size_t z)
+    {
+        return this->mtx[x * HLEN * DLEN + y * DLEN + z];
+    }
 
+    const Voxel& operator()(size_t x, size_t y, size_t z) const
+    {
+        return this->mtx[x * HLEN * DLEN + y * DLEN + z];
+    }
 
     Voxel & voxel(int x, int y, int z)
     {
-        return this->getWorld()[x][y][z];
+        return (*this)(x,y,z);
     }
 
     Voxel & voxel(const Vec3I & v)
@@ -91,7 +99,7 @@ public:
 
     const Voxel & voxel(int x, int y, int z) const
     {
-        if (this->isInBounds(x, y, z)) return this->getWorld()[x][y][z];
+        if (this->isInBounds(x, y, z)) return (*this)(x,y,z);
         return this->border;
     }
 
