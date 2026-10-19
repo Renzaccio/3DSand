@@ -148,35 +148,35 @@ public:
         this->placeParallelepiped({ 0, y, 0 }, { WLEN - 1, y, DLEN - 1 }, block);
     }
 
-    void placeOneBlockOnTop(int xStart = 0, int xEnd = WLEN, int zStart = 0, int zEnd = DLEN)
+    void placeOneBlockOnTop(int xStart = 0, int xEnd = WLEN, int zStart = 0, int zEnd = DLEN, BlockType block = SAND)
     {
-        this->block(rand() % (xStart - xEnd) + xStart, HLEN - 1, rand() % (zStart - zEnd) + zStart) = SAND;
+        this->block(rand() % (xStart - xEnd) + xStart, HLEN - 1, rand() % (zStart - zEnd) + zStart) = block;
     }
 
     void placeChair3x4x3(const Vec3I & origin)
     {
-        //pieds
+        // stands
         this->placeBlock(origin + Vec3I{ 0, 0, 0 }, WOOD);
         this->placeBlock(origin + Vec3I{ 0, 0, 2 }, WOOD);
         this->placeBlock(origin + Vec3I{ 2, 0, 0 }, WOOD);
         this->placeBlock(origin + Vec3I{ 2, 0, 2 }, WOOD);
 
-        //plateau
+        // tray
         this->placeParallelepiped(origin + Vec3I{ 0, 1, 0 }, origin + Vec3I{ 2, 1, 2 }, WOOD);
 
-        //dossier
+        // backrest
         this->placeParallelepiped(origin + Vec3I{ 0, 2, 2 }, origin + Vec3I{ 2, 3, 2 }, WOOD);
     }
 
     void placeTable5x4x5(const Vec3I & origin)
     {
-        //pieds
+        // stands
         this->placeParallelepiped(origin + Vec3I{ 0, 0, 0 }, origin + Vec3I{ 0, 2, 0 }, STONE);
         this->placeParallelepiped(origin + Vec3I{ 0, 0, 4 }, origin + Vec3I{ 0, 2, 4 }, STONE);
         this->placeParallelepiped(origin + Vec3I{ 4, 0, 0 }, origin + Vec3I{ 4, 2, 0 }, STONE);
         this->placeParallelepiped(origin + Vec3I{ 4, 0, 4 }, origin + Vec3I{ 4, 2, 4 }, STONE);
 
-        //plateau
+        // tray
         this->placeParallelepiped(origin + Vec3I{ 0, 3, 0 }, origin + Vec3I{ 4, 3, 4 }, WOOD);
     }
 
@@ -184,7 +184,7 @@ public:
 
     void step()
     {
-        // Le sable tombe.
+        // the blocks fall.
 
         for (int y = 0; y < HLEN; y++)
             for (int x = 0; x < WLEN; x++)
@@ -203,6 +203,9 @@ public:
             case SAND:
                 this->sandStep(pos, voxel);
                 break;
+            case WATER:
+                this->waterStep(pos, voxel);
+                break;
             default:
                 break;
         }
@@ -212,7 +215,7 @@ public:
     {
         BlockType & block = voxel.block;
 
-        { // The block tries to fall straight down
+        { // The sand block tries to fall straight down
             const Vec3I underBlockCoord = pos + LOWERVOXEL;
 
             if (this->blockConst(underBlockCoord) == AIR)
@@ -224,20 +227,20 @@ public:
             }
         }
 
-        vector<int> validPosIndexes; // The block checks which horizontal directions it is allowed to move in
+        vector<int> validPosIndexes; // The sand block checks which horizontal directions it is allowed to move in
         for (int i = 0; i < this->posAmount; i++)
             if (this->blockConst(pos + this->sidePosArr[i]) == AIR)
                 validPosIndexes.push_back(i);
 
-        int validPosAmount = validPosIndexes.size(); // The block counts the horizontal directions it is allowed to move in
+        int validPosAmount = validPosIndexes.size(); // The sand block counts the horizontal directions it is allowed to move in
 
-        if (validPosAmount == 0) // The block is surrourded by 4 solid blocks
+        if (validPosAmount == 0) // The sand block is surrourded by 4 solid blocks
         {
             voxel.canMove = false;
             return;
         }
 
-        int seed = rand(); // randomization of direction order the block will try to move in
+        int seed = rand(); // randomization of direction order the sand block will try to move in
         for (int i = 0; i < validPosAmount - 1; i++)
         {
             int tmp = validPosIndexes[i];
@@ -245,7 +248,7 @@ public:
             validPosIndexes[seed % (validPosAmount - i) + i] = tmp;
         }
 
-        for (int i : validPosIndexes) // The block tries to fall sideways
+        for (int i : validPosIndexes) // The sand block tries to fall sideways
         {
             const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[i];
 
@@ -258,11 +261,77 @@ public:
             }
         }
 
-        for (int i : validPosIndexes) // The block tries to move sideways
+        for (int i : validPosIndexes) // The sand block tries to move sideways
         {
             if (this->blockConst(pos + diagFallPosArr[i]) == AIR || this->blockConst(pos + diagFallPosArr[(i+1)%this->posAmount]) == AIR)
             {
                 this->updateBlock(pos + this->sidePosArr[i], SAND);
+                this->updateBlock(pos, AIR);
+                this->activateNeighboursMobility(pos);
+                return;
+            }
+        }
+
+        voxel.canMove = false; // The sand block didn't have any move opportunities
+    }
+
+    void waterStep(const Vec3I & pos, Voxel & voxel)
+    {
+        BlockType & block = voxel.block;
+
+        { // The water block tries to fall straight down
+            const Vec3I underBlockCoord = pos + LOWERVOXEL;
+
+            if (this->blockConst(underBlockCoord) == AIR)
+            {
+                this->updateBlock(underBlockCoord, WATER);
+                this->updateBlock(pos, AIR);
+                this->activateNeighboursMobility(pos);
+                return;
+            }
+        }
+
+        vector<int> validPosIndexes; // The water block checks which horizontal directions it is allowed to move in
+        for (int i = 0; i < this->posAmount; i++)
+            if (this->blockConst(pos + this->sidePosArr[i]) == AIR)
+                validPosIndexes.push_back(i);
+
+        int validPosAmount = validPosIndexes.size(); // The water block counts the horizontal directions it is allowed to move in
+
+        if (validPosAmount == 0) // The water block is surrourded by 4 solid blocks
+        {
+            voxel.canMove = false;
+            return;
+        }
+
+        int seed = rand(); // randomization of direction order the water block will try to move in
+        for (int i = 0; i < validPosAmount - 1; i++)
+        {
+            int tmp = validPosIndexes[i];
+            validPosIndexes[i] = validPosIndexes[seed % (validPosAmount - i) + i];
+            validPosIndexes[seed % (validPosAmount - i) + i] = tmp;
+        }
+
+        for (int i : validPosIndexes) // The water block tries to fall sideways
+        {
+            const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[i];
+
+            if (this->blockConst(sideFallBlockCoord) == AIR)
+            {
+                this->updateBlock(sideFallBlockCoord, WATER);
+                this->updateBlock(pos, AIR);
+                this->activateNeighboursMobility(pos);
+                return;
+            }
+        }
+
+        for (int i : validPosIndexes) // The water block tries to move sideways
+        {
+            const Vec3I sideBlockCoord = pos + this->sidePosArr[i];
+
+            if (this->blockConst(sideBlockCoord) == AIR)
+            {
+                this->updateBlock(sideBlockCoord, WATER);
                 this->updateBlock(pos, AIR);
                 this->activateNeighboursMobility(pos);
                 return;

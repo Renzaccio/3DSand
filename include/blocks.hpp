@@ -7,7 +7,7 @@
 
 using namespace std;
 
-enum BlockType { BORDER, DEBUG, STONE, WOOD, DIRT, SAND, AIR };
+enum BlockType { BORDER, DEBUG, STONE, WOOD, DIRT, SAND, WATER, AIR };
 
 enum BlockClass { SOLID, LIQUID, GAS };
 
@@ -28,6 +28,8 @@ inline ostream & operator << (ostream & stream, BlockType block)
             stream << "DIRT";   break;
         case SAND:
             stream << "SAND";   break;
+        case WATER:
+            stream << "WATER";    break;
         case AIR:
             stream << "AIR";    break;
     }
@@ -76,6 +78,8 @@ public:
         switch (this->block) {
             default:
                 return SOLID;
+            case WATER:
+                return LIQUID;
             case BORDER:
             case AIR:
                 return GAS;
@@ -89,11 +93,21 @@ public:
             case BORDER:
             case AIR:
                 return false;
+            case WATER:
+                switch(adjacentBlock)
+                {
+                    case BORDER:
+                    case AIR:
+                        return true;
+                    default:
+                        return false;
+                }
             default:
                 switch(adjacentBlock)
                 {
                     case BORDER:
                     case AIR:
+                    case WATER:
                         return true;
                     default:
                         return false;
@@ -112,6 +126,8 @@ public:
             case WOOD:
             case DIRT:
                 return BROWN;
+            case WATER:
+                return Color{ 0, 121, 241, 192 };
             case SAND:
                 return YELLOW;
             default:
@@ -152,6 +168,12 @@ public:
             const array<int, 4> & faceIndexes = faceIndexesMap.find(face)->second;
             DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[1]], position + this->verticesPosArr[faceIndexes[2]], color);
             DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], position + this->verticesPosArr[faceIndexes[3]], color);
+
+            // if (this->block == WATER)
+            // {
+            //     DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[3]], position + this->verticesPosArr[faceIndexes[2]], color);
+            //     DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], position + this->verticesPosArr[faceIndexes[1]], color);
+            // }
 
             // // Display the inside of the world mesh. Only useful for debugging.
             // for (int i = 0; i < 4; i++)

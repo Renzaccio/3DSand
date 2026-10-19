@@ -117,7 +117,16 @@ int main(void)
                             (sworld.getWidth() - flow)/2,
                             sworld.getWidth()/2 + flow,
                             (sworld.getDepth() - flow)/2,
-                            sworld.getDepth()/2 + flow
+                            sworld.getDepth()/2 + flow,
+                            SAND
+                        );
+
+                        sworld.placeOneBlockOnTop(
+                            (sworld.getWidth() - flow)/2,
+                            sworld.getWidth()/2 + flow,
+                            (sworld.getDepth() - flow)/2,
+                            sworld.getDepth()/2 + flow,
+                            WATER
                         );
 
                         spawnCounter = simulationPerSecond / spawnPerSecond;
