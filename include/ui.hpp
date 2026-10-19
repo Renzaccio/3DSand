@@ -371,13 +371,13 @@ struct DockRay
                         break;
                     case SandRain:
                         posToEdit.y = HLEN - 1;
-                        sworld.block(posToEdit) = this->dockSelectedBlock;
+                        sworld.block(posToEdit) = SAND;
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
                         sworld.activateNeighboursMobility(posToEdit);
                         break;
                     case WaterRain:
                         posToEdit.y = HLEN - 1;
-                        sworld.block(posToEdit) = this->dockSelectedBlock;
+                        sworld.block(posToEdit) = WATER;
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
                         sworld.activateNeighboursMobility(posToEdit);
                         break;
