@@ -58,7 +58,8 @@ private:
 
 public:
 
-    Int3DSpace() : mtx{ WLEN, vector<vector<Voxel>>{ HLEN, vector<Voxel>{ DLEN, Voxel{} } } } {}
+    //// BASE FUNCTIONS ////
+    Int3DSpace() : mtx{ WLEN, vector<vector<Voxel>>{ HLEN, vector<Voxel>{ DLEN, Voxel{} } } } {} // Constructor
 
     Vector3 getDrawShift() const { return this->drawShift; }
 
@@ -68,7 +69,9 @@ public:
 
     int getDepth()  const { return DLEN; }
 
-    int getVolume() const { return WLEN*HLEN*DLEN; }
+    int getVolume() const { return WLEN * HLEN * DLEN; }
+
+
 
     bool isInBounds(int x, int y, int z) const { return 0 <= x && x < WLEN && 0 <= y && y < HLEN && 0 <= z && z < DLEN; }
 
@@ -120,9 +123,11 @@ public:
     const BlockType & block(const Vec3I & v)          const { return (this->voxel(v)).block; }
 
     const BlockType & blockConst(const Vec3I & v)     const { return (this->voxel(v)).block; }
+    //// End of BASE FUNCTIONS ////
 
 
 
+    //// WORLD MODIFICATION ////
     void placeBlock(Vec3I pos, BlockType block)
     {
         if (!(this->isInBounds(pos)))
@@ -184,9 +189,11 @@ public:
         // tray
         this->placeParallelepiped(origin + Vec3I{ 0, 3, 0 }, origin + Vec3I{ 4, 3, 4 }, WOOD);
     }
+    //// End of WORLD MODIFICATION ////
 
 
 
+    //// SIMULATION ////
     void step()
     {
         // the blocks fall.
@@ -398,9 +405,11 @@ public:
     {
         if (this->isInBounds(pos)) this->voxel(pos).canMove = true;
     }
+    //// End of SIMULATION ////
 
 
 
+    //// VISIBILITY ////
     void updateWorldVoxelSurfaceVisibility()
     {
         for (int y = 0; y < HLEN; y++)
@@ -434,6 +443,7 @@ public:
     {
         if (this->isInBounds(pos)) this->voxel(pos).hasVisibleSurface = true;
     }
+    //// End of VISIBILITY ////
 
 
 
@@ -454,6 +464,7 @@ public:
 
 
 
+    //// DRAWING ////
     void drawWorld() const
     {
         for (int x = 0; x <= WLEN; x++)
@@ -521,4 +532,6 @@ public:
             cout << endl;
         }
     }
+    //// End of DRAWING ////
+
 };
