@@ -18,6 +18,8 @@ private:
     WorldMTX & getWorld()             { return this->mtx; }
     const WorldMTX & getWorld() const { return this->mtx; }
 
+    int clock = 0;
+
     static const int posAmount = 4;
     const array<Vec3I, posAmount> sidePosArr =
     {
@@ -190,6 +192,8 @@ public:
             for (int x = 0; x < WLEN; x++)
                 for (int z = 0; z < DLEN; z++)
                     this->voxelStep({ x, y, z });
+
+        this->clock++;
     }
 
     void voxelStep(const Vec3I & pos)
@@ -227,12 +231,12 @@ public:
             }
         }
 
-        vector<int> validPosIndexes; // The sand block checks which horizontal directions it is allowed to move in
+        vector<int> validPosIndexArr; // The sand block checks which horizontal directions it is allowed to move in
         for (int i = 0; i < this->posAmount; i++)
             if (this->blockConst(pos + this->sidePosArr[i]) == AIR)
-                validPosIndexes.push_back(i);
+                validPosIndexArr.push_back(i);
 
-        int validPosAmount = validPosIndexes.size(); // The sand block counts the horizontal directions it is allowed to move in
+        int validPosAmount = validPosIndexArr.size(); // The sand block counts the horizontal directions it is allowed to move in
 
         if (validPosAmount == 0) // The sand block is surrourded by 4 solid blocks
         {
@@ -243,14 +247,14 @@ public:
         int seed = rand(); // randomization of direction order the sand block will try to move in
         for (int i = 0; i < validPosAmount - 1; i++)
         {
-            int tmp = validPosIndexes[i];
-            validPosIndexes[i] = validPosIndexes[seed % (validPosAmount - i) + i];
-            validPosIndexes[seed % (validPosAmount - i) + i] = tmp;
+            int tmpIndex = validPosIndexArr[i];
+            validPosIndexArr[i] = validPosIndexArr[seed % (validPosAmount - i) + i];
+            validPosIndexArr[seed % (validPosAmount - i) + i] = tmpIndex;
         }
 
-        for (int i : validPosIndexes) // The sand block tries to fall sideways
+        for (int posIndex : validPosIndexArr) // The sand block tries to fall sideways
         {
-            const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[i];
+            const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
 
             if (this->blockConst(sideFallBlockCoord) == AIR)
             {
@@ -261,11 +265,11 @@ public:
             }
         }
 
-        for (int i : validPosIndexes) // The sand block tries to move sideways
+        for (int posIndex : validPosIndexArr) // The sand block tries to move sideways
         {
-            if (this->blockConst(pos + diagFallPosArr[i]) == AIR || this->blockConst(pos + diagFallPosArr[(i+1)%this->posAmount]) == AIR)
+            if (this->blockConst(pos + diagFallPosArr[posIndex]) == AIR || this->blockConst(pos + diagFallPosArr[(posIndex+1)%this->posAmount]) == AIR)
             {
-                this->updateBlock(pos + this->sidePosArr[i], SAND);
+                this->updateBlock(pos + this->sidePosArr[posIndex], SAND);
                 this->updateBlock(pos, AIR);
                 this->activateNeighboursMobility(pos);
                 return;
@@ -291,12 +295,12 @@ public:
             }
         }
 
-        vector<int> validPosIndexes; // The water block checks which horizontal directions it is allowed to move in
+        vector<int> validPosIndexArr; // The water block checks which horizontal directions it is allowed to move in
         for (int i = 0; i < this->posAmount; i++)
             if (this->blockConst(pos + this->sidePosArr[i]) == AIR)
-                validPosIndexes.push_back(i);
+                validPosIndexArr.push_back(i);
 
-        int validPosAmount = validPosIndexes.size(); // The water block counts the horizontal directions it is allowed to move in
+        int validPosAmount = validPosIndexArr.size(); // The water block counts the horizontal directions it is allowed to move in
 
         if (validPosAmount == 0) // The water block is surrourded by 4 solid blocks
         {
@@ -304,17 +308,17 @@ public:
             return;
         }
 
-        int seed = rand(); // randomization of direction order the water block will try to move in
+        int seed = rand(); // randomization of direction order the sand block will try to move in
         for (int i = 0; i < validPosAmount - 1; i++)
         {
-            int tmp = validPosIndexes[i];
-            validPosIndexes[i] = validPosIndexes[seed % (validPosAmount - i) + i];
-            validPosIndexes[seed % (validPosAmount - i) + i] = tmp;
+            int tmpIndex = validPosIndexArr[i];
+            validPosIndexArr[i] = validPosIndexArr[seed % (validPosAmount - i) + i];
+            validPosIndexArr[seed % (validPosAmount - i) + i] = tmpIndex;
         }
 
-        for (int i : validPosIndexes) // The water block tries to fall sideways
+        for (int posIndex : validPosIndexArr) // The water block tries to fall sideways
         {
-            const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[i];
+            const Vec3I sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
 
             if (this->blockConst(sideFallBlockCoord) == AIR)
             {
@@ -325,9 +329,9 @@ public:
             }
         }
 
-        for (int i : validPosIndexes) // The water block tries to move sideways
+        for (int posIndex : validPosIndexArr) // The water block tries to move sideways
         {
-            const Vec3I sideBlockCoord = pos + this->sidePosArr[i];
+            const Vec3I sideBlockCoord = pos + this->sidePosArr[posIndex];
 
             if (this->blockConst(sideBlockCoord) == AIR)
             {
