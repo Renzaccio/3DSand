@@ -399,7 +399,7 @@ Dock buildMenu(DockRay & dockray)
     dock.addAction("blocks", "blocks::debug", "Debug (7)", [&dockray]() { dockray.dockSelectedBlock = DEBUG; });
 
     dock.addAction("tools", "tools::normal", "Place Block\nOn Top", [&dockray]() { dockray.tool = NORMAL; });
-    dock.addAction("tools", "tools::rain", "Water\nRain", [&dockray]() { dockray.tool = RAIN; });
+    dock.addAction("tools", "tools::rain", "Rain", [&dockray]() { dockray.tool = RAIN; });
 
     dock.addAction("settings", "settings::interaction::hold", "Selection\nHold", [&dockray]() { dockray.state = HOLD; });
     dock.addAction("settings", "settings::interaction::click", "Selection\nClick", [&dockray]() { dockray.state = CLICK; });
