@@ -16,22 +16,14 @@ enum Direction { RIGHT, LEFT, TOP, BOTTOM, FRONT, BACK };
 inline ostream & operator << (ostream & stream, BlockType block)
 {
     switch (block) {
-        case BORDER:
-            stream << "BORDER"; break;
-        case DEBUG:
-            stream << "DEBUG";  break;
-        case STONE:
-            stream << "STONE";  break;
-        case WOOD:
-            stream << "WOOD";   break;
-        case DIRT:
-            stream << "DIRT";   break;
-        case SAND:
-            stream << "SAND";   break;
-        case WATER:
-            stream << "WATER";    break;
-        case AIR:
-            stream << "AIR";    break;
+        case BORDER: stream << "BORDER"; break;
+        case DEBUG:  stream << "DEBUG";  break;
+        case STONE:  stream << "STONE";  break;
+        case WOOD:   stream << "WOOD";   break;
+        case DIRT:   stream << "DIRT";   break;
+        case SAND:   stream << "SAND";   break;
+        case WATER:  stream << "WATER";  break;
+        case AIR:    stream << "AIR";    break;
     }
 
     return stream;
@@ -61,6 +53,24 @@ private:
         { BACK,   { 1, 5, 7, 3 } },
     };
 
+    const unordered_map<BlockType, Color> colorMap {
+        { DEBUG, PURPLE },
+        { STONE, GRAY   },
+        { WOOD,  BROWN  },
+        { DIRT,  BROWN  },
+        { SAND,  YELLOW },
+        { WATER, ColorTint(BLUE, {255, 255, 255, 192}) },
+    };
+
+    const unordered_map<Direction, int> luminosityMap {
+        { RIGHT,  200 },
+        { LEFT,   200 },
+        { BOTTOM, 176 },
+        { TOP,    255 },
+        { FRONT,  216 },
+        { BACK,   216 },
+    };
+
 public:
 
     BlockType block;
@@ -69,8 +79,8 @@ public:
     bool isTargeted        = false;
 
 
-    Voxel() : block{ AIR } {}
-    Voxel(BlockType bl) : block{ bl } {}
+    Voxel() :             block{ AIR } {}
+    Voxel(BlockType bl) : block{ bl }  {}
 
 
 
@@ -117,48 +127,11 @@ public:
         }
     }
 
-    Color getColor() const
-    {
-        switch (this->block)
-        {
-            case DEBUG:
-                return PURPLE;
-            case STONE:
-                return GRAY;
-            case WOOD:
-            case DIRT:
-                return BROWN;
-            case WATER:
-                return Color{ 0, 121, 241, 192 };
-            case SAND:
-                return YELLOW;
-            default:
-                return BLANK;
-        }
-    }
-
-    unsigned char getLuminosity(Direction face) const
-    {
-        switch (face)
-        {
-            case TOP:
-                return 255;
-            case FRONT:
-            case BACK:
-                return 216;
-            case RIGHT:
-            case LEFT:
-                return 200;
-            case BOTTOM:
-                return 176;
-            default:
-                return 0;
-        }
-    }
+    const Color & getColor() const { return this->colorMap.at(this->block); }
 
     Color getTint(Direction face) const
     {
-        unsigned char luminosity = getLuminosity(face);
+        unsigned char luminosity = this->luminosityMap.at(face);
         return { luminosity, luminosity, luminosity, 255 };
     }
     //// End of GETTERS ////
