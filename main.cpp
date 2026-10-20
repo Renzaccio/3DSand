@@ -46,13 +46,13 @@ int main(void)
 
     sworld.updateWorldVoxelSurfaceVisibility();
 
-    int sandAmount = 0;
-    int staticBlockAmount = 0;
+    int staticBlocksAmount = 0;
+    int movingBlocksAmount = 0;
     { // Conting initial blocks amounts
-        array<int, 2> blockAmountArr{ 0, 0 };
-        sworld.countBlockStats(blockAmountArr);
-        sandAmount = blockAmountArr[0];
-        staticBlockAmount = blockAmountArr[1];
+        pair<int, int> BlocksAmount{ 0, 0 };
+        sworld.countBlockStats(BlocksAmount);
+        staticBlocksAmount = BlocksAmount.first;
+        movingBlocksAmount = BlocksAmount.second;
     }
     //// End of WORLD SETUP ////
 
@@ -154,10 +154,10 @@ int main(void)
             if ((clock % targetFPS) <= 0) // Run once every seconds
             {
                 // Counting Blocks
-                array<int, 2> blockAmountArr{ 0, 0 };
-                sworld.countBlockStats(blockAmountArr);
-                sandAmount = blockAmountArr[0];
-                staticBlockAmount = blockAmountArr[1];
+                pair<int, int> BlocksAmount{ 0, 0 };
+                sworld.countBlockStats(BlocksAmount);
+                staticBlocksAmount = BlocksAmount.first;
+                movingBlocksAmount = BlocksAmount.second;
 
                 // Updating Blocks visibility
                 sworld.updateWorldVoxelSurfaceVisibility();
@@ -201,7 +201,7 @@ int main(void)
             DrawText((to_string(targetFPS) + " FPS MAX").c_str(), buttonX.get(), posY(), fontSize, BLACK);
             DrawText((to_string(GetFPS()) + " FPS").c_str(),      borderWidth,   posY(), fontSize, DARKGREEN);
 
-            const string s01 = to_string(sandAmount) + " sand" + ((sandAmount > 1) ? "s" : "") + " / " + to_string(staticBlockAmount) + " static block" + ((staticBlockAmount > 1) ? "s" : "");
+            const string s01 = to_string(staticBlocksAmount) + " static block" + ((staticBlocksAmount > 1) ? "s" : "") + " / " + to_string(movingBlocksAmount) + " moving block" + ((movingBlocksAmount > 1) ? "s" : "");
             DrawText(s01.c_str(), borderWidth, posY(), fontSize, DARKGRAY);
 
             posY.step();

@@ -61,8 +61,8 @@ public:
     bool isTargeted        = false;
 
 
-    Voxel() :             block{ AIR } {}
-    Voxel(BlockType bl) : block{ bl }  {}
+    Voxel() :              block{ AIR } {}
+    Voxel(BlockType blk) : block{ blk } {}
 
 
 

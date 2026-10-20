@@ -457,16 +457,26 @@ public:
 
     // sandAmount        = blockAmountArr[0];
     // staticBlockAmount = blockAmountArr[1];
-    void countBlockStats(array<int, 2> & blockAmountArr) const
+    void countBlockStats(pair<int, int> & blockAmounts) const
     {
         for (int y = 0; y < HLEN; y++)
             for (int x = 0; x < WLEN; x++)
                 for (int z = 0; z < DLEN; z++)
                 {
-                    const BlockType & currentBt = this->blockConst(x,y,z);
+                    const Voxel & voxel = this->voxel(x,y,z);
 
-                    if (currentBt == SAND) blockAmountArr[0]++;
-                    else if (currentBt != AIR) blockAmountArr[1]++;
+                    switch (voxel.block) {
+                        default :
+                            blockAmounts.first++;
+                            break;
+                        case SAND :
+                        case WATER :
+                            if (voxel.canMove) blockAmounts.second++;
+                            else               blockAmounts.first++;
+                            break;
+                        case AIR :
+                            break;
+                    }
                 }
     }
 
