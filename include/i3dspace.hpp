@@ -210,11 +210,11 @@ public:
 
         switch (((rand() % 8) + clock) % 8) {
             case 0:
-                for (int y = 0; y < HLEN; y++) for (int x = 0; x < WLEN; x++) for (int z = 0; z < DLEN; z++)
+                for (int y = 0; y < HLEN; y++) for (int x = 0; x < WLEN; x++)      for (int z = 0; z < DLEN; z++)
                     this->voxelStep({ x, y, z });
                 break;
             case 1:
-                for (int y = 0; y < HLEN; y++) for (int x = 0; x < WLEN; x++) for (int z = DLEN - 1; z >= 0; z--)
+                for (int y = 0; y < HLEN; y++) for (int x = 0; x < WLEN; x++)      for (int z = DLEN - 1; z >= 0; z--)
                     this->voxelStep({ x, y, z });
                 break;
             case 2:
@@ -226,11 +226,11 @@ public:
                     this->voxelStep({ x, y, z });
                 break;
             case 4:
-                for (int y = 0; y < HLEN; y++) for (int z = 0; z < DLEN; z++) for (int x = 0; x < WLEN; x++)
+                for (int y = 0; y < HLEN; y++) for (int z = 0; z < DLEN; z++)      for (int x = 0; x < WLEN; x++)
                     this->voxelStep({ x, y, z });
                 break;
             case 5:
-                for (int y = 0; y < HLEN; y++) for (int z = 0; z < DLEN; z++) for (int x = WLEN - 1; x >= 0; x--)
+                for (int y = 0; y < HLEN; y++) for (int z = 0; z < DLEN; z++)      for (int x = WLEN - 1; x >= 0; x--)
                     this->voxelStep({ x, y, z });
                 break;
             case 6:
@@ -274,10 +274,7 @@ public:
 
             if (SAND < this->blockConst(underBlockCoord))
             {
-                this->updateBlock(pos, this->blockConst(underBlockCoord));
-                this->activateNeighboursMobility(pos);
-                this->updateBlock(underBlockCoord, SAND);
-                this->voxel(pos).canMove = true;
+                this->swapBlocks(pos, SAND, underBlockCoord, this->block(underBlockCoord));
                 return;
             }
         }
@@ -301,10 +298,7 @@ public:
 
             if (SAND < this->blockConst(sideFallBlockCoord))
             {
-                this->updateBlock(pos, this->blockConst(sideFallBlockCoord));
-                this->activateNeighboursMobility(pos);
-                this->updateBlock(sideFallBlockCoord, SAND);
-                this->voxel(sideFallBlockCoord).canMove = true;
+                this->swapBlocks(pos, SAND, sideFallBlockCoord, this->block(sideFallBlockCoord));
                 return;
             }
         }
@@ -314,10 +308,7 @@ public:
             if (SAND < this->blockConst(pos + diagFallPosArr[posIndex]) || SAND < this->blockConst(pos + diagFallPosArr[(posIndex+1)%this->posAmount]))
             {
                 const Vec3I & sideBlockCoord = pos + this->sidePosArr[posIndex];
-                this->updateBlock(pos, this->block(sideBlockCoord));
-                this->activateNeighboursMobility(pos);
-                this->updateBlock(sideBlockCoord, SAND);
-                this->voxel(sideBlockCoord).canMove = true;
+                this->swapBlocks(pos, SAND, sideBlockCoord, this->block(sideBlockCoord));
                 return;
             }
         }
@@ -334,10 +325,7 @@ public:
 
             if (this->blockConst(underBlockCoord) == AIR)
             {
-                this->updateBlock(pos, AIR);
-                this->activateNeighboursMobility(pos);
-                this->updateBlock(underBlockCoord, WATER);
-                this->voxel(underBlockCoord).canMove = true;
+                this->swapBlocks(pos, WATER, underBlockCoord, AIR);
                 return;
             }
         }
@@ -361,10 +349,7 @@ public:
 
             if (this->blockConst(sideFallBlockCoord) == AIR)
             {
-                this->updateBlock(pos, AIR);
-                this->activateNeighboursMobility(pos);
-                this->updateBlock(sideFallBlockCoord, WATER);
-                this->voxel(sideFallBlockCoord).canMove = true;
+                this->swapBlocks(pos, WATER, sideFallBlockCoord, AIR);
                 return;
             }
         }
@@ -375,10 +360,7 @@ public:
 
             if (this->blockConst(sideBlockCoord) == AIR)
             {
-                this->updateBlock(pos, AIR);
-                this->activateNeighboursMobility(pos);
-                this->updateBlock(sideBlockCoord, WATER);
-                this->voxel(sideBlockCoord).canMove = true;
+                this->swapBlocks(pos, WATER, sideBlockCoord, AIR);
                 return;
             }
         }
@@ -398,6 +380,15 @@ public:
             vector[i1]   = vector[i2];
             vector[i2]   = tmpIndex;
         }
+    }
+
+    void swapBlocks(const Vec3I & origin, BlockType blkMoving, const Vec3I & destination, BlockType blkMoved)
+    {
+        this->updateBlock(destination, blkMoving);
+        this->voxel(destination).canMove = true;
+
+        this->updateBlock(origin, blkMoved);
+        this->activateNeighboursMobility(origin);
     }
 
     void updateBlock(const Vec3I & pos, BlockType block)
