@@ -16,22 +16,14 @@ enum Direction { RIGHT, LEFT, TOP, BOTTOM, FRONT, BACK };
 inline ostream & operator << (ostream & stream, BlockType block)
 {
     switch (block) {
-        case BORDER:
-            stream << "BORDER"; break;
-        case DEBUG:
-            stream << "DEBUG";  break;
-        case STONE:
-            stream << "STONE";  break;
-        case WOOD:
-            stream << "WOOD";   break;
-        case DIRT:
-            stream << "DIRT";   break;
-        case SAND:
-            stream << "SAND";   break;
-        case WATER:
-            stream << "WATER";    break;
-        case AIR:
-            stream << "AIR";    break;
+        case BORDER: stream << "BORDER"; break;
+        case DEBUG:  stream << "DEBUG";  break;
+        case STONE:  stream << "STONE";  break;
+        case WOOD:   stream << "WOOD";   break;
+        case DIRT:   stream << "DIRT";   break;
+        case SAND:   stream << "SAND";   break;
+        case WATER:  stream << "WATER";  break;
+        case AIR:    stream << "AIR";    break;
     }
 
     return stream;
@@ -69,8 +61,8 @@ public:
     bool isTargeted        = false;
 
 
-    Voxel() : block{ AIR } {}
-    Voxel(BlockType bl) : block{ bl } {}
+    Voxel() :             block{ AIR } {}
+    Voxel(BlockType bl) : block{ bl }  {}
 
 
 
