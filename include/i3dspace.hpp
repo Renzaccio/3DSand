@@ -305,7 +305,7 @@ public:
 
         for (int posIndex : validPosIndexVec) // The sand block tries to move sideways
         {
-            if (SAND < this->blockConst(pos + diagFallPosArr[posIndex]) || SAND < this->blockConst(pos + diagFallPosArr[(posIndex+1)%this->posAmount]))
+            if (SAND < this->blockConst(pos + this->diagFallPosArr[posIndex]) || SAND < this->blockConst(pos + this->diagFallPosArr[(posIndex + 1) % this->posAmount]))
             {
                 const Vec3I & sideBlockCoord = pos + this->sidePosArr[posIndex];
                 this->swapBlocks(pos, SAND, sideBlockCoord, this->block(sideBlockCoord));
@@ -385,7 +385,7 @@ public:
     void swapBlocks(const Vec3I & origin, BlockType blkMoving, const Vec3I & destination, BlockType blkMoved)
     {
         this->updateBlock(destination, blkMoving);
-        this->voxel(destination).canMove = true;
+        this->activateMobility(destination);
 
         this->updateBlock(origin, blkMoved);
         this->activateNeighboursMobility(origin);
@@ -399,14 +399,14 @@ public:
 
     void activateNeighboursMobility(const Vec3I & pos)
     {
-        activateMobility(pos);
-        activateMobility(pos + RIGHTVOXEL);
-        activateMobility(pos +  LEFTVOXEL);
-        activateMobility(pos + FRONTVOXEL);
-        activateMobility(pos +  BACKVOXEL);
+        this->activateMobility(pos);
+        this->activateMobility(pos + RIGHTVOXEL);
+        this->activateMobility(pos +  LEFTVOXEL);
+        this->activateMobility(pos + FRONTVOXEL);
+        this->activateMobility(pos +  BACKVOXEL);
         for(int x = -1; x <= 1; x++)
             for(int z = -1; z <= 1; z++)
-                activateMobility(pos + Vec3I{ x, 1, z });
+                this->activateMobility(pos + Vec3I{ x, 1, z });
     }
 
     void activateMobility(const Vec3I & pos)
