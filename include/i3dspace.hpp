@@ -475,24 +475,29 @@ public:
     //// DRAWING ////
     void drawWorld() const
     {
-        for (int x = 0; x <= WLEN; x++)
-            for (int y = 0; y <= HLEN; y++)
-                for (int z = 0; z <= DLEN; z++)
-                    this->drawVoxel({ x, y, z });
+        for (int x = 0; x <= WLEN; x++) for (int y = 0; y <= HLEN; y++) for (int z = 0; z <= DLEN; z++)
+            this->DrawSolidVoxel({ x, y, z });
+        for (int x = 0; x <= WLEN; x++) for (int y = 0; y <= HLEN; y++) for (int z = 0; z <= DLEN; z++)
+            this->DrawWaterVoxel({ x, y, z });
     }
 
-    void drawVoxel(const Vec3I & pos) const
+    void DrawSolidVoxel(const Vec3I & pos) const
     {
         const Voxel & voxel = this->voxel(pos);
+        if (!voxel.hasVisibleSurface || voxel.getBlockClass() != SOLID) return;
+        drawVoxel(pos, voxel);
+    }
+
+    void DrawWaterVoxel(const Vec3I & pos) const
+    {
+        const Voxel & voxel = this->voxel(pos);
+        if (!voxel.hasVisibleSurface || voxel.block != WATER) return;
+        drawVoxel(pos, voxel);
+    }
+
+    void drawVoxel(const Vec3I & pos, const Voxel & voxel) const
+    {
         Vector3 drawOriginPos = pos + this->drawShift;
-
-        if (voxel.isTargeted)
-            // Faces use the minimum corner; DrawCubeWires expects the center
-            DrawCubeWires(drawOriginPos + Vector3{ 0.5f, 0.5f, 0.5f }, 1.0f, 1.0f, 1.0f, BLACK);
-
-        if (!voxel.hasVisibleSurface || voxel.getBlockClass() == GAS)
-            return;
-
         this->drawVoxelFace(drawOriginPos, voxel, pos + RIGHTVOXEL, RIGHT);
         this->drawVoxelFace(drawOriginPos, voxel, pos +  LEFTVOXEL, LEFT);
         this->drawVoxelFace(drawOriginPos, voxel, pos + LOWERVOXEL, BOTTOM);
