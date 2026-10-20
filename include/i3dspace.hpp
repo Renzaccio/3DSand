@@ -269,14 +269,10 @@ public:
     {
         BlockType & block = voxel.block;
 
-        { // The sand block tries to fall straight down
-            const Vec3I & underBlockCoord = pos + LOWERVOXEL;
-
-            if (SAND < this->blockConst(underBlockCoord))
-            {
-                this->swapBlocks(pos, SAND, underBlockCoord, this->block(underBlockCoord));
-                return;
-            }
+        if (SAND < this->blockConst(pos + LOWERVOXEL)) // The sand block tries to fall straight down
+        {
+            this->swapBlocks(pos, SAND, pos + LOWERVOXEL, this->block(pos + LOWERVOXEL));
+            return;
         }
 
         vector<int> validPosIndexVec; // The sand block checks which horizontal directions it is allowed to move in
@@ -294,10 +290,9 @@ public:
 
         for (int posIndex : validPosIndexVec) // The sand block tries to fall sideways
         {
-            const Vec3I & sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
-
-            if (SAND < this->blockConst(sideFallBlockCoord))
+            if (SAND < this->blockConst(pos + this->sideFallPosArr[posIndex]))
             {
+                const Vec3I & sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
                 this->swapBlocks(pos, SAND, sideFallBlockCoord, this->block(sideFallBlockCoord));
                 return;
             }
@@ -320,14 +315,10 @@ public:
     {
         BlockType & block = voxel.block;
 
-        { // The water block tries to fall straight down
-            const Vec3I & underBlockCoord = pos + LOWERVOXEL;
-
-            if (this->blockConst(underBlockCoord) == AIR)
-            {
-                this->swapBlocks(pos, WATER, underBlockCoord, AIR);
-                return;
-            }
+        if (this->blockConst(pos + LOWERVOXEL) == AIR) // The water block tries to fall straight down
+        {
+            this->swapBlocks(pos, WATER, pos + LOWERVOXEL, AIR);
+            return;
         }
 
         vector<int> validPosIndexVec; // The water block checks which horizontal directions it is allowed to move in
@@ -345,22 +336,18 @@ public:
 
         for (int posIndex : validPosIndexVec) // The water block tries to fall sideways
         {
-            const Vec3I & sideFallBlockCoord = pos + this->sideFallPosArr[posIndex];
-
-            if (this->blockConst(sideFallBlockCoord) == AIR)
+            if (this->blockConst(pos + this->sideFallPosArr[posIndex]) == AIR)
             {
-                this->swapBlocks(pos, WATER, sideFallBlockCoord, AIR);
+                this->swapBlocks(pos, WATER, pos + this->sideFallPosArr[posIndex], AIR);
                 return;
             }
         }
 
         for (int posIndex : validPosIndexVec) // The water block tries to move sideways
         {
-            const Vec3I & sideBlockCoord = pos + this->sidePosArr[posIndex];
-
-            if (this->blockConst(sideBlockCoord) == AIR)
+            if (this->blockConst(pos + this->sidePosArr[posIndex]) == AIR)
             {
-                this->swapBlocks(pos, WATER, sideBlockCoord, AIR);
+                this->swapBlocks(pos, WATER, pos + this->sidePosArr[posIndex], AIR);
                 return;
             }
         }
@@ -371,8 +358,8 @@ public:
     void shuffle(vector<int> & vector)
     {
         int size = vector.size();
-        int seed = rand(); // randomization of direction order the sand block will try to move in
-        for (int i = 0; i < vector.size() - 1; i++)
+        int seed = rand();
+        for (int i = 0; i < size - 1; i++)
         {
             int i1 = (i + clock) % size;
             int i2 = ((seed % (size - i) + i) % size + clock) % size;
