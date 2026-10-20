@@ -493,36 +493,19 @@ public:
         if (!voxel.hasVisibleSurface || voxel.getBlockClass() == GAS)
             return;
 
-        {
-            const Voxel & adjacentVoxel = this->voxel(pos + RIGHTVOXEL);
-            if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawOriginPos, adjacentVoxel.block, RIGHT);
-        }
-        {
-            const Voxel & adjacentVoxel = this->voxel(pos + LEFTVOXEL);
-            if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawOriginPos, adjacentVoxel.block, LEFT);
-        }
-        {
-            const Voxel & adjacentVoxel = this->voxel(pos + LOWERVOXEL);
-            if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawOriginPos, adjacentVoxel.block, BOTTOM);
-        }
-        {
-            const Voxel & adjacentVoxel = this->voxel(pos + UPPERVOXEL);
-            if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawOriginPos, adjacentVoxel.block, TOP);
-        }
-        {
-            const Voxel & adjacentVoxel = this->voxel(pos + FRONTVOXEL);
-            if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawOriginPos, adjacentVoxel.block, FRONT);
-        }
-        {
-            const Voxel & adjacentVoxel = this->voxel(pos + BACKVOXEL);
-            if (adjacentVoxel.hasVisibleSurface)
-                voxel.drawFace(drawOriginPos, adjacentVoxel.block, BACK);
-        }
+        this->drawVoxelFace(drawOriginPos, voxel, pos + RIGHTVOXEL, RIGHT);
+        this->drawVoxelFace(drawOriginPos, voxel, pos +  LEFTVOXEL, LEFT);
+        this->drawVoxelFace(drawOriginPos, voxel, pos + LOWERVOXEL, BOTTOM);
+        this->drawVoxelFace(drawOriginPos, voxel, pos + UPPERVOXEL, TOP);
+        this->drawVoxelFace(drawOriginPos, voxel, pos + FRONTVOXEL, FRONT);
+        this->drawVoxelFace(drawOriginPos, voxel, pos +  BACKVOXEL, BACK);
+    }
+
+    void drawVoxelFace(const Vector3 & drawOriginPos, const Voxel & voxel, const Vec3I & adjacentPos, Direction face) const
+    {
+        const Voxel & adjacentVoxel = this->voxel(adjacentPos);
+        if (adjacentVoxel.hasVisibleSurface)
+            voxel.drawFace(drawOriginPos, adjacentVoxel.block, face);
     }
 
     void printWorld() const
