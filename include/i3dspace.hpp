@@ -298,6 +298,8 @@ public:
             }
         }
 
+        if (rand() % 10 >= 1) return;
+
         for (int posIndex : validPosIndexVec) // The sand block tries to move sideways
         {
             if (SAND < this->blockConst(pos + this->diagFallPosArr[posIndex]) || SAND < this->blockConst(pos + this->diagFallPosArr[(posIndex + 1) % this->posAmount]))
@@ -342,6 +344,8 @@ public:
                 return;
             }
         }
+
+        if (rand() % 6 >= 5) return;
 
         for (int posIndex : validPosIndexVec) // The water block tries to move sideways
         {
