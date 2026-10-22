@@ -167,11 +167,11 @@ public:
             DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[1]], position + this->verticesPosArr[faceIndexes[2]], color);
             DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], position + this->verticesPosArr[faceIndexes[3]], color);
 
-            // if (this->block == WATER)
-            // {
-            //     DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[3]], position + this->verticesPosArr[faceIndexes[2]], color);
-            //     DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], position + this->verticesPosArr[faceIndexes[1]], color);
-            // }
+            if (this->block == WATER)
+            {
+                DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[3]], position + this->verticesPosArr[faceIndexes[2]], color);
+                DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], position + this->verticesPosArr[faceIndexes[1]], color);
+            }
 
             // // Display the inside of the world mesh. Only useful for debugging.
             // for (int i = 0; i < 4; i++)

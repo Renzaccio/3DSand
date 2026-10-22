@@ -189,6 +189,9 @@ int main(void)
                 camera.drawInfo();
             }
             EndMode3D();
+
+            if (sworld.getBlock(camera.getPos()) == WATER)
+                DrawRectangle(0, 0, screenWidth, screenWidth, Color{ 0, 121, 241, 92 });
             //// End of 3D RENDER ////
 
 

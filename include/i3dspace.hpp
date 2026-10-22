@@ -133,6 +133,8 @@ public:
     const BlockType & block(const Vec3I & v)          const { return (this->voxel(v)).block; }
 
     const BlockType & blockConst(const Vec3I & v)     const { return (this->voxel(v)).block; }
+
+    const BlockType & getBlock(const Vector3 & v)     const { return (this->voxel(toVec3I((Vector3) { v - drawShift} )).block); }
     //// End of BASE FUNCTIONS ////
 
 

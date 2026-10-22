@@ -41,7 +41,9 @@ public:
         this->focusDistance = 100.0f;
     }
 
-    bool getIsInFirstPerson() const { return isInFirstPerson; }
+    const Vector3 & getPos() const { return this->position; }
+
+    bool getIsInFirstPerson() const { return this->isInFirstPerson; }
 
     void moveCamera(int fps)
     {
@@ -110,7 +112,7 @@ public:
 
         Vector3 lateralDirection = Vector3CrossProduct(verticalDirection, forwardDirection);
 
-        this->position += ( // Position update
+        this->position += ( // Actual translation
             (IsKeyDown(KEY_W) - IsKeyDown(KEY_S)) * forwardDirection +
             (IsKeyDown(KEY_A) - IsKeyDown(KEY_D)) * lateralDirection +
             (IsKeyDown(KEY_E) - IsKeyDown(KEY_Q)) * verticalDirection

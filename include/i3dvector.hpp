@@ -45,11 +45,7 @@ inline Vec3I   & operator += (Vec3I   & lhs, const Vec3I & rhs) { lhs = lhs + rh
 inline Vector3 & operator -= (Vector3 & lhs, const Vec3I & rhs) { lhs = lhs - rhs; return lhs; }
 inline Vector3 & operator += (Vector3 & lhs, const Vec3I & rhs) { lhs = lhs + rhs; return lhs; }
 
-inline bool operator == (const Vec3I & lhs, const Vec3I & rhs)
-{
-    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
-}
-inline bool operator != (const Vec3I & lhs, const Vec3I & rhs)
-{
-    return lhs.x != rhs.x || lhs.y != rhs.y || lhs.z != rhs.z;
-}
+inline bool operator == (const Vec3I & lhs, const Vec3I & rhs) { return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z; }
+inline bool operator != (const Vec3I & lhs, const Vec3I & rhs) { return lhs.x != rhs.x || lhs.y != rhs.y || lhs.z != rhs.z; }
+
+inline Vec3I toVec3I(const Vector3 & v) { return {(int) v.x, (int) v.y, (int) v.z }; }
