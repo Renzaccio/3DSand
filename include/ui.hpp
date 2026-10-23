@@ -467,7 +467,7 @@ Dock buildMenu(DockRay & dockray)
     dock.addAction("settings", "settings::interaction::hold", "Selection\nHold", [&dockray]() { dockray.state = HOLD; });
     dock.addAction("settings", "settings::interaction::click", "Selection\nClick", [&dockray]() { dockray.state = CLICK; });
     dock.addAction("settings", "settings::interaction::upradiusmassive", "Massive\nRadius +", [&dockray]() { dockray.massiveRadius++; });
-    dock.addAction("settings", "settings::interaction::downradiusmassive", "Massive\nRadius -", [&dockray]() { dockray.massiveRadius--; });
+    dock.addAction("settings", "settings::interaction::downradiusmassive", "Massive\nRadius -", [&dockray]() { if ((dockray.massiveRadius-1) > 0) dockray.massiveRadius--; });
 
     return dock;
 }
