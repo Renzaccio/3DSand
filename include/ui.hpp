@@ -304,14 +304,15 @@ struct Dock
     }
 };
 
-enum DockTools { NORMAL, RAIN }; // define existing tools
-enum DockRayMode { CLICK, HOLD };        // define mouse pression mode detecton (Compulsive=IsMouseButtonDown, OnePerOne=IsMouseButtonPressed)
+enum DockTools { NORMAL, RAIN, NORMAL_MASSIVE, RAIN_MASSIVE }; // define existing tools
+enum DockRayMode { CLICK, HOLD };        // define mouse pression mode detecton (HOLD=IsMouseButtonDown, CLICK=IsMouseButtonPressed)
 struct DockRay
 {
     Vec3I targetedPos{ 0,0,0 };             // voxel targeted by Dock ray
     BlockType dockSelectedBlock = SAND;     // the selected block in ui
     DockRayMode state = HOLD;
     DockTools tool = NORMAL;
+    int massiveRadius = 10;
 
     template<int WLEN, int HLEN, int DLEN>
     void rayTest(Int3DSpace<WLEN, HLEN, DLEN> & sworld, Camera & camera, Dock & dockMenu) // we take the closest block to camera
@@ -381,11 +382,60 @@ struct DockRay
                         break;
                     }
                     case RAIN:
+                    {
                         posToEdit.y = HLEN - 1;
                         sworld.block(posToEdit) = this->dockSelectedBlock;
                         sworld.activateAllNeighboursSurfaceVisibility(posToEdit);
                         sworld.activateNeighboursMobility(posToEdit);
                         break;
+                    }
+                    case NORMAL_MASSIVE:
+                    {
+                        Vector3 norm = collision.normal;
+                        if (this->dockSelectedBlock != AIR)
+                            posToEdit += Vec3I{
+                                (int) roundf(norm.x),
+                                (int) roundf(norm.y),
+                                (int) roundf(norm.z)
+                            }; 
+                        if (!sworld.isInBounds(posToEdit))
+                            break;
+
+                        for (int z = posToEdit.z-massiveRadius; z < posToEdit.z+massiveRadius; z++)
+                        {
+                            for (int x = posToEdit.x-massiveRadius; x < posToEdit.x+massiveRadius; x++) 
+                            {
+                                Vec3I curPosToEdit{ x, posToEdit.y, z };
+                                if (!sworld.isInBounds(curPosToEdit))
+                                    continue;
+
+                                sworld.block(curPosToEdit) = this->dockSelectedBlock;
+                                sworld.activateAllNeighboursSurfaceVisibility(curPosToEdit);
+                                sworld.activateNeighboursMobility(curPosToEdit);
+                            }
+                        }
+
+                        break;
+                    }
+
+                    case RAIN_MASSIVE:
+                    {
+                        for (int z = posToEdit.z-massiveRadius; z < posToEdit.z+massiveRadius; z++)
+                        {
+                            for (int x = posToEdit.x-massiveRadius; x < posToEdit.x+massiveRadius; x++) 
+                            {
+                                Vec3I curPosToEdit{ x, HLEN - 1, z };
+                                if (!sworld.isInBounds(curPosToEdit))
+                                    continue;
+
+                                sworld.block(curPosToEdit) = this->dockSelectedBlock;
+                                sworld.activateAllNeighboursSurfaceVisibility(curPosToEdit);
+                                sworld.activateNeighboursMobility(curPosToEdit);
+                            }
+                        }
+
+                        break;
+                    }
                 }
             }
         }
@@ -410,10 +460,14 @@ Dock buildMenu(DockRay & dockray)
     dock.addAction("blocks", "blocks::debug", "Debug (7)", [&dockray]() { dockray.dockSelectedBlock = DEBUG; });
 
     dock.addAction("tools", "tools::normal", "Place Block", [&dockray]() { dockray.tool = NORMAL; });
+    dock.addAction("tools", "tools::normalmassive", "Place Massive", [&dockray]() { dockray.tool = NORMAL_MASSIVE; });
     dock.addAction("tools", "tools::rain", "Rain", [&dockray]() { dockray.tool = RAIN; });
+    dock.addAction("tools", "tools::rainmassive", "Rain Massive", [&dockray]() { dockray.tool = RAIN_MASSIVE; });
 
     dock.addAction("settings", "settings::interaction::hold", "Selection\nHold", [&dockray]() { dockray.state = HOLD; });
     dock.addAction("settings", "settings::interaction::click", "Selection\nClick", [&dockray]() { dockray.state = CLICK; });
+    dock.addAction("settings", "settings::interaction::upradiusmassive", "Massive\nRadius +", [&dockray]() { dockray.massiveRadius++; });
+    dock.addAction("settings", "settings::interaction::downradiusmassive", "Massive\nRadius -", [&dockray]() { dockray.massiveRadius--; });
 
     return dock;
 }
