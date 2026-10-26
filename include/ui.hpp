@@ -5,6 +5,7 @@
 #include "counter.hpp"
 #include "i3dspace.hpp"
 #include "i3dvector.hpp"
+#include "furnitures.hpp"
 
 using namespace std;
 
@@ -304,13 +305,14 @@ struct Dock
     }
 };
 
-enum DockTools { NORMAL, RAIN, NORMAL_MASSIVE, RAIN_MASSIVE }; // define existing tools
+enum DockTools { NORMAL, NORMAL_FURNITURE, RAIN, NORMAL_MASSIVE, RAIN_MASSIVE }; // define existing tools
 enum DockRayMode { CLICK, HOLD };        // define mouse pression mode detecton (HOLD=IsMouseButtonDown, CLICK=IsMouseButtonPressed)
 struct DockRay
 {
     Vec3I targetedPos{ 0,0,0 };             // voxel targeted by Dock ray
     BlockType dockSelectedBlock = SAND;     // the selected block in ui
     DockRayMode state = HOLD;
+    VoxelLogicalGroup dockSelectedFurniture = createChair(Vec3I { 0, 0, 0 });
     DockTools tool = NORMAL;
     int massiveRadius = 10;
 
@@ -436,6 +438,20 @@ struct DockRay
 
                         break;
                     }
+
+                    case NORMAL_FURNITURE:
+                    {
+                        Vec3I dimensions = dockSelectedFurniture.getDimensions();
+
+                        if (sworld.isInBounds(posToEdit) &&
+                            sworld.isInBounds(posToEdit + dimensions - Vec3I{1, 1, 1}))
+                        {
+                            dockSelectedFurniture.origin = posToEdit;
+                            sworld.addNewStaticStructure(dockSelectedFurniture);
+                        }
+
+                        break;
+                    }
                 }
             }
         }
@@ -447,22 +463,25 @@ Dock buildMenu(DockRay & dockray)
     Dock dock;
 
     dock.addSectionMenu("blocks", "Blocks selection");
+    dock.addSectionMenu("furnitures", "Furnitures selection");
     dock.addSectionMenu("tools", "Tools");
     dock.addSectionMenu("settings", "Interaction Settings");
 
-    dock.addAction("blocks", "blocks::sand", "Sand (1)", [&dockray]() { dockray.dockSelectedBlock = SAND; });
-    dock.addAction("blocks", "blocks::air", "Air (2)", [&dockray]() { dockray.dockSelectedBlock = AIR; });
-    dock.addAction("blocks", "blocks::dirt", "Dirt (3)", [&dockray]() { dockray.dockSelectedBlock = DIRT; });
+    dock.addAction("blocks", "blocks::sand", "Sand (1)", [&dockray]() { dockray.dockSelectedBlock = SAND; dockray.state = HOLD; dockray.tool = NORMAL; });
+    dock.addAction("blocks", "blocks::air", "Air (2)", [&dockray]() { dockray.dockSelectedBlock = AIR; dockray.state = CLICK; dockray.tool = NORMAL; });
+    dock.addAction("blocks", "blocks::dirt", "Dirt (3)", [&dockray]() { dockray.dockSelectedBlock = DIRT; dockray.state = CLICK; dockray.tool = NORMAL; });
+    dock.addAction("blocks", "blocks::water", "Water (4)", [&dockray]() { dockray.dockSelectedBlock = WATER; dockray.state = HOLD; dockray.tool = NORMAL; });
+    dock.addAction("blocks", "blocks::wood", "Wood (5)", [&dockray]() { dockray.dockSelectedBlock = WOOD; dockray.state = CLICK; dockray.tool = NORMAL; });
+    dock.addAction("blocks", "blocks::stone", "Stone (6)", [&dockray]() { dockray.dockSelectedBlock = STONE; dockray.state = CLICK; dockray.tool = NORMAL; });
+    dock.addAction("blocks", "blocks::debug", "Debug (7)", [&dockray]() { dockray.dockSelectedBlock = DEBUG; dockray.state = CLICK; dockray.tool = NORMAL; });
 
-    dock.addAction("blocks", "blocks::water", "Water (4)", [&dockray]() { dockray.dockSelectedBlock = WATER; });
-    dock.addAction("blocks", "blocks::wood", "Wood (5)", [&dockray]() { dockray.dockSelectedBlock = WOOD; });
-    dock.addAction("blocks", "blocks::stone", "Stone (6)", [&dockray]() { dockray.dockSelectedBlock = STONE; });
-    dock.addAction("blocks", "blocks::debug", "Debug (7)", [&dockray]() { dockray.dockSelectedBlock = DEBUG; });
+    dock.addAction("furnitures", "furnitures::chair", "Chair", [&dockray]() { dockray.dockSelectedFurniture = createChair(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
+    dock.addAction("furnitures", "furnitures::table", "Table", [&dockray]() { dockray.dockSelectedFurniture = createTable(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
+    dock.addAction("furnitures", "furnitures::table", "Footprint", [&dockray]() { dockray.dockSelectedFurniture = createGiantFoot(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
 
-    dock.addAction("tools", "tools::normal", "Place Block", [&dockray]() { dockray.tool = NORMAL; });
-    dock.addAction("tools", "tools::normalmassive", "Place Massive", [&dockray]() { dockray.tool = NORMAL_MASSIVE; });
+    dock.addAction("tools", "tools::normalmassive", "Place\nMassive", [&dockray]() { dockray.tool = NORMAL_MASSIVE; });
     dock.addAction("tools", "tools::rain", "Rain", [&dockray]() { dockray.tool = RAIN; });
-    dock.addAction("tools", "tools::rainmassive", "Rain Massive", [&dockray]() { dockray.tool = RAIN_MASSIVE; });
+    dock.addAction("tools", "tools::rainmassive", "Rain\nMassive", [&dockray]() { dockray.tool = RAIN_MASSIVE; });
 
     dock.addAction("settings", "settings::interaction::hold", "Selection\nHold", [&dockray]() { dockray.state = HOLD; });
     dock.addAction("settings", "settings::interaction::click", "Selection\nClick", [&dockray]() { dockray.state = CLICK; });

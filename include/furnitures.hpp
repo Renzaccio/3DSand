@@ -18,11 +18,38 @@ public:
     int id;
     Vec3I origin;
     vector<LogicalVoxel> mask; // the schematic around origin vec {{(0,1,1),WOOD}, {(-1,-1,0),STONE}, ...}
-    
 
     VoxelLogicalGroup(Vec3I o, vector<LogicalVoxel> schematic) : 
         id { VoxelLogicalGroup::count++ }, origin { o }, mask { schematic }  {}
     VoxelLogicalGroup() : VoxelLogicalGroup { Vec3I { 0,0,0 }, vector<LogicalVoxel>{} } {}
+
+    Vec3I getDimensions() const
+    {
+        if (this->mask.empty())
+            return {0, 0, 0};
+
+        Vec3I min = this->mask[0].localPos;
+        Vec3I max = this->mask[0].localPos;
+
+        for (const LogicalVoxel& lv : this->mask)
+        {
+            const Vec3I& p = lv.localPos;
+
+            min.x = std::min(min.x, p.x);
+            min.y = std::min(min.y, p.y);
+            min.z = std::min(min.z, p.z);
+
+            max.x = std::max(max.x, p.x);
+            max.y = std::max(max.y, p.y);
+            max.z = std::max(max.z, p.z);
+        }
+
+        return {
+            max.x - min.x + 1,
+            max.y - min.y + 1,
+            max.z - min.z + 1
+        };
+    }
 };
 
 // parsing strings to build furnitures 
