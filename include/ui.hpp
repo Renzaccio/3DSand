@@ -6,6 +6,8 @@
 #include "i3dspace.hpp"
 #include "i3dvector.hpp"
 #include "furnitures.hpp"
+#include "../raylib/include/raylib.h"
+#include <sstream>
 
 using namespace std;
 
@@ -180,144 +182,44 @@ struct DockActionSupport {
 typedef unordered_map<string, DockActionSupport> DockActions;
 typedef unordered_map<string, RPressButton> DockMenu;
 const Color MENU_BLACK { 20,20,20, 200 };
-struct Dock
-{
-    DockMenu menu;
-    DockActions actions;
-    string currentMenu = "";
-    Counter<17> beginYMenu;
-    bool isVisible = true;
-
-    void addSectionMenu(string menuKey, string menuName)
-    {
-        if (!this->menu.contains(menuKey))
-        {
-            RPressButton rbtn { (float) (GetRenderWidth()-(MeasureText(menuName.c_str(), 17)+10)), (float) beginYMenu(), (float) (MeasureText(menuName.c_str(), 17)+5), 17.0, BLACK,
-                [this, menuKey](RPressButton & _) {
-                    this->hideAllActions(); // Hide all actions menus
-                    this->selectSectionMenu(menuKey);
-
-                    for (auto & acts : this->actions) // show logical group that respect current key
-                        if (acts.second.originMenu == menuKey)
-                        {
-                            acts.second.rbtns.showAll();
-                            break;
-                        }
-                },
-            menuName, 17, WHITE };
-
-            this->menu.insert_or_assign(menuKey, rbtn);
-        }
-    }
-
-    void selectSectionMenu(string menuKey)
-    {
-        if (this->menu.contains(menuKey))
-            this->currentMenu = menuKey;
-    }
-
-    void addAction(string menuKey, string actKey, string actName, function<void()> cb)
-    {
-        float sizeOfText = (float) (MeasureText(actName.c_str(), 17)+15);
-
-        if (this->actions.contains(menuKey))
-        {
-            RPressButton rbtn { (float) this->actions[menuKey].beginXActions(), (float) (GetRenderHeight()-100), 100, 70.0, MENU_BLACK,
-                [actKey, cb](RPressButton & rpb)
-                {
-                    if (rpb.getPayload() == actKey)
-                        cb();
-                },
-            actName, 15, WHITE };
-
-            rbtn.setVisibility(false);
-            rbtn.setPayload(actKey);
-
-            this->actions[menuKey].rbtns.push(rbtn);
-        }
-        else
-        {
-            RPressButton rbtn { 0.0, (float) (GetRenderHeight()-100), 100, 70.0, MENU_BLACK,
-                [actKey, cb](RPressButton & rpb)
-                {
-                    if (rpb.getPayload() == actKey)
-                        cb();
-                },
-            actName, 15, WHITE };
-
-            rbtn.setVisibility(false);
-            rbtn.setPayload(actKey);
-
-            this->actions.insert_or_assign(
-                menuKey,
-                DockActionSupport {
-                    menuKey,
-                    RPressButtonLogicalGroup {
-                        vector<RPressButton>{ { rbtn } }
-                    },
-                    Counter<100>{ (100) }
-                }
-            );
-        }
-    }
-
-    void hideAllActions() {
-        for (auto & acts : this->actions)
-            acts.second.rbtns.hideAll();
-    }
-
-    void draw()
-    {
-        for (auto & sectionMenu : this->menu)
-        {
-            if (this->currentMenu == sectionMenu.first)
-            {
-                sectionMenu.second.setBackgroundColor(YELLOW);
-                sectionMenu.second.setTextColor(BLACK);
-            }
-            else
-            {
-                sectionMenu.second.setTextColor(WHITE);
-                sectionMenu.second.setBackgroundColor(BLACK);
-            }
-            sectionMenu.second.draw();
-        }
-
-        for (auto & acts : this->actions)
-            acts.second.rbtns.drawAll();
-    }
-
-    void pressDetection()
-    {
-        for (auto & sectionMenu : this->menu)
-            sectionMenu.second.executeIfPressed();
-
-        for (auto & acts : this->actions)
-            if (this->currentMenu == acts.first)
-            {
-                string pressedOne = acts.second.rbtns.pressDetection();
-
-                if (pressedOne != "unknown")
-                    acts.second.rbtns.updateColorsByPayload(YELLOW, MENU_BLACK, pressedOne);
-                else
-                    acts.second.rbtns.updateColors(MENU_BLACK, WHITE);
-            }
-    }
-};
 
 enum DockTools { NORMAL, NORMAL_FURNITURE, RAIN, NORMAL_MASSIVE, RAIN_MASSIVE }; // define existing tools
+inline ostream & operator << (ostream & stream, DockTools tool)
+{
+    switch (tool) {
+        case NORMAL: stream << "NORMAL"; break;
+        case NORMAL_FURNITURE: stream << "NORMAL_FURNITURE"; break;
+        case RAIN: stream << "RAIN"; break;
+        case NORMAL_MASSIVE: stream << "NORMAL_MASSIVE"; break;
+        case RAIN_MASSIVE: stream << "RAIN_MASSIVE"; break;
+    }
+
+    return stream;
+}
+
 enum DockRayMode { CLICK, HOLD };        // define mouse pression mode detecton (HOLD=IsMouseButtonDown, CLICK=IsMouseButtonPressed)
+inline ostream & operator << (ostream & stream, DockRayMode raymode)
+{
+    switch (raymode) {
+        case CLICK: stream << "CLICK"; break;
+        case HOLD: stream << "HOLD"; break;
+    }
+
+    return stream;
+}
+
 struct DockRay
 {
     Vec3I targetedPos{ 0,0,0 };             // voxel targeted by Dock ray
     BlockType dockSelectedBlock = SAND;     // the selected block in ui
     DockRayMode state = HOLD;
     VoxelLogicalGroup dockSelectedFurniture = createChair(Vec3I { 0, 0, 0 });
+    string dockSelectedFurnitureName = "Chair";
     DockTools tool = NORMAL;
     int massiveRadius = 10;
 
     template<int WLEN, int HLEN, int DLEN>
-    void rayTest(Int3DSpace<WLEN, HLEN, DLEN> & sworld, Camera & camera, Dock & dockMenu) // we take the closest block to camera
+    void rayTest(Int3DSpace<WLEN, HLEN, DLEN> & sworld, Camera & camera) // we take the closest block to camera
     {
         Ray ray = { 0 };
         RayCollision collision = { 0 };
@@ -458,7 +360,155 @@ struct DockRay
     }
 };
 
-Dock buildMenu(DockRay & dockray)
+struct Dock
+{
+public:
+    DockMenu menu;
+    DockActions actions;
+    DockRay dockray{};
+    string currentMenu = "";
+    Counter<17> beginYMenu;
+    bool isVisible = true;
+
+    void addSectionMenu(string menuKey, string menuName)
+    {
+        if (!this->menu.contains(menuKey))
+        {
+            RPressButton rbtn { (float) (GetRenderWidth()-(MeasureText(menuName.c_str(), 17)+10)), (float) beginYMenu(), (float) (MeasureText(menuName.c_str(), 17)+5), 17.0, BLACK,
+                [this, menuKey](RPressButton & _) {
+                    this->hideAllActions(); // Hide all actions menus
+                    this->selectSectionMenu(menuKey);
+
+                    for (auto & acts : this->actions) // show logical group that respect current key
+                        if (acts.second.originMenu == menuKey)
+                        {
+                            acts.second.rbtns.showAll();
+                            break;
+                        }
+                },
+            menuName, 17, WHITE };
+
+            this->menu.insert_or_assign(menuKey, rbtn);
+        }
+    }
+
+    void selectSectionMenu(string menuKey)
+    {
+        if (this->menu.contains(menuKey))
+            this->currentMenu = menuKey;
+    }
+
+    void addAction(string menuKey, string actKey, string actName, function<void()> cb)
+    {
+        float sizeOfText = (float) (MeasureText(actName.c_str(), 17)+15);
+
+        if (this->actions.contains(menuKey))
+        {
+            RPressButton rbtn { (float) this->actions[menuKey].beginXActions(), (float) (GetRenderHeight()-100), 100, 70.0, MENU_BLACK,
+                [actKey, cb](RPressButton & rpb)
+                {
+                    if (rpb.getPayload() == actKey)
+                        cb();
+                },
+            actName, 15, WHITE };
+
+            rbtn.setVisibility(false);
+            rbtn.setPayload(actKey);
+
+            this->actions[menuKey].rbtns.push(rbtn);
+        }
+        else
+        {
+            RPressButton rbtn { 0.0, (float) (GetRenderHeight()-100), 100, 70.0, MENU_BLACK,
+                [actKey, cb](RPressButton & rpb)
+                {
+                    if (rpb.getPayload() == actKey)
+                        cb();
+                },
+            actName, 15, WHITE };
+
+            rbtn.setVisibility(false);
+            rbtn.setPayload(actKey);
+
+            this->actions.insert_or_assign(
+                menuKey,
+                DockActionSupport {
+                    menuKey,
+                    RPressButtonLogicalGroup {
+                        vector<RPressButton>{ { rbtn } }
+                    },
+                    Counter<100>{ (100) }
+                }
+            );
+        }
+    }
+
+    void hideAllActions() {
+        for (auto & acts : this->actions)
+            acts.second.rbtns.hideAll();
+    }
+
+    void draw()
+    {
+        for (auto & sectionMenu : this->menu)
+        {
+            if (this->currentMenu == sectionMenu.first)
+            {
+                sectionMenu.second.setBackgroundColor(YELLOW);
+                sectionMenu.second.setTextColor(BLACK);
+            }
+            else
+            {
+                sectionMenu.second.setTextColor(WHITE);
+                sectionMenu.second.setBackgroundColor(BLACK);
+            }
+            sectionMenu.second.draw();
+        }
+
+        for (auto & acts : this->actions)
+            acts.second.rbtns.drawAll();
+
+        // showing states  
+        Counter<20> c{ this->beginYMenu.get() }; c();
+
+        ostringstream toolSelected;
+        toolSelected << "Tool : " << this->dockray.tool; 
+        DrawText(toolSelected.str().c_str(), (float) (GetRenderWidth()-(MeasureText(toolSelected.str().c_str(), 17)+10)), c(), 17, BLACK);
+
+        ostringstream blockSelected;
+        blockSelected << "Block  : " << this->dockray.dockSelectedBlock; 
+        DrawText(blockSelected.str().c_str(), (float) (GetRenderWidth()-(MeasureText(blockSelected.str().c_str(), 17)+10)),
+            c(), 17, (this->dockray.tool != NORMAL_FURNITURE) ? GREEN : RED);
+
+        ostringstream furnitureSelected;
+        furnitureSelected << "Furniture  : " << this->dockray.dockSelectedFurnitureName; 
+        DrawText(furnitureSelected.str().c_str(), (float) (GetRenderWidth()-(MeasureText(furnitureSelected.str().c_str(), 17)+10)), 
+            c(), 17, (this->dockray.tool == NORMAL_FURNITURE) ? GREEN : RED);
+
+        ostringstream clickModeSelected;
+        clickModeSelected << "Click Mode  : " << this->dockray.state; 
+        DrawText(clickModeSelected.str().c_str(), (float) (GetRenderWidth()-(MeasureText(clickModeSelected.str().c_str(), 17)+10)), c(), 17, BLACK);
+    }
+
+    void pressDetection()
+    {
+        for (auto & sectionMenu : this->menu)
+            sectionMenu.second.executeIfPressed();
+
+        for (auto & acts : this->actions)
+            if (this->currentMenu == acts.first)
+            {
+                string pressedOne = acts.second.rbtns.pressDetection();
+
+                if (pressedOne != "unknown")
+                    acts.second.rbtns.updateColorsByPayload(YELLOW, MENU_BLACK, pressedOne);
+                else
+                    acts.second.rbtns.updateColors(MENU_BLACK, WHITE);
+            }
+    }
+};
+
+Dock buildMenu()
 {
     Dock dock;
 
@@ -466,6 +516,8 @@ Dock buildMenu(DockRay & dockray)
     dock.addSectionMenu("furnitures", "Furnitures selection");
     dock.addSectionMenu("tools", "Tools");
     dock.addSectionMenu("settings", "Interaction Settings");
+
+    DockRay & dockray = dock.dockray;
 
     dock.addAction("blocks", "blocks::sand", "Sand (1)", [&dockray]() { dockray.dockSelectedBlock = SAND; dockray.state = HOLD; dockray.tool = NORMAL; });
     dock.addAction("blocks", "blocks::air", "Air (2)", [&dockray]() { dockray.dockSelectedBlock = AIR; dockray.state = CLICK; dockray.tool = NORMAL; });
@@ -475,9 +527,9 @@ Dock buildMenu(DockRay & dockray)
     dock.addAction("blocks", "blocks::stone", "Stone (6)", [&dockray]() { dockray.dockSelectedBlock = STONE; dockray.state = CLICK; dockray.tool = NORMAL; });
     dock.addAction("blocks", "blocks::debug", "Debug (7)", [&dockray]() { dockray.dockSelectedBlock = DEBUG; dockray.state = CLICK; dockray.tool = NORMAL; });
 
-    dock.addAction("furnitures", "furnitures::chair", "Chair", [&dockray]() { dockray.dockSelectedFurniture = createChair(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
-    dock.addAction("furnitures", "furnitures::table", "Table", [&dockray]() { dockray.dockSelectedFurniture = createTable(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
-    dock.addAction("furnitures", "furnitures::table", "Footprint", [&dockray]() { dockray.dockSelectedFurniture = createGiantFoot(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
+    dock.addAction("furnitures", "furnitures::chair", "Chair", [&dockray]() { dockray.dockSelectedFurnitureName = "Chair"; dockray.dockSelectedFurniture = createChair(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
+    dock.addAction("furnitures", "furnitures::table", "Table", [&dockray]() { dockray.dockSelectedFurnitureName = "Table"; dockray.dockSelectedFurniture = createTable(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
+    dock.addAction("furnitures", "furnitures::table", "Footprint", [&dockray]() { dockray.dockSelectedFurnitureName = "Giant Foot"; dockray.dockSelectedFurniture = createGiantFoot(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
 
     dock.addAction("tools", "tools::normalmassive", "Place\nMassive", [&dockray]() { dockray.tool = NORMAL_MASSIVE; });
     dock.addAction("tools", "tools::rain", "Rain", [&dockray]() { dockray.tool = RAIN; });

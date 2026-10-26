@@ -78,8 +78,7 @@ int main(void)
         RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS](RPressButton& r) { targetFPS += 10;                                          SetTargetFPS(targetFPS); }, "+10", fontSize, BLACK },
     }};
 
-    DockRay menuRaySupport;
-    Dock menu = buildMenu(menuRaySupport);
+    Dock menu = buildMenu();
     //// End of UI SETUP ////
 
 
@@ -168,7 +167,7 @@ int main(void)
         menu.pressDetection();
 
         // Mouse interaction with the world
-        menuRaySupport.rayTest<WL, HL, DL>(sworld, camera, menu);
+        menu.dockray.rayTest<WL, HL, DL>(sworld, camera);
 
         BeginDrawing();
         {
