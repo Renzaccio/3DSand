@@ -2,6 +2,8 @@
 
 #include "blocks.hpp"
 #include "i3dvector.hpp"
+#include "furnitures.hpp"
+#include <unordered_map>
 
 using namespace std;
 
@@ -14,6 +16,7 @@ private:
 
     WorldMTX mtx;
     const Voxel border{ BORDER };
+    unordered_map<int, VoxelLogicalGroup> staticVoxelsGroups;
 
     WorldMTX & getWorld()             { return this->mtx; }
     const WorldMTX & getWorld() const { return this->mtx; }
@@ -175,31 +178,19 @@ public:
         this->block(rand() % (xStart - xEnd) + xStart, HLEN - 1, rand() % (zStart - zEnd) + zStart) = block;
     }
 
-    void placeChair3x4x3(const Vec3I & origin)
+    void addNewStaticStructure(VoxelLogicalGroup group)
     {
-        // stands
-        this->placeBlock(origin + Vec3I{ 0, 0, 0 }, WOOD);
-        this->placeBlock(origin + Vec3I{ 0, 0, 2 }, WOOD);
-        this->placeBlock(origin + Vec3I{ 2, 0, 0 }, WOOD);
-        this->placeBlock(origin + Vec3I{ 2, 0, 2 }, WOOD);
+        for (LogicalVoxel lv : group.mask)
+        {
+            Vec3I c = group.origin + lv.localPos;
+            Voxel & currentVoxel = this->voxel(c);
+            currentVoxel.block = lv.type;
+            if ((currentVoxel.block != WATER) && (currentVoxel.block != SAND))
+                currentVoxel.group = group.id;
+            this->activateAllNeighboursSurfaceVisibility(c);
+        }
 
-        // tray
-        this->placeParallelepiped(origin + Vec3I{ 0, 1, 0 }, origin + Vec3I{ 2, 1, 2 }, WOOD);
-
-        // backrest
-        this->placeParallelepiped(origin + Vec3I{ 0, 2, 2 }, origin + Vec3I{ 2, 3, 2 }, WOOD);
-    }
-
-    void placeTable5x4x5(const Vec3I & origin)
-    {
-        // stands
-        this->placeParallelepiped(origin + Vec3I{ 0, 0, 0 }, origin + Vec3I{ 0, 2, 0 }, STONE);
-        this->placeParallelepiped(origin + Vec3I{ 0, 0, 4 }, origin + Vec3I{ 0, 2, 4 }, STONE);
-        this->placeParallelepiped(origin + Vec3I{ 4, 0, 0 }, origin + Vec3I{ 4, 2, 0 }, STONE);
-        this->placeParallelepiped(origin + Vec3I{ 4, 0, 4 }, origin + Vec3I{ 4, 2, 4 }, STONE);
-
-        // tray
-        this->placeParallelepiped(origin + Vec3I{ 0, 3, 0 }, origin + Vec3I{ 4, 3, 4 }, WOOD);
+        this->staticVoxelsGroups[group.id] = group;
     }
     //// End of WORLD MODIFICATION ////
 
@@ -251,6 +242,9 @@ public:
     void voxelStep(const Vec3I & pos)
     {
         Voxel & voxel = this->voxel(pos);
+
+        if ((voxel.group >= 0) && (voxel.block != WATER) && (voxel.block != SAND))
+            return;
 
         if (!voxel.canMove) return;
 
@@ -480,6 +474,7 @@ public:
     {
         for (int x = 0; x <= WLEN; x++) for (int y = 0; y <= HLEN; y++) for (int z = 0; z <= DLEN; z++)
             this->DrawSolidVoxel({ x, y, z });
+
         for (int x = 0; x <= WLEN; x++) for (int y = 0; y <= HLEN; y++) for (int z = 0; z <= DLEN; z++)
             this->DrawWaterVoxel({ x, y, z });
     }

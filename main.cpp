@@ -30,19 +30,13 @@ int main(void)
         sworld.placeFlatFloor(i, STONE);
     sworld.placeFlatFloor(4, DIRT);
 
+    sworld.addNewStaticStructure(createChair(Vec3I { 2, 5,  2 }));
+    sworld.addNewStaticStructure(createTable(Vec3I { 2, 5, 6 }));
+
     sworld.placeParallelepiped({ 20,  0, 20 }, { 40, 20, 40 }, STONE);
     sworld.placeParallelepiped({ 22,  2, 22 }, { 38, 20, 38 }, AIR);
     sworld.placeParallelepiped({ 24,  17, 20 }, { 25, 18, 21 }, AIR);
-
     sworld.placeParallelepiped({ 22,  2, 22 }, { 38, 15, 38 }, WATER);
-
-    sworld.placeChair3x4x3({  2, 5,  2 });
-    sworld.placeTable5x4x5({ 10, 5, 10 });
-
-    // OOB place() calls for testing
-    // sworld.placeFlatFloor(100, DIRT);
-    // sworld.placeChair3x4x3({  9, 2, -1 });
-    // sworld.placeTable5x4x5({ -3, 2,  8 });
 
     sworld.updateWorldVoxelSurfaceVisibility();
 
