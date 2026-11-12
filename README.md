@@ -1,4 +1,5 @@
 # 3DSand
+![Sand accumulating into a pile](images/sandpile.png?raw=true "Title")
 
 ### Installation
 - Clone the repo using `git clone https://github.com/Renzaccio/3DSand.git`.
