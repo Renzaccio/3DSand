@@ -15,12 +15,12 @@
 They are all indicated on window when the program is running.
 | ACTION                     | AZERTY        | QWERTY        |
 | :-                         | :-:           | :-:           |
-| Start / Pause              | `Space`       | `Space`       |
-| Enable Pouring             | `R`           | `R`           |
-| Camera: Toggle Laid Back   | `F`           | `F`           |
-| Camera: Lateral Moves      | `ZQSD`        | `WASD`        |
-| Camera: Vertical Moves     | `E`/`A`       | `E`/`Q`       |
-| Camera: Rotation           | Arrow Keys    | Arrow Keys    |
-| Camera: Fast Mode          | Hold `Shift`  | Hold `Shift`  |
-| Camera: Slow Mode          | Hold `Ctrl`   | Hold `Ctrl`   |
+| Toggle Simulation          | `Space`       | `Space`       |
+| Toggle Pouring             | `R`           | `R`           |
+| Camera - Toggle Laid Back  | `F`           | `F`           |
+| Camera - Lateral Moves     | `ZQSD`        | `WASD`        |
+| Camera - Vertical Moves    | `E`/`A`       | `E`/`Q`       |
+| Camera - Rotation          | Arrow Keys    | Arrow Keys    |
+| Camera - Fast Mode         | Hold `Shift`  | Hold `Shift`  |
+| Camera - Slow Mode         | Hold `Ctrl`   | Hold `Ctrl`   |
 | Place Blocks               | `LMB`         | `LMB`         |
