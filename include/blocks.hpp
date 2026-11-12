@@ -7,6 +7,12 @@
 
 using namespace std;
 
+bool outsideFace = true;
+bool insideFace = false;
+bool grid = false;
+
+bool onlyCanMove = false;
+
 enum BlockType { BORDER, DEBUG, STONE, WOOD, DIRT, SAND, WATER, AIR };
 
 enum BlockClass { SOLID, LIQUID, GAS };
@@ -160,23 +166,30 @@ public:
     //// DRAWING ////
     void drawFace(const Vector3 & position, BlockType adjacentBlock, Direction face) const
     {
-        if (this->isSurfaceVisible(adjacentBlock)) // && this->block == SAND)
-        {
-            const Color & color = ColorTint(this->getColor(), this->getTint(face));
-            const array<int, 4> & faceIndexes = faceIndexesMap.find(face)->second;
-            DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[1]], position + this->verticesPosArr[faceIndexes[2]], color);
-            DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], position + this->verticesPosArr[faceIndexes[3]], color);
+        const Color & color = ColorTint(this->getColor(), this->getTint(face));
+        const array<int, 4> & faceIndexes = faceIndexesMap.find(face)->second;
 
-            if (this->block == WATER)
+        if (this->isSurfaceVisible(adjacentBlock) || onlyCanMove) // && this->block == SAND)
+        {
+            if (outsideFace)
+            {
+                DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[1]], position + this->verticesPosArr[faceIndexes[2]], color);
+                DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], position + this->verticesPosArr[faceIndexes[3]], color);
+            }
+
+            if (insideFace || outsideFace && this->block == WATER)
             {
                 DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[3]], position + this->verticesPosArr[faceIndexes[2]], color);
                 DrawTriangle3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], position + this->verticesPosArr[faceIndexes[1]], color);
             }
 
-            // // Display the inside of the world mesh. Only useful for debugging.
-            // for (int i = 0; i < 4; i++)
-            //     DrawLine3D(position + this->verticesPosArr[faceIndexes[i]], position + this->verticesPosArr[faceIndexes[(i + 1)%4]], color);
-            // DrawLine3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], color);
+            // Display the inside of the world mesh. Only useful for debugging.
+            if (grid)
+            {
+                for (int i = 0; i < 4; i++)
+                    DrawLine3D(position + this->verticesPosArr[faceIndexes[i]], position + this->verticesPosArr[faceIndexes[(i + 1)%4]], color);
+                DrawLine3D(position + this->verticesPosArr[faceIndexes[0]], position + this->verticesPosArr[faceIndexes[2]], color);
+            }
         }
     }
 
@@ -198,6 +211,9 @@ public:
                 break;
             case SAND:
                 DrawCubeWires(position, 1.0f, 1.0f, 1.0f, BROWN);
+                break;
+            case WATER:
+                DrawCubeWires(position, 1.0f, 1.0f, 1.0f, DARKBLUE);
                 break;
             default:
                 break;

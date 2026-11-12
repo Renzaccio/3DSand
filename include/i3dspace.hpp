@@ -500,6 +500,9 @@ public:
 
     void drawVoxel(const Vec3I & pos, const Voxel & voxel) const
     {
+        // if (voxel.block == SANDAIR && !voxel.canMove) cout << "Drawing a " << voxel.block << " block at " << pos << endl;
+        if (onlyCanMove && (!voxel.canMove || !(voxel.block == WATER || voxel.block == SAND ))) return;
+
         Vector3 drawOriginPos = pos + this->drawShift;
         this->drawVoxelFace(drawOriginPos, voxel, pos + RIGHTVOXEL, RIGHT);
         this->drawVoxelFace(drawOriginPos, voxel, pos +  LEFTVOXEL, LEFT);
@@ -512,7 +515,7 @@ public:
     void drawVoxelFace(const Vector3 & drawOriginPos, const Voxel & voxel, const Vec3I & adjacentPos, Direction face) const
     {
         const Voxel & adjacentVoxel = this->voxel(adjacentPos);
-        if (adjacentVoxel.hasVisibleSurface)
+        if (adjacentVoxel.hasVisibleSurface || onlyCanMove)
             voxel.drawFace(drawOriginPos, adjacentVoxel.block, face);
     }
 

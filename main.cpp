@@ -104,6 +104,21 @@ int main(void)
         if (IsKeyPressed(KEY_R))
             isSpawningRun = !isSpawningRun;
 
+        if (IsKeyPressed(KEY_ZERO))
+        {
+            onlyCanMove = !onlyCanMove;
+            cout << "onlyCanMove = " << onlyCanMove << endl;
+        }
+
+        if (IsKeyPressed(KEY_ONE))
+            outsideFace = !outsideFace;
+
+        if (IsKeyPressed(KEY_TWO))
+            insideFace = !insideFace;
+
+        if (IsKeyPressed(KEY_THREE))
+            grid = !grid;
+
         if (isAutomatonRun)
         {
             if (simulationCounter <= 0)
