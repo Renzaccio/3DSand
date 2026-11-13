@@ -9,7 +9,7 @@
 - Compile the programe using `g++ -std=c++20 -I./include -L./lib  main.cpp -lraylib -lopengl32 -lgdi32 -lwinmm -O2`.
   - For this, you'll need an updated `g++` compiler.
 - Launch the executable.
-  - On Windows, it would be named `a.exe` by default.
+  - It should be named `a.exe` by default.
 
 ### Controls
 They are all indicated on window when the program is running.
