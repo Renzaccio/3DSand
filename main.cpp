@@ -78,7 +78,7 @@ int main(void)
         RPressButton { (float)buttonX(), borderWidth, fontSize * 8 / 3, fontSize * 9 / 10, GREEN,     [&targetFPS](RPressButton& r) { targetFPS += 10;                                          SetTargetFPS(targetFPS); }, "+10", fontSize, BLACK },
     }};
 
-    Dock menu = buildMenu();
+    Dock menu{};
     //// End of UI SETUP ////
 
 

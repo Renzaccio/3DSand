@@ -301,13 +301,13 @@ struct DockRay
                                 (int) roundf(norm.x),
                                 (int) roundf(norm.y),
                                 (int) roundf(norm.z)
-                            }; 
+                            };
                         if (!sworld.isInBounds(posToEdit))
                             break;
 
                         for (int z = posToEdit.z-massiveRadius; z < posToEdit.z+massiveRadius; z++)
                         {
-                            for (int x = posToEdit.x-massiveRadius; x < posToEdit.x+massiveRadius; x++) 
+                            for (int x = posToEdit.x-massiveRadius; x < posToEdit.x+massiveRadius; x++)
                             {
                                 Vec3I curPosToEdit{ x, posToEdit.y, z };
                                 if (!sworld.isInBounds(curPosToEdit))
@@ -326,7 +326,7 @@ struct DockRay
                     {
                         for (int z = posToEdit.z-massiveRadius; z < posToEdit.z+massiveRadius; z++)
                         {
-                            for (int x = posToEdit.x-massiveRadius; x < posToEdit.x+massiveRadius; x++) 
+                            for (int x = posToEdit.x-massiveRadius; x < posToEdit.x+massiveRadius; x++)
                             {
                                 Vec3I curPosToEdit{ x, HLEN - 1, z };
                                 if (!sworld.isInBounds(curPosToEdit))
@@ -369,6 +369,37 @@ public:
     string currentMenu = "";
     Counter<17> beginYMenu;
     bool isVisible = true;
+
+    Dock()
+    {
+        this->addSectionMenu("blocks", "Blocks selection");
+        this->addSectionMenu("furnitures", "Furnitures selection");
+        this->addSectionMenu("tools", "Tools");
+        this->addSectionMenu("settings", "Interaction Settings");
+
+        DockRay & dockray = this->dockray;
+
+        this->addAction("blocks", "blocks::sand", "Sand (1)", [&dockray]() { dockray.dockSelectedBlock = SAND; dockray.state = HOLD; dockray.tool = NORMAL; });
+        this->addAction("blocks", "blocks::air", "Air (2)", [&dockray]() { dockray.dockSelectedBlock = AIR; dockray.state = CLICK; dockray.tool = NORMAL; });
+        this->addAction("blocks", "blocks::dirt", "Dirt (3)", [&dockray]() { dockray.dockSelectedBlock = DIRT; dockray.state = CLICK; dockray.tool = NORMAL; });
+        this->addAction("blocks", "blocks::water", "Water (4)", [&dockray]() { dockray.dockSelectedBlock = WATER; dockray.state = HOLD; dockray.tool = NORMAL; });
+        this->addAction("blocks", "blocks::wood", "Wood (5)", [&dockray]() { dockray.dockSelectedBlock = WOOD; dockray.state = CLICK; dockray.tool = NORMAL; });
+        this->addAction("blocks", "blocks::stone", "Stone (6)", [&dockray]() { dockray.dockSelectedBlock = STONE; dockray.state = CLICK; dockray.tool = NORMAL; });
+        this->addAction("blocks", "blocks::debug", "Debug (7)", [&dockray]() { dockray.dockSelectedBlock = DEBUG; dockray.state = CLICK; dockray.tool = NORMAL; });
+
+        this->addAction("furnitures", "furnitures::chair", "Chair", [&dockray]() { dockray.dockSelectedFurnitureName = "Chair"; dockray.dockSelectedFurniture = createChair(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
+        this->addAction("furnitures", "furnitures::table", "Table", [&dockray]() { dockray.dockSelectedFurnitureName = "Table"; dockray.dockSelectedFurniture = createTable(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
+        this->addAction("furnitures", "furnitures::table", "Footprint", [&dockray]() { dockray.dockSelectedFurnitureName = "Giant Foot"; dockray.dockSelectedFurniture = createGiantFoot(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
+
+        this->addAction("tools", "tools::normalmassive", "Place\nMassive", [&dockray]() { dockray.tool = NORMAL_MASSIVE; });
+        this->addAction("tools", "tools::rain", "Rain", [&dockray]() { dockray.tool = RAIN; });
+        this->addAction("tools", "tools::rainmassive", "Rain\nMassive", [&dockray]() { dockray.tool = RAIN_MASSIVE; });
+
+        this->addAction("settings", "settings::interaction::hold", "Selection\nHold", [&dockray]() { dockray.state = HOLD; });
+        this->addAction("settings", "settings::interaction::click", "Selection\nClick", [&dockray]() { dockray.state = CLICK; });
+        this->addAction("settings", "settings::interaction::upradiusmassive", "Massive\nRadius +", [&dockray]() { dockray.massiveRadius++; });
+        this->addAction("settings", "settings::interaction::downradiusmassive", "Massive\nRadius -", [&dockray]() { if ((dockray.massiveRadius-1) > 0) dockray.massiveRadius--; });
+    }
 
     void addSectionMenu(string menuKey, string menuName)
     {
@@ -468,25 +499,25 @@ public:
         for (auto & acts : this->actions)
             acts.second.rbtns.drawAll();
 
-        // showing states  
+        // showing states
         Counter<20> c{ this->beginYMenu.get() }; c();
 
         ostringstream toolSelected;
-        toolSelected << "Tool : " << this->dockray.tool; 
+        toolSelected << "Tool : " << this->dockray.tool;
         DrawText(toolSelected.str().c_str(), (float) (GetRenderWidth()-(MeasureText(toolSelected.str().c_str(), 17)+10)), c(), 17, BLACK);
 
         ostringstream blockSelected;
-        blockSelected << "Block  : " << this->dockray.dockSelectedBlock; 
+        blockSelected << "Block  : " << this->dockray.dockSelectedBlock;
         DrawText(blockSelected.str().c_str(), (float) (GetRenderWidth()-(MeasureText(blockSelected.str().c_str(), 17)+10)),
             c(), 17, (this->dockray.tool != NORMAL_FURNITURE) ? GREEN : RED);
 
         ostringstream furnitureSelected;
-        furnitureSelected << "Furniture  : " << this->dockray.dockSelectedFurnitureName; 
-        DrawText(furnitureSelected.str().c_str(), (float) (GetRenderWidth()-(MeasureText(furnitureSelected.str().c_str(), 17)+10)), 
+        furnitureSelected << "Furniture  : " << this->dockray.dockSelectedFurnitureName;
+        DrawText(furnitureSelected.str().c_str(), (float) (GetRenderWidth()-(MeasureText(furnitureSelected.str().c_str(), 17)+10)),
             c(), 17, (this->dockray.tool == NORMAL_FURNITURE) ? GREEN : RED);
 
         ostringstream clickModeSelected;
-        clickModeSelected << "Click Mode  : " << this->dockray.state; 
+        clickModeSelected << "Click Mode  : " << this->dockray.state;
         DrawText(clickModeSelected.str().c_str(), (float) (GetRenderWidth()-(MeasureText(clickModeSelected.str().c_str(), 17)+10)), c(), 17, BLACK);
     }
 
@@ -507,38 +538,3 @@ public:
             }
     }
 };
-
-Dock buildMenu()
-{
-    Dock dock;
-
-    dock.addSectionMenu("blocks", "Blocks selection");
-    dock.addSectionMenu("furnitures", "Furnitures selection");
-    dock.addSectionMenu("tools", "Tools");
-    dock.addSectionMenu("settings", "Interaction Settings");
-
-    DockRay & dockray = dock.dockray;
-
-    dock.addAction("blocks", "blocks::sand", "Sand (1)", [&dockray]() { dockray.dockSelectedBlock = SAND; dockray.state = HOLD; dockray.tool = NORMAL; });
-    dock.addAction("blocks", "blocks::air", "Air (2)", [&dockray]() { dockray.dockSelectedBlock = AIR; dockray.state = CLICK; dockray.tool = NORMAL; });
-    dock.addAction("blocks", "blocks::dirt", "Dirt (3)", [&dockray]() { dockray.dockSelectedBlock = DIRT; dockray.state = CLICK; dockray.tool = NORMAL; });
-    dock.addAction("blocks", "blocks::water", "Water (4)", [&dockray]() { dockray.dockSelectedBlock = WATER; dockray.state = HOLD; dockray.tool = NORMAL; });
-    dock.addAction("blocks", "blocks::wood", "Wood (5)", [&dockray]() { dockray.dockSelectedBlock = WOOD; dockray.state = CLICK; dockray.tool = NORMAL; });
-    dock.addAction("blocks", "blocks::stone", "Stone (6)", [&dockray]() { dockray.dockSelectedBlock = STONE; dockray.state = CLICK; dockray.tool = NORMAL; });
-    dock.addAction("blocks", "blocks::debug", "Debug (7)", [&dockray]() { dockray.dockSelectedBlock = DEBUG; dockray.state = CLICK; dockray.tool = NORMAL; });
-
-    dock.addAction("furnitures", "furnitures::chair", "Chair", [&dockray]() { dockray.dockSelectedFurnitureName = "Chair"; dockray.dockSelectedFurniture = createChair(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
-    dock.addAction("furnitures", "furnitures::table", "Table", [&dockray]() { dockray.dockSelectedFurnitureName = "Table"; dockray.dockSelectedFurniture = createTable(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
-    dock.addAction("furnitures", "furnitures::table", "Footprint", [&dockray]() { dockray.dockSelectedFurnitureName = "Giant Foot"; dockray.dockSelectedFurniture = createGiantFoot(Vec3I { 0, 0, 0 }); dockray.tool = NORMAL_FURNITURE; dockray.state = CLICK; });
-
-    dock.addAction("tools", "tools::normalmassive", "Place\nMassive", [&dockray]() { dockray.tool = NORMAL_MASSIVE; });
-    dock.addAction("tools", "tools::rain", "Rain", [&dockray]() { dockray.tool = RAIN; });
-    dock.addAction("tools", "tools::rainmassive", "Rain\nMassive", [&dockray]() { dockray.tool = RAIN_MASSIVE; });
-
-    dock.addAction("settings", "settings::interaction::hold", "Selection\nHold", [&dockray]() { dockray.state = HOLD; });
-    dock.addAction("settings", "settings::interaction::click", "Selection\nClick", [&dockray]() { dockray.state = CLICK; });
-    dock.addAction("settings", "settings::interaction::upradiusmassive", "Massive\nRadius +", [&dockray]() { dockray.massiveRadius++; });
-    dock.addAction("settings", "settings::interaction::downradiusmassive", "Massive\nRadius -", [&dockray]() { if ((dockray.massiveRadius-1) > 0) dockray.massiveRadius--; });
-
-    return dock;
-}
