@@ -2,7 +2,11 @@
 
 #include <array>
 #include <unordered_map>
-#include "../raylib/include/raylib.h"
+#ifdef  _WIN32
+#   include "../raylib/raylib-6.0_windows64/include/raylib.h"
+#else
+#   include "../raylib/raylib-6.2_linux_amd64/include/raylib.h"
+#endif
 #include "i3dvector.hpp"
 
 using namespace std;

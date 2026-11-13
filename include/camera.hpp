@@ -1,7 +1,12 @@
 #pragma once
 
-#include "../raylib/include/raylib.h"
-#include "../raylib/include/raymath.h"
+#ifdef  _WIN32
+#   include "../raylib/raylib-6.0_windows64/include/raylib.h"
+#   include "../raylib/raylib-6.0_windows64/include/raymath.h"
+#else
+#   include "../raylib/raylib-6.2_linux_amd64/include/raylib.h"
+#   include "../raylib/raylib-6.2_linux_amd64/include/raymath.h"
+#endif
 #include "i3dvector.hpp"
 
 struct OrientatedCamera : public Camera3D
