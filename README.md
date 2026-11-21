@@ -1,15 +1,16 @@
 # 3DSand
 ![Sand accumulating into a pile](images/sandpile.png?raw=true "Title")
 
-### Installation
+### Windows Installation
 - Clone the repo using `git clone https://github.com/Renzaccio/3DSand.git`.
   - Alternatively, you can download and extract the ZIP file.
 - Go to the project root directory
   - It should be named `3DSand` and contains the `main.cpp` file.
-- Compile the programe using `g++ -std=c++20 -I./include -L./lib  main.cpp -lraylib -lopengl32 -lgdi32 -lwinmm -O2`.
+- Compile the program using the `makefile`.
   - For this, you'll need an updated `g++` compiler.
+  - You can either use Make with the `makefile` or copy the command inside.
 - Launch the executable.
-  - It should be named `a.exe` by default.
+  - It is be named `3DSand.exe`.
 
 ### Controls
 They are all indicated on window when the program is running.
