@@ -9,8 +9,7 @@
 - Compile the program using the `makefile`.
   - For this, you'll need an updated `g++` compiler.
   - You can either use Make with the `makefile` or copy the command inside.
-- Launch the executable.
-  - It is be named `3DSand.exe`.
+- Launch `3DSand.exe`.
 
 ### Controls
 They are all indicated on window when the program is running.
